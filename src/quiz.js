@@ -5,7 +5,6 @@ function adminQuizCreate(authUserId, name, description) {
 //Mubashir Function 9
 /**adminQuizInfo
 * <Gets all of the relevant information about the current quiz.>
-
 * @param {integer} authUserId - description of paramter
 * @param {integer} quizId - description of parameter
 * ...
@@ -15,7 +14,6 @@ function adminQuizCreate(authUserId, name, description) {
 * @returns {integer} timeLastEdited
 * @returns {string} description
 */
-
 function adminQuizInfo (authUserId, quizId ) {
     return {
         quizId: 1,
@@ -23,6 +21,22 @@ function adminQuizInfo (authUserId, quizId ) {
         timeCreated: 1683125870,
         timeLastEdited: 1683125871,
         description: 'This is my quiz'
+    }
+}
+
+//Mubashir Function 10
+/**adminQuizNameUpdate
+* <Update the name of the relevant quiz.>
+* @param {integer} authUserId - description of paramter
+* @param {integer} quizId - description of parameter
+* @param {string} name
+* ...
+* @returns {} - empty object
+*/
+function adminQuizNameUpdate ( authUserId, quizId, name) {
+
+    return {
+
     }
 }
       

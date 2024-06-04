@@ -87,3 +87,32 @@ function adminAuthLogin(email, password) {
         authUserId: 1,
     };
 }
+
+
+/** [2] adminUserDetails
+  * 
+  * <Given an admin user's authUserId, returns details about the user.>
+  * 
+  * @param {integer} authUserId - integer representing authUserId
+  * ...
+  * 
+  * @returns {integer} - authUserId: user's id number
+  * @returns {string} - name: user's full name
+  * @returns {string} - email: user's email address
+  * @returns {integer} - numSuccessfulLogins: number of successful logins
+  * @returns {integer} - numFailedPasswordsSinceLastLogin: number of failed
+  *                      logins
+*/
+
+function adminUserDetails(authUserId) {
+    return {
+        user:
+        {
+            userId: 1,
+            name: 'Hayden Smith',
+            email: 'hayden.smith@unsw.edu.au',
+            numSuccessfulLogins: 3,
+            numFailedPasswordsSinceLastLogin: 1,
+        }
+    };
+}

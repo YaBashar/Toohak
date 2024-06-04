@@ -68,3 +68,22 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
     };
 }
 
+
+/** [2] adminAuthLogin
+  * 
+  * <Given a registered user's email and password returns 
+  * their authUserId value.>
+  * 
+  * @param {string} email - string containing user's email address
+  * @param {string} password - string containing user's password
+  * ...
+  * 
+  * @returns {integer} - integer representing authUserId
+  * 
+*/
+
+function adminAuthLogin(email, password) {
+    return {
+        authUserId: 1,
+    };
+}

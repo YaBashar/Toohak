@@ -1,4 +1,4 @@
-// Function 6 (Sidak)
+// Function 6 
 /** adminQuizList
 * <Gets all of the relevant information about the current quiz.>
 * @param {integer} authUserId - integer representing the user
@@ -24,10 +24,8 @@ function adminQuizList(authUserId) {
  * 
  * @param {integer} authUserId -  integer representing the user
  * @param {integer} quizId
- * ... 
- * @param {integer} authUserId - integer representing the user
- * @param {string} name - name of each quiz
  * @param {string} description 
+ * ... 
  * @returns {integer}
  */
 function adminQuizCreate(authUserId, name, description) {
@@ -36,7 +34,7 @@ function adminQuizCreate(authUserId, name, description) {
     }
 }
 
-// Funciton 8
+// Funciton 8 (Sidak)
 /**
  * 
  * @param {integer} authUserId -  integer representing the user
@@ -46,7 +44,7 @@ function adminQuizCreate(authUserId, name, description) {
  */
 function adminQuizRemove(authUserId, quizId) {
   return {
-
+    // returns nothing
   }
 }
 

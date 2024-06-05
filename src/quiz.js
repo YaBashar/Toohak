@@ -1,3 +1,16 @@
+/**
+ * 
+ * @param {integer} authUserId - integer representing the user
+ * @param {string} name - name of each quiz
+ * @param {string} description 
+ * @returns {integer}
+ */
+function adminQuizCreate(authUserId, name, description) {
+    return {
+        quizId: 2
+    }
+}
+
 // Function 6
 /** adminQuizList
 * <Gets all of the relevant information about the current quiz.>
@@ -19,9 +32,6 @@ function adminQuizList(authUserId) {
   }
 }
 
-function adminQuizCreate(authUserId, name, description) {
-    quizId: 2
-}
 
 //Mubashir Function 9
 /**adminQuizInfo
@@ -61,8 +71,17 @@ function adminQuizNameUpdate ( authUserId, quizId, name) {
     }
 }
       
+/**
+ * 
+ * @param {integer} authUserId -  integer representing the user
+ * @param {integer} quizId
+ * ... 
+ * @returns {} - empty object
+ */
 function adminQuizRemove(authUserId, quizId) {
-    // empty object
+    return {
+
+    }
 }
 
 // Nafis Function 11

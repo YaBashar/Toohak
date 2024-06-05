@@ -1,11 +1,11 @@
 Group:
-| zID      | Name    |
-| -------- | ------- |
-|          |         |
-|          |         |
-|          |         |
-|          |         |
-|          |         |
+| zID      | Name       |
+| z5478980 | Amelia     |
+| z5599894 | Mubashir   |         
+| z5362173 | Nafis      |         
+| z5525050 | Sidak      |         
+| z5478214 | Parampreet |         
+
 
 1. When and where will we schedule meetings (e.g. 11am Wednesdays and 2pm Fridays: in-person at X location, on Teams video call, on Discord)?
 

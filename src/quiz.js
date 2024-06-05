@@ -1,17 +1,4 @@
-/**
- * 
- * @param {integer} authUserId - integer representing the user
- * @param {string} name - name of each quiz
- * @param {string} description 
- * @returns {integer}
- */
-function adminQuizCreate(authUserId, name, description) {
-    return {
-        quizId: 2
-    }
-}
-
-// Function 6
+// Function 6 (Sidak)
 /** adminQuizList
 * <Gets all of the relevant information about the current quiz.>
 * @param {integer} authUserId - integer representing the user
@@ -29,6 +16,37 @@ function adminQuizList(authUserId) {
         name: 'My Quiz',
       }
     ]
+  }
+}
+
+// Function 7 (Sidak)
+/**
+ * 
+ * @param {integer} authUserId -  integer representing the user
+ * @param {integer} quizId
+ * ... 
+ * @param {integer} authUserId - integer representing the user
+ * @param {string} name - name of each quiz
+ * @param {string} description 
+ * @returns {integer}
+ */
+function adminQuizCreate(authUserId, name, description) {
+    return {
+        quizId: 2
+    }
+}
+
+// Funciton 8
+/**
+ * 
+ * @param {integer} authUserId -  integer representing the user
+ * @param {integer} quizId
+ * ... 
+ * @returns {} - empty object
+ */
+function adminQuizRemove(authUserId, quizId) {
+  return {
+
   }
 }
 
@@ -71,18 +89,7 @@ function adminQuizNameUpdate ( authUserId, quizId, name) {
     }
 }
       
-/**
- * 
- * @param {integer} authUserId -  integer representing the user
- * @param {integer} quizId
- * ... 
- * @returns {} - empty object
- */
-function adminQuizRemove(authUserId, quizId) {
-    return {
 
-    }
-}
 
 // Nafis Function 11
 /**adminQuizDescriptionUpdate
@@ -93,9 +100,8 @@ function adminQuizRemove(authUserId, quizId) {
  *  ...
  * @returns {} - empty object
  */
-function adminQuizDescriptionUpdate (authUserId, quizId, description) {
+function adminQuizRemove(authUserId, quizId) {
+    return {
 
-  return {
-
-  }
+    }
 }

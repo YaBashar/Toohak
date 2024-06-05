@@ -64,3 +64,19 @@ function adminQuizNameUpdate ( authUserId, quizId, name) {
 function adminQuizRemove(authUserId, quizId) {
     // empty object
 }
+
+// Nafis Function 11
+/**adminQuizDescriptionUpdate
+ * <Update the description of the relevant quiz.>
+ * @param {integer} authUserId - the account user id for the author of a kahoot quiz
+ * @param {integer} quizId - the numerical id for each Kahoot quiz
+ * @param  {string} description - the description of each quiz
+ *  ...
+ * @returns {} - empty object
+ */
+function adminQuizDescriptionUpdate (authUserId, quizId, description) {
+
+  return {
+
+  }
+}

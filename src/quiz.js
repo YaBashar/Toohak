@@ -1,3 +1,24 @@
+// Function 6
+/** adminQuizList
+* <Gets all of the relevant information about the current quiz.>
+* @param {integer} authUserId - integer representing the user
+* ...
+* @returns {array} quizzes - an array containing all of the quizzes owned by the currently logged in user
+* @returns {integer} quizid - the numerical id for each quiz
+* @returns {string} name - the name of each quiz
+*/
+
+function adminQuizList(authUserId) {
+  return {
+    quizzes: [
+      {
+        quizId: 1,
+        name: 'My Quiz',
+      }
+    ]
+  }
+}
+
 function adminQuizCreate(authUserId, name, description) {
     quizId: 2
 }
@@ -42,4 +63,20 @@ function adminQuizNameUpdate ( authUserId, quizId, name) {
       
 function adminQuizRemove(authUserId, quizId) {
     // empty object
+}
+
+// Nafis Function 11
+/**adminQuizDescriptionUpdate
+ * <Update the description of the relevant quiz.>
+ * @param {integer} authUserId - the account user id for the author of a kahoot quiz
+ * @param {integer} quizId - the numerical id for each Kahoot quiz
+ * @param  {string} description - the description of each quiz
+ *  ...
+ * @returns {} - empty object
+ */
+function adminQuizDescriptionUpdate (authUserId, quizId, description) {
+
+  return {
+
+  }
 }

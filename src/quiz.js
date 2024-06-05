@@ -67,10 +67,10 @@ function adminQuizRemove(authUserId, quizId) {
 
 // Nafis Function 11
 /**adminQuizDescriptionUpdate
- * <Update the description of the relevant quiz.>
- * @param {integer} authUserId - the account user id for the author of a kahoot quiz
- * @param {integer} quizId - the numerical id for each Kahoot quiz
- * @param  {string} description - the description of each quiz
+ * <Update The description of the relevant quiz.>
+ * @param {integer} authUserId - The account user id for the author of a Toohak quiz
+ * @param {integer} quizId - The numerical id for each Toohak quiz
+ * @param {string} description - The description of each Toohak quiz
  *  ...
  * @returns {} - empty object
  */

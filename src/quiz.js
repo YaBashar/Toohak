@@ -98,7 +98,7 @@ function adminQuizNameUpdate ( authUserId, quizId, name) {
  *  ...
  * @returns {} - empty object
  */
-function adminQuizRemove(authUserId, quizId) {
+function adminQuizDescriptionUpdate(authUserId, quizId) {
     return {
 
     }

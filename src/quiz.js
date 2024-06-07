@@ -1,11 +1,74 @@
-// Function 6 
-/** adminQuizList
-* <Gets all of the relevant information about the current quiz.>
-* @param {integer} authUserId - integer representing the user
-* ...
-* @returns {array} quizzes - an array containing all of the quizzes owned by the currently logged in user
-* @returns {integer} quizid - the numerical id for each quiz
-* @returns {string} name - the name of each quiz
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/*
+
+	COMP1531 24T2 --- Major Project: `Toohak', 
+	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
+  CRUNCHIE/project-backend/-/blob/master/README.md>
+
+	This program was written by 
+  z5478214 | z5599894 | z5525050 | z5362173 | z5478980
+  on 04/06/2024
+
+	quiz.js contains the stub functions for the implementation of quiz mechanics
+  in the Toohak project. This includes functions that create, remove, list
+  and update information regarding quizzes. 
+	
+*/
+
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/*
+DEPENDANCIES
+*/
+
+/*
+GLOBAL DEFINITIONS
+*/
+
+/*
+DATA STRUCTURES
+*/
+
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////   FUNCTION CONTENTS    /////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// adminQuizList: [1]
+// adminQuizCreate: [2]
+// adminQuizRemove: [3]
+// adminQuizInfo: [4]
+// adminQuizNameUpdate: [5]
+// adminQuizDescriptionUpdate: [6]
+
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////   FUNCTIONS   //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/** [1] adminQuizList
+  * 
+  * Provides a list of all quizzes that are owned by the currently 
+  * logged in user.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user
+  * ...
+  * @returns {
+  *   quizzes : [
+  *     {
+  *      quizId: number,
+  *      name: string,
+  *     }
+  *   ]
+  * } - an array containing the names of all quizzes and their quizIds
+  * 
 */
 
 function adminQuizList(authUserId) {
@@ -14,92 +77,122 @@ function adminQuizList(authUserId) {
       {
         quizId: 1,
         name: 'My Quiz',
-      }
+      },
     ]
-  }
+  };
 }
 
-// Function 7 (Sidak)
-/**
- * 
- * @param {integer} authUserId -  integer representing the user
- * @param {integer} quizId
- * @param {string} description 
- * ... 
- * @returns {integer}
- */
+
+
+/** [2] adminQuizCreate
+  * 
+  * Given basic details about a new quiz, create one for the logged in user.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user 
+  * @param {number} quizId - number representing a unique 
+  *                          identifier for the quiz
+  * @param {string} description - string containing description of the quiz
+  * ...
+  * @returns {quizId: number} - number representing a unique 
+  *                             identifier for the quiz 
+  * 
+*/
+
 function adminQuizCreate(authUserId, name, description) {
-    return {
-        quizId: 2
-    }
+  return {
+    quizId: 2
+  };
 }
 
-// Funciton 8 (Sidak)
-/**
- * 
- * @param {integer} authUserId -  integer representing the user
- * @param {integer} quizId
- * ... 
- * @returns {} - empty object
- */
+
+
+/** [3] adminQuizRemove
+  * 
+  * Given a particular quiz, permanently remove the quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user  
+  * @param {number} quizId - number representing a unique 
+  *                          identifier for the quiz  
+  * ...
+  * @returns {} - empty object
+  * 
+*/
+
 function adminQuizRemove(authUserId, quizId) {
   return {
-    // returns nothing
-  }
+  };
 }
 
 
-//Mubashir Function 9
-/**adminQuizInfo
-* <Gets all of the relevant information about the current quiz.>
-* @param {integer} authUserId - description of paramter
-* @param {integer} quizId - description of parameter
-* ...
-* @returns {integer} quizid - description of condition for return
-* @returns {string} name - description of condition for return
-* @returns {integer} timecreated
-* @returns {integer} timeLastEdited
-* @returns {string} description
+
+/** [4] adminQuizInfo
+  * 
+  * Gets all of the relevant information about the current quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user   
+  * @param {number} quizId - number representing a unique 
+  *                          identifier for the quiz 
+  * ...
+  * @returns {
+  *   quizId: number,
+  *   name: string,
+  *   timeCreated: number,
+  *   timeLastEdited: number,
+  *   description: string,
+  * } - an object with information about the quiz based on the quizId
+  * 
 */
-function adminQuizInfo (authUserId, quizId ) {
-    return {
-        quizId: 1,
-        name: 'My Quiz',
-        timeCreated: 1683125870,
-        timeLastEdited: 1683125871,
-        description: 'This is my quiz'
-    }
+
+function adminQuizInfo(authUserId, quizId) {
+  return {
+    quizId: 1,
+    name: 'My Quiz',
+    timeCreated: 1683125870,
+    timeLastEdited: 1683125871,
+    description: 'This is my quiz'
+  };
 }
 
-//Mubashir Function 10
-/**adminQuizNameUpdate
-* <Update the name of the relevant quiz.>
-* @param {integer} authUserId - description of paramter
-* @param {integer} quizId - description of parameter
-* @param {string} name
-* ...
-* @returns {} - empty object
+
+
+/** [5] adminQuizNameUpdate
+  * 
+  * Update the name of the relevant quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user 
+  * @param {number} quizId - number representing a unique 
+  *                          identifier for the quiz 
+  * @param {string} name - string containing the current name of the quiz
+  * ...
+  * @returns {} - empty object
+  * 
 */
-function adminQuizNameUpdate ( authUserId, quizId, name) {
 
-    return {
-
-    }
+function adminQuizNameUpdate(authUserId, quizId, name) {
+  return {
+  };
 }
-      
 
 
-// Nafis Function 11
-/**adminQuizDescriptionUpdate
- * <Update The description of the relevant quiz.>
- * @param {integer} authUserId - The account user id for the author of a Toohak quiz
- * @param {integer} quizId - The numerical id for each Toohak quiz
- * @param {string} description - The description of each Toohak quiz
- *  ...
- * @returns {} - empty object
- */
-function adminQuizRemove(authUserId, quizId) {
-    return {
 
-    }
+/** [6] adminQuizDescriptionUpdate
+  * 
+  * Update The description of the relevant quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user
+  * @param {string} description - a string containing the current
+  *                               description of the quiz
+  * ...
+  * @returns {} - empty object
+  * 
+*/
+
+function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  return {
+  };
 }

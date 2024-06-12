@@ -18,3 +18,13 @@ test ("Invalid User id", () => {
   let authUserId = adminQuizNameUpdate(1);
   expect(authUserId).toStrictEqual( {error : "Invalid User id"});
 });
+
+test ("Check fail on short names", () => {
+  clear();
+  let name1 = adminQuizNameUpdate("a");
+  expect(name1).toStrictEqual ({ error : "Name is too short"});
+
+  let name2 = adminQuizNameUpdate("ab");
+  expect(name2).toStrictEqual ({ error : "Name is too short"});
+});
+

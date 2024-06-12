@@ -7,3 +7,8 @@ test ("Quiz does not match name", () =>{
   expect(name).toStrictEqual( {error : "Quiz does not exist with such name"});
 });
 
+test ("Name cannot be empty", () =>{
+  clear();
+  let name = adminQuizNameUpdate(" ");
+  expect(name).toStrictEqual( {error : "Name cannot be empty when updating"})
+});

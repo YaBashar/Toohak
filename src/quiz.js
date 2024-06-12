@@ -156,6 +156,7 @@ function adminQuizInfo(authUserId, quizId) {
   };
 }
 
+export {adminQuizInfo};
 
 
 /** [5] adminQuizNameUpdate
@@ -176,6 +177,8 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   return {
   };
 }
+
+export {adminQuizNameUpdate};
 
 
 

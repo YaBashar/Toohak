@@ -28,3 +28,8 @@ test ("Check fail on short names", () => {
   expect(name2).toStrictEqual ({ error : "Name is too short"});
 });
 
+test ("Check fail for quiz with symbols", () => {
+  clear();
+  let name = adminQuizNameUpdate("!");
+  expect(name).toStrictEqual ({ error : "Name cannot have symbols"});
+});

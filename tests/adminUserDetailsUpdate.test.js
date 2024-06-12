@@ -51,6 +51,6 @@ describe('Testing for errors', () => {
   });
 
   test('Last name is too long', () => {
-    const result = adminUserDetailsUpdate(authUserId, 'amelia@unsw.ed.au', 'a', 'abcdefghijklmnopqrstuv')
+    const result = adminUserDetailsUpdate(authUserId, 'amelia@unsw.ed.au', 'amelia', 'abcdefghijklmnopqrstuv')
   });
 });

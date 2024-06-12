@@ -10,5 +10,11 @@ test ("Quiz does not match name", () =>{
 test ("Name cannot be empty", () =>{
   clear();
   let name = adminQuizNameUpdate(" ");
-  expect(name).toStrictEqual( {error : "Name cannot be empty when updating"})
+  expect(name).toStrictEqual( {error : "Name cannot be empty when updating"});
+});
+
+test ("Invalid User id", () => {
+  clear();
+  let authUserId = adminQuizNameUpdate(1);
+  expect(authUserId).toStrictEqual( {error : "Invalid User id"});
 });

@@ -12,7 +12,7 @@
 
 	other.js contains miscellanious stub functions for the Toohak project
     back-end. This currently includes the clear function to reset the
-    application.
+    application.\
  
 */
 ///////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,10 @@
 import { adminQuizNameUpdate } from './quiz.js';
 import { clear } from './other.js';
 
+beforeEach(() => {
+  clear();
+});
+
 test ("Quiz does not match name", () =>{
   clear();
   let name = adminQuizNameUpdate("Mubashir");
@@ -39,3 +43,11 @@ test ("Check fail for quiz with symbols", () => {
   let name = adminQuizNameUpdate("!");
   expect(name).toStrictEqual ({ error : "Name cannot have symbols"});
 });
+
+
+test ("Check that function returns empty object", () => {
+  let object = adminQuizNameUpdate(1,1234,"Mubashir");
+  expect(object.toBeEmpty());
+});
+//Checks name has been updated
+//Checks function has returned types correctly

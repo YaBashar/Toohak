@@ -69,10 +69,8 @@ DATA STRUCTURES
 */
  
 function clear() {
- 
-    return {
-   
-    };
-   
-  }
-  export{clear};
+  return {  
+  };  
+}
+
+export{clear};

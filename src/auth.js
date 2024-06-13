@@ -1,26 +1,171 @@
-// Function 4
-/** adminUserDetailsUpdate
-* <Gets all of the relevant information about the current quiz.>
-* @param {integer} authUserId - integer representing the user
-* @param {string} email
-* @param {string} nameFirst 
-* @param {string} nameLast
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////   TOOHAK ITERATION 0 'AUTH.JS'  ////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/*
+
+	COMP1531 24T2 --- Major Project: `Toohak', 
+	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
+  CRUNCHIE/project-backend/-/blob/master/README.md>
+
+	This program was written by 
+  z5478214 | z5599894 | z5525050 | z5362173 | z5478980
+  on 04/06/2024
+
+	auth.js currently contains the authentification stub functions for the 
+  Toohak project backend. These functions manage the authentification 
+  process of the site, including user details, login mechanics, and updating 
+  passwords and usernames. 
+	
 */
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+
+///////////////////////////////////////////////////////////////////////////////
+/////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/*
+DEPENDENCIES
+*/
+
+/*
+GLOBAL DEFINITIONS
+*/
+
+/*
+DATA STRUCTURES
+*/
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////   FUNCTION CONTENTS    /////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+// adminAuthRegister: [1]
+// adminAuthLogin: [2]
+// adminUserDetails: [3]
+// adminUserDetailsUpdate: [4]
+// adminUserPasswordUpdate: [5]
+
+
+///////////////////////////////////////////////////////////////////////////////
+//////////////////////////////   FUNCTIONS   //////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+/** [1] adminAuthRegister
+  * 
+  * Registers a user with an email, password, and name, 
+  * then returns their authUserId value.
+  * 
+  * @param {string} email - user's email address
+  * @param {string} password - user's password required for logging
+  *                            into the Toohak platform
+  * @param {string} nameFirst - user's first name
+  * @param {string} nameLast - user's last name
+  * ...
+  * @returns {authUserId: number} - number representing a unique 
+  *                                 identifier for the user
+  * 
+*/
+
+function adminAuthRegister(email, password, nameFirst, nameLast) {
   return {
-  }
+    authUserId: 1,
+  };
 }
 
-// Function 5
-/** adminUserPasswordUpdate
-* <Gets all of the relevant information about the current quiz.>
-* @param {integer} authUserId - integer representing the user
-* @param {string} oldPassword
-* @param {string} newPassword 
+
+
+/** [2] adminAuthLogin
+  * 
+  * Given a registered user's email and password returns 
+  * their authUserId value.
+  * 
+  * @param {string} email - user's email address
+  * @param {string} password - user's password required for logging
+  *                            into the Toohak platform
+  * ...
+  * @returns {authUserId: number} - number representing a unique 
+  *                                 identifier for the user
+  * 
 */
+
+function adminAuthLogin(email, password) {
+  return {
+    authUserId: 1,
+  };
+}
+
+
+
+/** [3] adminUserDetails
+  * 
+  * Given an admin user's authUserId, returns details about the user.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user
+  * ...
+  * @returns {
+  *   user: {
+  *     userId: number,
+  *     name: string,
+  *     email: string,
+  *     numSuccessfulLogins: number,
+  *     numFailedPasswordsSinceLastLogin: number,
+  *   }
+  * } - an object with information about the user based on their authUserId
+  * 
+*/
+
+function adminUserDetails(authUserId) {
+  return {
+    user: 
+      {
+        userId: 1,
+        name: 'Hayden Smith',
+        email: 'hayden.smith@unsw.edu.au',
+        numSuccessfulLogins: 3,
+        numFailedPasswordsSinceLastLogin: 1,
+      }
+  };
+} 
+
+
+
+/** [4] adminUserDetailsUpdate
+  * 
+  * Gets all of the relevant information about the current quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user
+  * @param {string} email - user's email address
+  * @param {string} nameFirst - user's first name
+  * @param {string} nameLast - user's last name
+  * ...
+  * @returns {} - empty object
+*/
+
+function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+  return {
+  };
+}
+
+
+
+/** [5] adminUserPasswordUpdate
+  * 
+  * Gets all of the relevant information about the current quiz.
+  * 
+  * @param {number} authUserId - number representing a unique 
+  *                              identifier for the user 
+  * @param {string} oldPassword - user's old password
+  * @param {string} newPassword - user's new password
+  * ...
+  * @returns {} - empty object
+*/
+
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   return {
-  }
+  };
 }
+
 
 

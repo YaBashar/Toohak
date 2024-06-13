@@ -11,3 +11,5 @@ function clear () {
 
     }
 }
+
+export{clear};

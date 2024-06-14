@@ -82,7 +82,7 @@ function adminQuizList(authUserId) {
   };
 }
 
-
+export {adminQuizList};
 
 /** [2] adminQuizCreate
   * 
@@ -105,7 +105,7 @@ function adminQuizCreate(authUserId, name, description) {
   };
 }
 
-
+export {adminQuizCreate};
 
 /** [3] adminQuizRemove
   * 
@@ -125,6 +125,7 @@ function adminQuizRemove(authUserId, quizId) {
   };
 }
 
+export {adminQuizRemove};
 
 
 /** [4] adminQuizInfo
@@ -199,3 +200,5 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   return {
   };
 }
+
+export {adminQuizDescriptionUpdate};

@@ -72,6 +72,7 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   };
 }
 
+export {adminAuthRegister};
 
 
 /** [2] adminAuthLogin
@@ -94,6 +95,7 @@ function adminAuthLogin(email, password) {
   };
 }
 
+export {adminAuthLogin};
 
 
 /** [3] adminUserDetails
@@ -128,7 +130,7 @@ function adminUserDetails(authUserId) {
   };
 } 
 
-
+export {adminUserDetails};
 
 /** [4] adminUserDetailsUpdate
   * 
@@ -148,7 +150,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   };
 }
 
-
+export {adminUserDetailsUpdate};
 
 /** [5] adminUserPasswordUpdate
   * 
@@ -167,5 +169,5 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   };
 }
 
-
+export {adminUserPasswordUpdate};
 

@@ -1,53 +1,99 @@
 import { adminQuizNameUpdate } from './quiz.js';
+import { adminAuthRegister } from './auth.js';
+import { adminQuizCreate } from './quiz.js';
 import { clear } from './other.js';
 
 beforeEach(() => {
   clear();
 });
 
-test ("Quiz does not match name", () =>{
-  clear();
-  let name = adminQuizNameUpdate("Mubashir");
-  expect(name).toStrictEqual( {error : "Quiz does not exist with such name"});
+describe ("adminQuizNameUpdate Tests", () => {
+  describe ("Error Cases", () => {
+    let authUserId;
+    let quizId;
+   
+    beforeEach( () => {
+      authUserId = adminAuthRegister('email', 'password' , 'firstname', 'lastname');
+      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+      
+    });
+
+    test.each([
+      {
+        testName : "Check fail for quiz with invalid quiz name",
+        quizName :  "Name",
+        errorMessage : "Quiz does not exist with such name",
+      },
+      {
+        testName : "Check fail for empty input",
+        quizName : " ",
+        errorMessage : "Name cannot be empty when updating" ,
+      },
+      {
+        testName : "Check fail on short names" ,
+        quizName : "a",
+        errorMessage : "Name is too short",
+      },
+      {
+        testName : "Check fail on short names" ,
+        quizName : "ab",
+        errorMessage : "Name is too short",
+      },
+      {
+        testName : "Check fail on short names" ,
+        quizName : "abc",
+        errorMessage : "Name is too short",
+      },
+      {
+        testName : "Check fail for quiz name with symbols" ,
+        quizName : "&",
+        errorMessage : "Name cannot have symbols" ,
+      }
+
+    ])("Test $# => $testName", ({quizName, errorMessage}) => {
+      const name = adminQuizNameUpdate(authUserId, quizId, quizName);
+      expect(name).toStrictEqual( {error :  errorMessage});
+      
+    });
+
+    test ("Invalid User id", () => {
+      const name = adminQuizNameUpdate(authUserId + 1, quizId, "Name");
+      expect(name).toStrictEqual( {error : "Invalid User id"});
+    });
+  
+    test ("Invalid Quiz id", () =>{
+      const name = adminQuizNameUpdate(authUserId, quizId + 1, "Name");
+      expect(name).toStrictEqual( {error : "Invalid Quiz id"});
+    });
+  });
+  
+
+  describe ("Success Cases", () => {
+    let authUserId;
+    let quizId;
+  
+    beforeEach( () => {
+      authUserId = adminAuthRegister('email', 'password' , 'firstname', 'lastname');
+      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+    });
+
+    test ("Check that function returns empty object", () => {
+      const name = adminQuizNameUpdate(authUserId, quizId, "Name");
+      expect(name).toStrictEqual({});
+    });
+
+    test ("Check name has been updated successfully", () => {
+      const name = adminQuizNameUpdate(authUserId, quizId, "newName");
+      expect(name).toStrictEqual({});
+    });
+  });
+  
+
+  describe ("Side effects", () => {
+    //QuizName in adminQuizInfo will now change
+  });
+
 });
 
-test ("Name cannot be empty", () =>{
-  clear();
-  let name = adminQuizNameUpdate(" ");
-  expect(name).toStrictEqual( {error : "Name cannot be empty when updating"});
-});
-
-test ("Invalid User id", () => {
-  clear();
-  let authUserId = adminQuizNameUpdate(1);
-  expect(authUserId).toStrictEqual( {error : "Invalid User id"});
-});
-
-test ("Invalid Quiz id", () =>{
-  clear();
-  let quizId = adminQuizNameUpdate(1234);
-  expect(quizId).toStrictEqual( {error : "Invalid Quiz id"});
-});
-
-test ("Check fail on short names", () => {
-  clear();
-  let name1 = adminQuizNameUpdate("a");
-  expect(name1).toStrictEqual ({ error : "Name is too short"});
-
-  let name2 = adminQuizNameUpdate("ab");
-  expect(name2).toStrictEqual ({ error : "Name is too short"});
-});
-
-test ("Check fail for quiz with symbols", () => {
-  clear();
-  let name = adminQuizNameUpdate("!");
-  expect(name).toStrictEqual ({ error : "Name cannot have symbols"});
-});
 
 
-test ("Check that function returns empty object", () => {
-  let object = adminQuizNameUpdate(1,1234,"Mubashir");
-  expect(object.toBeEmpty());
-});
-//Checks name has been updated
-//Checks function has returned types correctly

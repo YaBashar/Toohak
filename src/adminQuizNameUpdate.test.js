@@ -1,4 +1,4 @@
-import { adminQuizNameUpdate } from './quiz.js';
+import { adminQuizInfo, adminQuizNameUpdate } from './quiz.js';
 import { adminAuthRegister } from './auth.js';
 import { adminQuizCreate } from './quiz.js';
 import { clear } from './other.js';
@@ -86,12 +86,20 @@ describe ("adminQuizNameUpdate Tests", () => {
       const name = adminQuizNameUpdate(authUserId, quizId, "newName");
       expect(name).toStrictEqual({});
     });
+
+    test ("QuizInfo gives updated name",() => {
+      const name = adminQuizNameUpdate(authUserId, quizId, "newName");
+      const quiz = adminQuizInfo(authUserId, quizId);
+      expect(quiz).toStrictEqual({ quizId: quizId,
+        name: "newName",
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: 'description'});
+    });
   });
   
 
-  describe ("Side effects", () => {
-    //QuizName in adminQuizInfo will now change
-  });
+  
 
 });
 

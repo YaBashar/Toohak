@@ -88,7 +88,7 @@ describe ("adminQuizNameUpdate Tests", () => {
     });
 
     test ("QuizInfo gives updated name",() => {
-      const name = adminQuizNameUpdate(authUserId, quizId, "newName");
+      adminQuizNameUpdate(authUserId, quizId, "newName");
       const quiz = adminQuizInfo(authUserId, quizId);
       expect(quiz).toStrictEqual
       ({ 
@@ -100,9 +100,6 @@ describe ("adminQuizNameUpdate Tests", () => {
     });
   });
   
-
-  
-
 });
 
 

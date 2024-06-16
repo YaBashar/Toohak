@@ -1,25 +1,46 @@
-// Nafis Function 12 Tests:
 import { clear } from './other.js';
 
-// Test to ensure the clear function returns an empty object
-test('Clear function should return an empty object', () => {
-    const result = clear();
+beforeEach(() => {
+  clear();
+});
+
+describe("clear Function Tests", () => {
+  describe("Success Cases", () => {
+    test('Clear function should return an empty object', () => {
+      const result = clear();
+      expect(result).toEqual({});
+    });
+
+    test.each([
+      ['first call'],
+      ['second call'],
+      ['third call']
+    ])('Clear function should return an empty object on %s', (callEmpty) => {
+      const result = clear();
+      expect(result).toEqual({});
+    });
+
+    test('Clear function should not throw errors when called multiple times', () => {
+      expect(() => clear()).not.toThrow();
+      expect(() => clear()).not.toThrow();
+      expect(() => clear()).not.toThrow();
+    });
+  });
+});
+
+describe("Error Cases", () => {
+  test('Clear function should handle undefined or null input', () => {
+    const result = clear(undefined);
     expect(result).toEqual({});
+    
+    const result2 = clear(null);
+    expect(result2).toEqual({});
   });
 
-// Test to ensure the clear function can be called multiple times
-test.each([
-    ['first call'],
-    ['second call'],
-    ['third call']
-  ])('Clear function should return an empty object on %s', (callEmpty) => {
-    const result = clear();
-    expect(result).toEqual({});
+  test('Clear function should throw an error with invalid input types', () => {
+    expect(() => clear(123)).toThrow();
+    expect(() => clear("invalid")).toThrow();
+    expect(() => clear({})).toThrow();
+    expect(() => clear([])).toThrow();
   });
-
-// Test to ensure clear function does not throw errors
-test('Clear function should not throw errors when called multiple times', () => {
-  expect(() => clear()).not.toThrow();
-  expect(() => clear()).not.toThrow();
-  expect(() => clear()).not.toThrow();
 });

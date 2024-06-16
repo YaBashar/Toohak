@@ -23,15 +23,19 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   }
 
   if (description === undefined) {
-    return { error: "Description is required" };
+    return { error: "Quiz description is required" };
   }
 
-  if (typeof description !== 'string' || description.length > 100) {
-    if (description.length > 100) {
-      return { error: "Description is more than 100 characters in length" };
-    } else {
-      return { error: "Invalid description type" };
-    }
+  if (typeof description !== 'string') {
+    return { error: "Quiz description must be text" };
+  }
+
+  if (description.length === 0) {
+    return { error: "Quiz description cannot be empty" };
+  }
+
+  if (description.length > 100) {
+    return { error: "Quiz description is more than 100 characters in length" };
   }
 
   return {

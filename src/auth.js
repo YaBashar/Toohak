@@ -27,7 +27,7 @@
 DEPENDENCIES
 */
 import { getData, setData } from "./dataStore.js";
-import isEmail from "validator";
+import { isEmail } from "validator";
 
 /*
 GLOBAL DEFINITIONS
@@ -41,7 +41,12 @@ DATA STRUCTURES
 //////////////////////////   FUNCTION CONTENTS    /////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-// adminAuthRegister: [1]
+/* adminAuthRegister: [1]
+    - checkEmail                 (1.1)
+    - checkName                  (1.2)
+    - checkPassword              (1.3)
+*/
+
 // adminAuthLogin: [2]
 // adminUserDetails: [3]
 // adminUserDetailsUpdate: [4]
@@ -68,10 +73,10 @@ DATA STRUCTURES
   * 
 */
 
-function adminAuthRegister(email, password, nameFirst, nameLast) {
+export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   let store = getData();
-  userArr = store.users;
+  let userArr = store.users;
 
   const name = nameFirst + ' ' + nameLast;
 
@@ -130,7 +135,7 @@ function checkName(name) {
 }
 
 function checkPassword(password) {
-  if (password.length < 8 || !(/\d/.test(password) && /[a-zA-z]/.test(string))) {
+  if (password.length < 8 || !(/\d/.test(password) && /[a-zA-z]/.test(password))) {
     return false;
   } else {
     return true;
@@ -157,7 +162,6 @@ function adminAuthLogin(email, password) {
     authUserId: 1,
   };
 }
-
 
 
 /** [3] adminUserDetails

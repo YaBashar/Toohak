@@ -1,5 +1,6 @@
-import {adminAuthRegister} from './auth.js';
-import {clear} from './other.js';
+import { adminAuthRegister } from '../src/auth.js';
+import { clear } from '../src/other.js';
+import { getData, setData } from '../src/dataStore.js';
 
 beforeEach(() => {
     clear();

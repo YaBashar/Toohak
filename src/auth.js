@@ -26,6 +26,8 @@
 /*
 DEPENDENCIES
 */
+import { getData, setData } from "./dataStore";
+import { isEmail } from "validator";
 
 /*
 GLOBAL DEFINITIONS
@@ -67,9 +69,28 @@ DATA STRUCTURES
 */
 
 function adminAuthRegister(email, password, nameFirst, nameLast) {
-  return {
-    authUserId: 1,
+
+  let store = getData();
+  userArr = store.users;
+
+  const iD = userArr.length + 1;
+
+  let newUser = {
+    authUserId: iD,
+    name: nameFirst + ' ' + nameLast,
+    email: email,
+    password: password,
+    numSuccessfulLogins: 0,
+    numFailedPasswordSinceLastLogin: 0,
+    passwordHistory: [password,],    
   };
+
+  userArr.push(newUser);
+  setData(store);
+
+  console.log(store);
+  return {authUserId: iD};
+  
 }
 
 

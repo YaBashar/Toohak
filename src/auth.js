@@ -26,8 +26,8 @@
 /*
 DEPENDENCIES
 */
-import { getData, setData } from "./dataStore";
-import { isEmail } from "validator";
+import { getData, setData } from "./dataStore.js";
+import isEmail from "validator";
 
 /*
 GLOBAL DEFINITIONS
@@ -73,11 +73,32 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   let store = getData();
   userArr = store.users;
 
+  const name = nameFirst + ' ' + nameLast;
+
+  if(!checkEmail(email, userArr)) {
+    return {error: 
+      'email is invalid or has already been registered'
+    };
+  }
+
+  if(!checkName(name)) {
+    return {error: 
+      'name contains invalid characters'
+    };
+  }
+
+  if(!checkPassword(password)) {
+    return {error: 
+      'password must be at least 8 characters and include one letter and number'
+    }
+  }
+
+  // TODO: change id creation method to ensure unique id is created each time
   const iD = userArr.length + 1;
 
   let newUser = {
     authUserId: iD,
-    name: nameFirst + ' ' + nameLast,
+    name: name,
     email: email,
     password: password,
     numSuccessfulLogins: 0,
@@ -88,11 +109,33 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
   userArr.push(newUser);
   setData(store);
 
-  console.log(store);
   return {authUserId: iD};
-  
 }
 
+
+function checkEmail(email, userArr) {
+  if (!isEmail(email) || userArr.some((user) => user.email === email)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function checkName(name) {
+  if (/[^A-Za-z0-9'\ \-]/.test(name)) {
+    return false;
+  } else {
+    return true;
+  }
+}
+
+function checkPassword(password) {
+  if (password.length < 8 || !(/\d/.test(password) && /[a-zA-z]/.test(string))) {
+    return false;
+  } else {
+    return true;
+  }
+}
 
 
 /** [2] adminAuthLogin

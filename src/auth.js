@@ -211,11 +211,12 @@ function adminUserDetails(authUserId) {
   * @returns {} - empty object
 */
 import validator from 'validator';
-export function adminUserDetailsUpdate(autherUserId, email, nameFirst, nameLast) {
+export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                           ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  let data = getData();
   let index = data.users.indexOf(authUserId);
-  if (typeof(authUserId) !== number) {
+  if (Number.isInteger(authUserId) === true) {
     return { error: 'invalid userId' };
   } else if (data.users.authUserId.includes(authUserId) === false) {
     return { error: 'userId not found' };

@@ -2,6 +2,8 @@
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+import { getData } from "./dataStore";
+
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -100,9 +102,39 @@ function adminQuizList(authUserId) {
 */
 
 function adminQuizCreate(authUserId, name, description) {
-  return {
-    quizId: 2
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
+  if (!user) {
+    return {error: 'Invalid AuthUserId'};
+  }
+  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
+                        ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  for (let i = 0; i < specialChars.length; i++) {
+    if (name.includes(specialChars[i])) {
+      return { error: 'Name contains invalid characters' };
+    }
+  }
+  if (name.length < 3) {
+    return { error: 'name is less than 3 characters' };
+  }
+  if (name.length > 30) {
+    return { error: 'name is more than 30 characters' };
+  }
+  if (description.length > 100) {
+    return { error: 'Description is more than 100 characters in length' };
+  }
+  // Given basic details about a new quiz, create one for the logged in user
+  const quizId = quizArr.length + 1;
+  const quiz = {
+    quizId: quizId,
+    name: name,
+    description: description,
   };
+  quizArr.push(quiz);
+  return { quizId: quizId };
 }
 
 

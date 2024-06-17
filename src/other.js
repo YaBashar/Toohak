@@ -1,67 +1,76 @@
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 0 'OTHER.JS'  ///////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
 /*
-
-	COMP1531 24T2 --- Major Project: `Toohak', 
+	COMP1531 24T2 --- Major Project: `Toohak',
 	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
     CRUNCHIE/project-backend/-/blob/master/README.md>
-
-	This program was written by 
+ 
+	This program was written by
     z5478214 | z5599894 | z5525050 | z5362173 | z5478980
     on 04/06/2024
 
-	other.js contains miscellanious stub functions for the Toohak project 
-    back-end. This currently includes the clear function to reset the 
-    application. 
-	
+	other.js contains miscellanious stub functions for the Toohak project
+    back-end. This currently includes the clear function to reset the
+    application.\
+ 
 */
-
-
 ///////////////////////////////////////////////////////////////////////////////
+ 
 /////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+ 
 ///////////////////////////////////////////////////////////////////////////////
-
 /*
+ 
 DEPENDENCIES
+ 
 */
-
+ 
+ 
+ 
 /*
+ 
 GLOBAL DEFINITIONS
+ 
 */
-
+ 
+ 
+ 
 /*
+ 
 DATA STRUCTURES
+ 
 */
-
-
 ///////////////////////////////////////////////////////////////////////////////
+ 
 //////////////////////////   FUNCTION CONTENTS    /////////////////////////////
+ 
 ///////////////////////////////////////////////////////////////////////////////
-
+ 
+ 
+ 
 // clear: [1]
+ 
 
 
 ///////////////////////////////////////////////////////////////////////////////
+ 
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
+ 
 ///////////////////////////////////////////////////////////////////////////////
-
 /** [1] clear
-  * 
+  *
   * Reset the state of the application back to the start.
-  * 
+  *
   * @param {} - no parameters
   * ...
   * @returns {} - empty object
-  * 
+  *
 */
-
+ 
 function clear() {
-  return {
-  };
+  return {  
+  };  
 }
 
-export {
-  clear
-};
+export{clear};

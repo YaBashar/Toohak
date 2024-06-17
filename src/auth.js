@@ -157,10 +157,28 @@ function checkPassword(password) {
   * 
 */
 
-function adminAuthLogin(email, password) {
-  return {
-    authUserId: 1,
-  };
+export function adminAuthLogin(email, password) {
+
+  let store = getData();
+  let userArr = store.users;
+
+  const user = userArr.find((user) => user.email === email);
+
+  if (!user) {
+    return {error: 'Email address does not exist'};
+
+  } else if (user.password !== password) {
+    user.numFailedPasswordSinceLastLogin++;
+    setData(store);
+    return {error: 'Incorrect password'};
+
+  } else {
+    user.numSuccessfulLogins++;
+    user.numFailedPasswordSinceLastLogin = 0;
+    setData(store);
+    return { authUserId: user.authUserId };
+  }
+  
 }
 
 

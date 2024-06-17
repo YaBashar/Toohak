@@ -143,7 +143,7 @@ function adminUserDetails(authUserId) {
   * @returns {} - empty object
 */
 
-import { validator } from './validator';
+import validator from 'validator';
 
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
@@ -196,33 +196,7 @@ export { adminUserDetailsUpdate };
 */
 
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  let index = data.users.indexOf(authUserId);
-  const alphabet = [a-zA-Z];
-  const numbers = [0-9];
-  if (typeof(authUserId) !== number) {
-    return { error: 'invalid userId' };
-  } else if (data.users.authUserId.includes(authUserId) === false) {
-      return { error: 'userId not found' };
-  } else if (data.users[index].password !== oldPassword) {
-    return { error: 'incorrect password' };
-  } else if (oldPassword === newPassword) {
-    return { error: 'new password is the same as old password' };
-  } else if (1) {
-    data.users.passwordHistory.forEach(element => {
-    if (element === newPassword) {
-      return { error: 'password has already been used' };
-    };
-    });
-  } else if (newPassword.length < 8) {
-    return { error: 'password is too short' };
-  } else if (regex.alphabet(newPassword) !== true || regex.numbers(newPassword) !== true) {
-    return { error: 'new password should contain at least one letter and one number'}
-  } else {
-    data.users.passwordHistory.push(oldPassword);
-    data.users[index].password = newPassword;
-    return {};
-  }
-  return {};
+  
 }
 
 export { adminUserPasswordUpdate };

@@ -70,18 +70,20 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
-
 function adminQuizList(authUserId) {
-  return {
-    quizzes: [
-      {
-        quizId: 1,
-        name: 'My Quiz',
-      },
-    ]
-  };
+  if (typeof(authUserId) !== number) {
+    return { error: 'invalid user id' };
+  } else {
+    const allQuizzes = [];
+    for (i of data.quizzes.length) {
+      allQuizzes[i].quizId = data.quizzes.quizId;
+      allQuizzes[i].name = data.quizzes.name;
+    }
+  }
+  return allQuizzes;
 }
 
+export { adminQuizList };
 
 
 /** [2] adminQuizCreate

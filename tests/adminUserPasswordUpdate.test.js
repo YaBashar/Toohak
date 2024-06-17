@@ -1,5 +1,5 @@
 import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth.js'
-import { clear } from '../other.js'
+import { clear } from '../src/other.js'
 
 let authUserId;
 

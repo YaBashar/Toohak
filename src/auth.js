@@ -73,7 +73,6 @@ function adminAuthRegister(email, password, nameFirst, nameLast) {
 }
 
 
-
 /** [2] adminAuthLogin
   * 
   * Given a registered user's email and password returns 
@@ -168,4 +167,4 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 }
 
 
-
+export { adminAuthRegister };

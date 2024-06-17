@@ -1,5 +1,5 @@
-import { adminQuizList } from './quiz.js'
-import { clear } from './other.js'
+import { adminQuizList } from '../src/quiz.js'
+import { clear } from '../src/other.js'
 
 beforeEach(() => {
   clear();

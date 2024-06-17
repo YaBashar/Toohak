@@ -51,6 +51,7 @@ DATA STRUCTURES
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
+import { getData, setData } from "./dataStore";
 
 /** [1] adminQuizList
   * 
@@ -174,19 +175,24 @@ export {adminQuizInfo};
   * 
 */
 
-function adminQuizNameUpdate(authUserId, quizId, name) {
+export function adminQuizNameUpdate(authUserId, quizId, name) {
   
-  getData();
-  const quizArr = data.quizzes.find(quiz => quiz.id === quizId);
-  const userArr = data.users.find(user => user.id === authUserId);
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
 
-  if (quizArr === undefined) {
+  const quiz = quizArr.find(quiz => quiz.id === quizId);
+  const user = userArr.find(user => user.id === authUserId);
+
+  if (!quiz ) {
     return {error : "Invalid Quiz id"};
   }
 
-  if (userArr === undefined) {
+  if (!user) {
     return {error : "Invalid User id"};
   }
+
+  checkName(name);
 
   let modifiedQuiz = {
     quizId: quizId,
@@ -203,7 +209,18 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   };
 }
 
-export {adminQuizNameUpdate};
+function checkName (name) {
+  const findName = data.quizzes.find(quiz => quiz.name === name);
+  if (findName === undefined) {
+    return {error : "Invalid Quiz Name"}
+  } else if (name === ' ') {
+    return {error : "Name cannot be empty"};
+  } else if (name.length <= 3) {
+    return {error : "Name is too short"};
+  } else if (/[!-\/:-@[-`{-~]/.test(name)) {
+    return {error : "Quiz name cannot have symbols"};
+  } 
+}
 
 
 

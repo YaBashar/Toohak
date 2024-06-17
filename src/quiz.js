@@ -26,6 +26,7 @@
 /*
 DEPENDENCIES
 */
+import { getData, setData } from "./dataStore.js";
 
 /*
 GLOBAL DEFINITIONS
@@ -70,12 +71,13 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
-function adminQuizList(authUserId) {
-  if (typeof(authUserId) !== number) {
+export function adminQuizList(authUserId) {
+  let data = getData();
+  const allQuizzes = [];
+  if (Number.isInteger(authUserId) === false) {
     return { error: 'invalid user id' };
   } else {
-    const allQuizzes = [];
-    for (i of data.quizzes.length) {
+    for (i of data.quizzes) {
       allQuizzes[i].quizId = data.quizzes.quizId;
       allQuizzes[i].name = data.quizzes.name;
     }
@@ -83,7 +85,6 @@ function adminQuizList(authUserId) {
   return allQuizzes;
 }
 
-export { adminQuizList };
 
 
 /** [2] adminQuizCreate

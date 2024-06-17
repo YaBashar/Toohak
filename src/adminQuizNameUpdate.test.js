@@ -13,8 +13,8 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
    
     beforeEach( () => {
-      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname");
-      quizId = adminQuizCreate(authUserId, "quizname", "description");
+      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname").authUserId;
+      quizId = adminQuizCreate(authUserId, "quizname", "description").quizId
       
     });
 
@@ -74,23 +74,26 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
   
     beforeEach( () => {
-      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname");
-      quizId = adminQuizCreate(authUserId, "quizname", "description");
+      authUserId = adminAuthRegister("email", "password", "firstname", "lastname");
+      quizId = adminQuizCreate(authUserId, 'name', 'description').iD
+      console.log("Quiz ID:", quizId); 
     });
 
     test ("Check that function returns empty object", () => {
+      console.log("Before Name Update:", quizId );
       const name = adminQuizNameUpdate(authUserId, quizId, "Name");
+      console.log("Name Update Response:", name); 
       expect(name).toStrictEqual({});
     });
 
-    test ("Check name has been updated successfully", () => {
+    test.only ("Check name has been updated successfully", () => {
       const name = adminQuizNameUpdate(authUserId, quizId, "newName");
       expect(name).toStrictEqual({authUserId, quizId, name: "newName"});
     });
 
     test ("QuizInfo gives updated name",() => {
       adminQuizNameUpdate(authUserId, quizId, "newName");
-      const quiz = adminQuizInfo(authUserId, quizId);
+      const quiz = adminQuizInfo(authUserId, quizId.quizId);
       expect(quiz).toStrictEqual
       ({ 
         quizId: quizId,

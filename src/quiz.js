@@ -101,9 +101,37 @@ export {adminQuizList};
 */
 
 function adminQuizCreate(authUserId, name, description) {
-  return {
-    quizId: 2
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  if (!user) {
+    return {error: 'Invalid AuthUserId'};
+  }
+
+  const specialCharsRegex = /[!@#$%^&*()+={}[\]:;"'<>,.?/|\\-]/;
+  if (specialCharsRegex.test(name)) {
+    return { error: 'Name contains invalid characters' };
+  }
+
+  // Given basic details about a new quiz, create one for the logged in user
+  const iD = quizArr.length + 1;
+  console.log("The quiz id created from adminQuizCreate" , iD);
+
+
+  const quiz = {
+    //authUserId: authUserId,
+    quizId: iD,
+    name: name,
+    timeCreated: Date.now(),
+    timeLastEdited: 1683125871,
+    description: description
   };
+  quizArr.push(quiz);
+  setData(store);
+  return { quizId: iD };
+
 }
 
 export {adminQuizCreate};
@@ -148,17 +176,34 @@ export {adminQuizRemove};
   * 
 */
 
-function adminQuizInfo(authUserId, quizId) {
-  return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz'
+export function adminQuizInfo(authUserId, quizId) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find(quiz => quiz.id === quizId);
+  const user = userArr.find(user => user.id === authUserId);
+
+  if (!quiz ) {
+    return {error : "Invalid Quiz id"};
+  } else if (!user) {
+    return {error : "Invalid User id"};
+  
+  } else {
+    return {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: 1683125870,
+      timeLastEdited: 1683125871,
+      description: quiz.description
+    };
   };
+
+
+  
 }
 
-export {adminQuizInfo};
+
 
 
 /** [5] adminQuizNameUpdate
@@ -181,32 +226,28 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   let userArr = store.users;
   let quizArr = store.quizzes;
 
+  console.log(adminQuizCreate(1, "Name", "descrption"));
+  console.log(store);
+
   const quiz = quizArr.find(quiz => quiz.id === quizId);
   const user = userArr.find(user => user.id === authUserId);
 
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
-  }
-
-  if (!user) {
+  } else if (!user) {
     return {error : "Invalid User id"};
-  }
+  } else {
 
   checkName(name);
+  quiz.name = name;
+  
+  setData(quiz);
 
-  let modifiedQuiz = {
-    quizId: quizId,
-    name: name,
-    description: 'the first quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    authUserId: 1,
-  };
+  return {};
 
-  setData(modifiedQuiz);
+}
 
-  return {
-  };
+  
 }
 
 function checkName (name) {

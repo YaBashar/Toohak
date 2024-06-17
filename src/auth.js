@@ -143,12 +143,45 @@ function adminUserDetails(authUserId) {
   * @returns {} - empty object
 */
 
+import { validator } from './validator';
+
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  return {
-  };
+  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
+                          ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  let index = data.users.indexOf(authUserId);
+  if (typeof(authUserId) !== number) {
+    return { error: 'invalid userId' };
+  } else if (data.users.authUserId.includes(authUserId) === false) {
+    return { error: 'userId not found' };
+  } else if (1) {
+    data.users.forEach(element => {
+    if (element.email === email && element.authUserId !== authUserId) {
+      return { error: 'email used by another user' };
+    };
+    });
+  } else if (validator.isEmail(email) !== true) {
+    return { error: 'invalid email address' };
+  } else if (regex.specialChars(nameFirst) === true) {
+    return { error: 'first name contains invalid characters'}
+  } else if (nameFirst.length < 2) {
+    return { error: 'first name is too short'};
+  } else if (nameFirst.length > 20) {
+    return { error: 'first name is too long'};
+  } else if (regex.specialChars(nameLast) === true) {
+    return { error: 'first name contains invalid characters'}
+  } else if (nameLast.length < 2) {
+    return { error: 'first name is too short'};
+  } else if (nameLast.length > 20) {
+    return { error: 'first name is too long'};
+  } else {
+    data.users[index].email = email;
+    data.users[index].name = nameFirst.concat(" ", nameLast);
+    return {};
+  }
+  return {};
 }
 
-
+export { adminUserDetailsUpdate };
 
 /** [5] adminUserPasswordUpdate
   * 
@@ -163,9 +196,35 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 */
 
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  return {
-  };
+  let index = data.users.indexOf(authUserId);
+  const alphabet = [a-zA-Z];
+  const numbers = [0-9];
+  if (typeof(authUserId) !== number) {
+    return { error: 'invalid userId' };
+  } else if (data.users.authUserId.includes(authUserId) === false) {
+      return { error: 'userId not found' };
+  } else if (data.users[index].password !== oldPassword) {
+    return { error: 'incorrect password' };
+  } else if (oldPassword === newPassword) {
+    return { error: 'new password is the same as old password' };
+  } else if (1) {
+    data.users.passwordHistory.forEach(element => {
+    if (element === newPassword) {
+      return { error: 'password has already been used' };
+    };
+    });
+  } else if (newPassword.length < 8) {
+    return { error: 'password is too short' };
+  } else if (regex.alphabet(newPassword) !== true || regex.numbers(newPassword) !== true) {
+    return { error: 'new password should contain at least one letter and one number'}
+  } else {
+    data.users.passwordHistory.push(oldPassword);
+    data.users[index].password = newPassword;
+    return {};
+  }
+  return {};
 }
 
+export { adminUserPasswordUpdate };
 
 

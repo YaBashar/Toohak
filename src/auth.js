@@ -160,7 +160,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * @returns {} - empty object
 */
 
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   let index = data.users.indexOf(authUserId);
   const alphabet = [a-zA-Z];
   const numbers = [0-9];
@@ -189,7 +189,5 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   }
   return {};
 }
-
-export { adminUserPasswordUpdate };
 
 

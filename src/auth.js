@@ -210,10 +210,8 @@ function adminUserDetails(authUserId) {
   * ...
   * @returns {} - empty object
 */
-
 import validator from 'validator';
-
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+export function adminUserDetailsUpdate(autherUserId, email, nameFirst, nameLast) {
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                           ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   let index = data.users.indexOf(authUserId);
@@ -247,9 +245,7 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     return {};
   }
   return {};
-}
-
-export { adminUserDetailsUpdate };
+};
 
 /** [5] adminUserPasswordUpdate
   * 
@@ -264,9 +260,9 @@ export { adminUserDetailsUpdate };
 */
 
 function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  
+  return {
+  };
 }
 
-export { adminUserPasswordUpdate };
 
 

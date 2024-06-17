@@ -25,7 +25,7 @@
 DEPENDENCIES
  
 */
-import { getData, setData} from "./dataStore.js";
+import { getData, setData } from "./dataStore.js";
 /*
  
 GLOBAL DEFINITIONS

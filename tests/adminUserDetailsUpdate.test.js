@@ -1,5 +1,5 @@
-import { adminUserDetailsUpdate, adminAuthRegister } from './auth.js'
-import { clear } from './other.js'
+import { adminUserDetailsUpdate, adminAuthRegister } from '../src/auth.js'
+import { clear } from '../src/other.js'
 
 let authUserId;
 
@@ -8,7 +8,7 @@ beforeEach(() => {
   authUserId = adminAuthRegister('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su').authUserId;
 });
 
-describe('Testing for errors', () => {
+describe('Testing adminUserDetailsUpdate for errors', () => {
   // Email is currently used by another user (excluding the current authorised user)
   test('Email is already used by another user', () => {
     const authUserId2 = adminAuthRegister('steph@unsw.edu.au', 'Farmingsimulator!1234', 'steph', 'liang');
@@ -24,15 +24,11 @@ describe('Testing for errors', () => {
 
   // First/last name contains invalid characters
   test('First name contains invalid characters', () => {
-    const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
-                          ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const result = adminUserDetailsUpdate(authUserId, 'amelia@unsw.ed.au', 'a!melia', 'su');
     expect(result).toStrictEqual({ error: expect.any(String) })
   });
 
   test('Last name contains invalid characters', () => {
-    const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
-                          ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const result = adminUserDetailsUpdate(authUserId, 'amelia@unsw.ed.au', 'amelia', 'su+');
     expect(result).toStrictEqual({ error: expect.any(String) })
   });
@@ -51,6 +47,6 @@ describe('Testing for errors', () => {
   });
 
   test('Last name is too long', () => {
-    const result = adminUserDetailsUpdate(authUserId, 'amelia@unsw.ed.au', 'amelia', 'abcdefghijklmnopqrstuv')
+    const result = adminUserDetailsUpdate(authUserId, 'amelia@unw.ed.au', 'amelia', 'abcdefghijklmnopqrstuv')
   });
 });

@@ -143,45 +143,10 @@ function adminUserDetails(authUserId) {
   * @returns {} - empty object
 */
 
-import isEmail from 'validator/lib/isEmail';
-
 function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
-                          ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
-  let index = data.users.indexOf(authUserId);
-  if (typeof(authUserId) !== number) {
-    return { error: 'invalid userId' };
-  } else if (data.users.authUserId.includes(authUserId) === false) {
-    return { error: 'userId not found' };
-  } else if (1) {
-    data.users.forEach(element => {
-    if (element.email === email && element.authUserId !== authUserId) {
-      return { error: 'email used by another user' };
-    };
-    });
-  } else if (validator.isEmail(email) !== true) {
-    return { error: 'invalid email address' };
-  } else if (regex.specialChars(nameFirst) === true) {
-    return { error: 'first name contains invalid characters'}
-  } else if (nameFirst.length < 2) {
-    return { error: 'first name is too short'};
-  } else if (nameFirst.length > 20) {
-    return { error: 'first name is too long'};
-  } else if (regex.specialChars(nameLast) === true) {
-    return { error: 'first name contains invalid characters'}
-  } else if (nameLast.length < 2) {
-    return { error: 'first name is too short'};
-  } else if (nameLast.length > 20) {
-    return { error: 'first name is too long'};
-  } else {
-    data.users[index].email = email;
-    data.users[index].name = nameFirst.concat(" ", nameLast);
-    return {};
-  }
-  return {};
+  
 }
 
-export { adminUserDetailsUpdate };
 
 /** [5] adminUserPasswordUpdate
   * 

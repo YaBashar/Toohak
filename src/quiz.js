@@ -2,7 +2,7 @@
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-import { getData } from "./dataStore";
+import { getData, setData } from "./dataStore";
 
 /*
 
@@ -100,16 +100,13 @@ function adminQuizList(authUserId) {
   *                             identifier for the quiz 
   * 
 */
-
 function adminQuizCreate(authUserId, name, description) {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
-
-  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
-  if (!user) {
-    return {error: 'Invalid AuthUserId'};
-  }
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  if (!user) return {error: 'Invalid user id'};
+  
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                         ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   for (let i = 0; i < specialChars.length; i++) {
@@ -126,15 +123,15 @@ function adminQuizCreate(authUserId, name, description) {
   if (description.length > 100) {
     return { error: 'Description is more than 100 characters in length' };
   }
-  // Given basic details about a new quiz, create one for the logged in user
-  const quizId = quizArr.length + 1;
+  const id = quizArr.length + 1;
   const quiz = {
-    quizId: quizId,
+    quizId: id,
     name: name,
     description: description,
   };
-  quizArr.push(quiz);
-  return { quizId: quizId };
+  store.quizzes.push(quiz);
+  setData(store);
+  return { quizId: id };
 }
 
 

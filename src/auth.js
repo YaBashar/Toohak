@@ -117,7 +117,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   return {authUserId: iD};
 }
 
-export {adminAuthRegister};
+
 
 function checkEmail(email, userArr) {
   if (!isEmail(email) || userArr.some((user) => user.email === email)) {

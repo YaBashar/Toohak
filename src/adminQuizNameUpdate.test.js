@@ -1,7 +1,7 @@
-import { adminQuizInfo, adminQuizNameUpdate } from './quiz.js';
-import { adminAuthRegister } from './auth.js';
-import { adminQuizCreate } from './quiz.js';
-import { clear } from './other.js';
+import { adminQuizInfo, adminQuizNameUpdate } from "./quiz.js";
+import { adminAuthRegister } from "./auth.js";
+import { adminQuizCreate } from "./quiz.js";
+import { clear } from "./other.js";
 
 beforeEach(() => {
   clear();
@@ -13,8 +13,8 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
    
     beforeEach( () => {
-      authUserId = adminAuthRegister('email', 'password' , 'firstname', 'lastname');
-      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname");
+      quizId = adminQuizCreate(authUserId, "quizname", "description");
       
     });
 
@@ -56,6 +56,7 @@ describe ("adminQuizNameUpdate Tests", () => {
       
     });
 
+    //Testing Invalid User id and Quiz id
     test ("Invalid User id", () => {
       const name = adminQuizNameUpdate(authUserId + 1, quizId, "Name");
       expect(name).toStrictEqual( {error : expect.any(String)});
@@ -73,8 +74,8 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
   
     beforeEach( () => {
-      authUserId = adminAuthRegister('email', 'password' , 'firstname', 'lastname');
-      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname");
+      quizId = adminQuizCreate(authUserId, "quizname", "description");
     });
 
     test ("Check that function returns empty object", () => {
@@ -96,10 +97,9 @@ describe ("adminQuizNameUpdate Tests", () => {
         name: "newName",
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
-        description: 'description'});
+        description: "description"});
     });
   });
-  
 });
 
 

@@ -175,6 +175,30 @@ export {adminQuizInfo};
 */
 
 function adminQuizNameUpdate(authUserId, quizId, name) {
+  
+  getData();
+  const quizArr = data.quizzes.find(quiz => quiz.id === quizId);
+  const userArr = data.users.find(user => user.id === authUserId);
+
+  if (quizArr === undefined) {
+    return {error : "Invalid Quiz id"};
+  }
+
+  if (userArr === undefined) {
+    return {error : "Invalid User id"};
+  }
+
+  let modifiedQuiz = {
+    quizId: quizId,
+    name: name,
+    description: 'the first quiz',
+    timeCreated: 1683125870,
+    timeLastEdited: 1683125871,
+    authUserId: 1,
+  };
+
+  setData(modifiedQuiz);
+
   return {
   };
 }

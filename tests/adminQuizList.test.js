@@ -1,4 +1,4 @@
-import { adminQuizList } from './auth.js'
+import { adminQuizList } from './quiz.js'
 import { clear } from './other.js'
 
 beforeEach(() => {

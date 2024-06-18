@@ -1,6 +1,6 @@
-import { adminQuizCreate } from "../src/quiz";
-import { adminAuthRegister } from "../src/auth";
-import { clear } from "../src/other";
+import { adminQuizCreate } from "../src/quiz.js";
+import { adminAuthRegister } from "../src/auth.js";
+import { clear } from "../src/other.js";
 
 let authUserId;
 

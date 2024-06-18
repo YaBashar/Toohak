@@ -105,7 +105,7 @@ function adminQuizCreate(authUserId, name, description) {
   let userArr = store.users;
   let quizArr = store.quizzes;
   const user = userArr.find((user) => user.authUserId === authUserId);
-  if (!user) return {error: 'Invalid user id'};
+  if (!user) return {error: 'Invalid User id'};
   
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                         ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
@@ -123,11 +123,16 @@ function adminQuizCreate(authUserId, name, description) {
   if (description.length > 100) {
     return { error: 'Description is more than 100 characters in length' };
   }
+  if (quizArr.find((quiz) => quiz.name === name && quiz.authUserId === authUserId)) {
+    return { error: 'Name is already used by current logged in user' };
+  }
+  
   const id = quizArr.length + 1;
   const quiz = {
     quizId: id,
     name: name,
     description: description,
+    authUserId: authUserId,
   };
   store.quizzes.push(quiz);
   setData(store);

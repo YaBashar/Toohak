@@ -113,7 +113,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   userArr.push(newUser);
   setData(store);
-
   return {authUserId: iD};
 }
 

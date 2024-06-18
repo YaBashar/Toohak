@@ -215,36 +215,52 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                           ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   let data = getData();
-  let index = data.users.indexOf(authUserId);
-  if (Number.isInteger(authUserId) === true) {
+  console.log("authUserId:", authUserId);
+  console.log("data.users:", data.users);
+
+  if (!Number.isInteger(authUserId) === false) {
     return { error: 'invalid userId' };
-  } else if (data.users.authUserId.includes(authUserId) === false) {
-    return { error: 'userId not found' };
-  } else if (1) {
-    data.users.forEach(element => {
-    if (element.email === email && element.authUserId !== authUserId) {
-      return { error: 'email used by another user' };
-    };
-    });
-  } else if (validator.isEmail(email) !== true) {
+  };
+
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  };
+
+  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  };
+  
+  if (!validator.isEmail(email)) {
     return { error: 'invalid email address' };
-  } else if (regex.specialChars(nameFirst) === true) {
+  };
+  
+  if (specialChars.test(nameFirst)) {
     return { error: 'first name contains invalid characters'}
-  } else if (nameFirst.length < 2) {
+  };
+  
+  if (nameFirst.length < 2) {
     return { error: 'first name is too short'};
-  } else if (nameFirst.length > 20) {
+  };
+  
+  if (nameFirst.length > 20) {
     return { error: 'first name is too long'};
-  } else if (regex.specialChars(nameLast) === true) {
-    return { error: 'first name contains invalid characters'}
-  } else if (nameLast.length < 2) {
-    return { error: 'first name is too short'};
-  } else if (nameLast.length > 20) {
-    return { error: 'first name is too long'};
-  } else {
-    data.users[index].email = email;
-    data.users[index].name = nameFirst.concat(" ", nameLast);
-    return {};
-  }
+  };
+  
+  if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters'}
+  };
+  
+  if (nameLast.length < 2) {
+    return { error: 'last name is too short'};
+  };
+  
+  if (nameLast.length > 20) {
+    return { error: 'last name is too long'};
+  } 
+
+  data.users[userIndex].email = email;
+  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
   return {};
 };
 

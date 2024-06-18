@@ -5,7 +5,7 @@ import { clear } from '../src/other.js'
 beforeEach(() => {
   clear();
   let id = adminAuthRegister('amelia@unsw.edu.au', 'ABCDabcd1234!@#$', 'Amelia', 'Su').authId;
-  let quiz = adminQuizCreate(authId, 'quiz 1', 'the first quiz');
+  let quiz = adminQuizCreate(id, 'quiz 1', 'the first quiz');
 });
 
 describe('Testing for errors', () => {

@@ -6,19 +6,18 @@ let authUserId;
 
 beforeEach(() => {
   clear();
-  authUserId = adminAuthRegister('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
 });
 
-describe('Testing for errors', () => {
-  test('AuthUserId is not a valid user', () => {
-    const invalidUserId = 'invalidUserId';
-    const result = adminQuizCreate(invalidUserId, 'name', 'description')
-    expect(result).toStrictEqual({ error: 'Invalid user id'})
-  });
+describe('Testing for adminQuizCreate', () => {
+  const authUserId = adminAuthRegister('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh').authUserId;
+  test("AuthUserId is invalid", () => {
+    const result = adminQuizCreate('invalidAuthUserId', 'Sidak', 'valid description');
+    expect(result).toStrictEqual({ error: 'Invalid User id' });
+  })
   test('Name contains invalid characters', () => {
     const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
                           ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];  
-    const result = adminQuizCreate(authUserId, 'sidak', 'valid description');
+    const result = adminQuizCreate(authUserId, 'sid!ak', 'valid description');
     expect(result).toStrictEqual({ error: expect.any(String) })
   });
   test('Name is too short', () => {
@@ -29,7 +28,7 @@ describe('Testing for errors', () => {
     const result = adminQuizCreate(authUserId, 'abcdefghijklmnopqrstuvwxyzabcde', 'valid description')
     expect(result).toStrictEqual({error : 'name is more than 30 characters'})
   });
-  test('Name is already used by current user', () => {
+  test('Name is already used by current logged in user', () => {
     adminQuizCreate(authUserId, 'Sidak', 'valid description');
     const result = adminQuizCreate(authUserId, 'Sidak', 'description');
     expect(result).toStrictEqual( {error: expect.any(String)} );
@@ -39,15 +38,15 @@ describe('Testing for errors', () => {
     const result = adminQuizCreate(authUserId, 'Sidak', longDescription);
     expect(result).toStrictEqual({error: 'Description is more than 100 characters in length'})
   });
-});
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-describe('Success case', () => {
   test('Quiz created successfully', () => {
-    const result = adminQuizCreate(authUserId, 'Sidak', 'toohak quiz');
+    const result = adminQuizCreate(authUserId, 'john', 'toohak quiz');
     //quiz created successfully
-    expect(result).toStrictEqual({ quizId: result.quizId })
+    expect(result).toStrictEqual({ quizId: expect.any(Number) });
   });
 });
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+

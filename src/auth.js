@@ -113,7 +113,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   userArr.push(newUser);
   setData(store);
-
   return {authUserId: iD};
 }
 
@@ -215,15 +214,10 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   let specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
   let data = getData();
 
-  if (!Number.isInteger(authUserId) === false) {
+  // something wrong with this function - this is returning error in 'email already used' test
+  if (!Number.isInteger(authUserId)) {
     return { error: 'invalid userId' };
   };
-
-  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
-  if (userIndex === -1) {
-    return { error: 'userId does not exist' };
-  };
-
 
   if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
     return { error: 'email used by another user' };
@@ -257,6 +251,11 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     return { error: 'last name is too long'};
   } 
 
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  };
+
   data.users[userIndex].email = email;
   data.users[userIndex].name = `${nameFirst} ${nameLast}`;
   return {};
@@ -278,6 +277,3 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   return {
   };
 }
-
-
-

@@ -53,7 +53,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
     let quizId;
 
     beforeEach(() => {
-      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname').authUserId;
+      authUserId = adminAuthRegister('email@gmail.com', '1password', 'firstname', 'lastname').authUserId;
       quizId = adminQuizCreate(authUserId, 'quizname', 'description').quizId;
     });
 

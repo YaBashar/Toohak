@@ -212,8 +212,7 @@ function adminUserDetails(authUserId) {
 */
 import validator from 'validator';
 export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
-                          ':', ';', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  let specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
   let data = getData();
 
   if (!Number.isInteger(authUserId) === false) {
@@ -224,6 +223,7 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
   };
+
 
   if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
     return { error: 'email used by another user' };

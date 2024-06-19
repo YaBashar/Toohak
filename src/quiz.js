@@ -200,17 +200,34 @@ export {adminQuizRemove};
   * 
 */
 
-function adminQuizInfo(authUserId, quizId) {
-  return {
-    quizId: 1,
-    name: 'My Quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    description: 'This is my quiz'
+export function adminQuizInfo(authUserId, quizId) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find(quiz => quiz.id === quizId);
+  const user = userArr.find(user => user.id === authUserId);
+
+  if (!quiz ) {
+    return {error : "Invalid Quiz id"};
+  } else if (!user) {
+    return {error : "Invalid User id"};
+  
+  } else {
+    return {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: 1683125870,
+      timeLastEdited: 1683125871,
+      description: quiz.description
+    };
   };
+
+
+  
 }
 
-export {adminQuizInfo};
+
 
 
 /** [5] adminQuizNameUpdate
@@ -233,6 +250,9 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   let userArr = store.users;
   let quizArr = store.quizzes;
 
+  console.log(adminQuizCreate(1, "Name", "descrption"));
+  console.log(store);
+
   const quiz = quizArr.find(quiz => quiz.id === quizId);
   const user = userArr.find(user => user.id === authUserId);
 
@@ -240,29 +260,22 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
 
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
-  }
-
-  if (!user) {
+  } else if (!user) {
     return {error : "Invalid User id"};
-  }
+  } else {
 
   
 
   checkName(name);
+  quiz.name = name;
+  
+  setData(quiz);
 
-  let modifiedQuiz = {
-    quizId: quizId,
-    name: name,
-    description: 'the first quiz',
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
-    authUserId: authUserId,
-  };
+  return {};
 
-  setData(modifiedQuiz);
+}
 
-  return {
-  };
+  
 }
 
 function checkName (name) {

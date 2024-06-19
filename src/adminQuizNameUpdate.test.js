@@ -45,6 +45,11 @@ describe ("adminQuizNameUpdate Tests", () => {
         errorMessage : expect.any(String),
       },
       {
+        testName : "Check fail for names longer than 30 characters" ,
+        quizName : "abcdefghijklmnopqrstuvwxyzabcde",
+        errorMessage : expect.any(String) ,
+      },
+      {
         testName : "Check fail for quiz name with symbols" ,
         quizName : "&",
         errorMessage : expect.any(String) ,

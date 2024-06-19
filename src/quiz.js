@@ -184,6 +184,8 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   const quiz = quizArr.find(quiz => quiz.id === quizId);
   const user = userArr.find(user => user.id === authUserId);
 
+
+
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
   }
@@ -191,6 +193,8 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   if (!user) {
     return {error : "Invalid User id"};
   }
+
+  
 
   checkName(name);
 
@@ -200,7 +204,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
     description: 'the first quiz',
     timeCreated: 1683125870,
     timeLastEdited: 1683125871,
-    authUserId: 1,
+    authUserId: authUserId,
   };
 
   setData(modifiedQuiz);
@@ -217,6 +221,8 @@ function checkName (name) {
     return {error : "Name cannot be empty"};
   } else if (name.length <= 3) {
     return {error : "Name is too short"};
+  } else if (name.length > 30) {
+    return {error : "Name is too long"};
   } else if (/[!-\/:-@[-`{-~]/.test(name)) {
     return {error : "Quiz name cannot have symbols"};
   } 

@@ -8,9 +8,12 @@
   *
 */
  
-function clear() {
-    return {  
-    };  
-  }
-  
-  export{clear};
+export function clear () {
+  let store = getData();    
+
+  store.users = [];
+  store.quizzes = [];       
+
+  setData(store);           
+  return {};          
+}

@@ -72,18 +72,21 @@ DATA STRUCTURES
 */
 export function adminQuizList(authUserId) {
   let data = getData();
+  let user = data.users.find(user => user.authUserId === authUserId)
   const allQuizzes = [];
-  if (Number.isInteger(authUserId) === false) {
+
+  if (!Number.isInteger(user)) {
     return { error: 'invalid user id' };
-  } else {
-    for (i of data.quizzes) {
-      if (i.authUserId === authUserId) {
-        allQuizzes[i].quizId = data.quizzes.quizId;
-        allQuizzes[i].name = data.quizzes.name;
-      }
-    }
-  }
-  return allQuizzes;
+  };
+
+  const userQuizzes = data.quizzes
+    .filter(quiz => quiz.authUserId === authUserId)
+    .map(quiz => ({
+      quizId: quiz.quizId,
+      name: quiz.name,
+    }));
+
+  return { quizzes: userQuizzes };
 }
 
 

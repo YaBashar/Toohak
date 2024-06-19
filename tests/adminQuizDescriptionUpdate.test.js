@@ -12,7 +12,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
     let quizId;
 
     beforeEach(() => {
-      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname').authUserId;
+      authUserId = adminAuthRegister('email@gmail.com', '1password', 'firstname', 'lastname').authUserId;
       quizId = adminQuizCreate(authUserId, 'quizname', 'description').quizId;
     });
 
@@ -43,9 +43,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
 
     // Test for checking if the quizId is owned by the user and uses a second user to test against for
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const secondUserId = adminAuthRegister('secondEmail', 'password', 'secondFirstName', 'secondLastName').authUserId;
-      const secondUserQuizId = adminQuizCreate(secondUserId, 'secondQuizName', 'secondDescription').quizId;
-      const result = adminQuizDescriptionUpdate(authUserId, secondUserQuizId, "Any description");
+      const result = adminQuizDescriptionUpdate(authUserId+1, quizId, "Any description");
       expect(result).toStrictEqual({ error: expect.any(String) });
     });
   });

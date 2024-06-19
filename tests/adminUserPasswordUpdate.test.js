@@ -8,6 +8,7 @@ beforeEach(() => {
   clear();
   user = adminAuthRegister('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su');
   id = user.authUserId;
+  console.log(id);
 });
 
 describe('Testing for errors', () => {
@@ -27,7 +28,7 @@ describe('Testing for errors', () => {
   });
 
   // Old password and new password are the same
-  test('Old password is the same as the new password', () => {
+  test.only('Old password is the same as the new password', () => {
     const result1 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABCD');
     expect(result1).toStrictEqual({ error: 'new password is the same as old password' });
   });

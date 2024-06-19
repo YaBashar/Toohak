@@ -10,7 +10,7 @@ beforeEach(() => {
 
 describe('Testing adminUserDetailsUpdate for errors', () => {
   test('User Id is not valid', () => {
-    const result = adminUserDetailsUpdate(hello, 'amelia1@unsw.edu.au', 'amelia', 'su');
+    const result = adminUserDetailsUpdate('hello', 'amelia1@unsw.edu.au', 'amelia', 'su');
     expect(result).toStrictEqual({ error: 'invalid userId' });
   });
 

@@ -229,32 +229,48 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 */
 
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  let index = data.users.indexOf(authUserId);
-  const alphabet = [a-zA-Z];
-  const numbers = [0-9];
-  if (typeof(authUserId) !== number) {
-    return { error: 'invalid userId' };
-  } else if (data.users.authUserId.includes(authUserId) === false) {
-      return { error: 'userId not found' };
-  } else if (data.users[index].password !== oldPassword) {
+  let alphabet = /[a-zA-Z]/;
+  let numbers = /[0-9]/;
+  let data = getData();
+
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+
+  if (data.users[userIndex].password !== oldPassword) {
     return { error: 'incorrect password' };
-  } else if (oldPassword === newPassword) {
+  };
+  
+  if (oldPassword === newPassword) {
     return { error: 'new password is the same as old password' };
-  } else if (1) {
+  };
+  
+  if (1) {
     data.users.passwordHistory.forEach(element => {
     if (element === newPassword) {
       return { error: 'password has already been used' };
     };
     });
-  } else if (newPassword.length < 8) {
+  };
+  
+  if (newPassword.length < 8) {
     return { error: 'password is too short' };
-  } else if (regex.alphabet(newPassword) !== true || regex.numbers(newPassword) !== true) {
+  };
+  
+  if (!alphabet.test(newPassword) || !numbers.test(newPassword)) {
     return { error: 'new password should contain at least one letter and one number'}
-  } else {
-    data.users.passwordHistory.push(oldPassword);
-    data.users[index].password = newPassword;
-    return {};
   }
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
+  };
+
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  };
+
+  
+
+  data.users.passwordHistory.push(oldPassword);
+  data.users[index].password = newPassword;
   return {};
 }
 

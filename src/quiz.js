@@ -4,6 +4,7 @@
 
 import { getData, setData } from "./dataStore";
 
+import { getData, setData } from "./dataStore";
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -155,9 +156,26 @@ export {adminQuizCreate};
   * 
 */
 
-function adminQuizRemove(authUserId, quizId) {
-  return {
-  };
+export function adminQuizRemove(authUserId, quizId) {
+  let store = getData();
+  let quizArray = store.quizzes;
+  let userArray = store.users;
+  let user = userArray.find(user => user.authUserId === authUserId);
+  let quiz = quizArray.find(quiz => quiz.quizId === quizId);
+  if (!user) {
+    return { error: 'Invalid user id' };
+  }
+  if (!quiz) {
+    return { error: 'Invalid quiz Id entered' };
+  }
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+  let index = quizArray.indexOf(quiz);
+  quizArray.splice(index, 1);
+  store.quizzes = quizArray;
+  setData(store);
+  return {};
 }
 
 export {adminQuizRemove};

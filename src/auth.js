@@ -113,7 +113,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   userArr.push(newUser);
   setData(store);
-
   return {authUserId: iD};
 }
 
@@ -157,10 +156,28 @@ function checkPassword(password) {
   * 
 */
 
-function adminAuthLogin(email, password) {
-  return {
-    authUserId: 1,
-  };
+export function adminAuthLogin(email, password) {
+
+  let store = getData();
+  let userArr = store.users;
+
+  const user = userArr.find((user) => user.email === email);
+
+  if (!user) {
+    return {error: 'Email address does not exist'};
+
+  } else if (user.password !== password) {
+    user.numFailedPasswordSinceLastLogin++;
+    setData(store);
+    return {error: 'Incorrect password'};
+
+  } else {
+    user.numSuccessfulLogins++;
+    user.numFailedPasswordSinceLastLogin = 0;
+    setData(store);
+    return { authUserId: user.authUserId };
+  }
+  
 }
 
 
@@ -183,17 +200,27 @@ function adminAuthLogin(email, password) {
   * 
 */
 
-function adminUserDetails(authUserId) {
-  return {
-    user: 
-      {
-        userId: 1,
-        name: 'Hayden Smith',
-        email: 'hayden.smith@unsw.edu.au',
-        numSuccessfulLogins: 3,
-        numFailedPasswordsSinceLastLogin: 1,
+export function adminUserDetails(authUserId) {
+
+  let store = getData();
+  let userArr = store.users;
+
+  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
+
+  if (!user) {
+    return {error: 'Invalid AuthUserId'};
+
+  } else {
+    return {
+      user: {
+        userId: user.authUserId,
+        name: user.name,
+        email: user.email,
+        numSuccessfulLogins: user.numSuccessfulLogins,
+        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
       }
-  };
+    };
+  }
 } 
 
 
@@ -269,5 +296,3 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 
   return {};
 }
-
-

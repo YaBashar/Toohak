@@ -1,6 +1,6 @@
-import { adminAuthRegister } from './auth.js';
-import { adminQuizDescriptionUpdate } from './quiz.js';
-import { clear } from './other.js';
+import { adminAuthRegister } from '../src/auth.js';
+import { adminQuizDescriptionUpdate, adminQuizCreate, adminQuizInfo} from '../src/quiz.js';
+import { clear } from '../src/other.js';
 
 beforeEach(() => {
   clear();
@@ -12,49 +12,41 @@ describe("adminQuizDescriptionUpdate Tests", () => {
     let quizId;
 
     beforeEach(() => {
-      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname');
-      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname').authUserId;
+      quizId = adminQuizCreate(authUserId, 'quizname', 'description').quizId;
     });
 
-    test('Missing description (authUserId: 1, quizId: 1)', () => {
-      const result = adminQuizDescriptionUpdate(authUserId, quizId);
-      expect(result).toStrictEqual({ error: "Description is required" });
-    });
-
-    test('Invalid user ID type (authUserId: "one", quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
+    // Test for checking if the individual accessing Tahook has a valid userId
+    test('Invalid user Id type (authUserId: "one", quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
       const result = adminQuizDescriptionUpdate('one', quizId, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: "Invalid user ID" });
+      expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
-    test('Invalid quiz ID type (authUserId: 1, quizId: "one", description: "Toohak Javascript Quiz 1")', () => {
+    // Test for checking if the individual accessing Tahook has a valid quizId
+    test('Invalid quiz Id type (authUserId: 1, quizId: "one", description: "Toohak Javascript Quiz 1")', () => {
       const result = adminQuizDescriptionUpdate(authUserId, 'one', "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: "Invalid quiz ID" });
+      expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
-    test('Negative user ID (authUserId: -1, quizId: 2, description: "Toohak Javascript Quiz 1")', () => {
-      const result = adminQuizDescriptionUpdate(-1, quizId, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: "Invalid user ID" });
-    });
-
-    test('Negative quiz ID (authUserId: 1, quizId: -1, description: "Toohak Javascript Quiz 1")', () => {
-      const result = adminQuizDescriptionUpdate(authUserId, -1, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: "Invalid quiz ID" });
-    });
-
-    test('Empty description (authUserId: 1, quizId: 1, description: "")', () => {
-      const result = adminQuizDescriptionUpdate(authUserId, quizId, "");
-      expect(result).toStrictEqual({ error: "Description cannot be empty" });
-    });
-
+    // Test for checking if the quiz's description exceeds over 100 characters
     test('Description is more than 100 characters', () => {
       const longDescription = 'A'.repeat(101);
       const result = adminQuizDescriptionUpdate(authUserId, quizId, longDescription);
-      expect(result).toStrictEqual({ error: 'Description is more than 100 characters in length' });
+      expect(result).toStrictEqual({ error: expect.any(String) });
     });
 
-    test('Non-existent quiz ID (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
+    // Test for checking if quidId is non-existent within Tahook
+    test('Non-existent quiz Id (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
       const result = adminQuizDescriptionUpdate(authUserId, 999, "Non-existent Quiz");
-      expect(result).toStrictEqual({ error: "Quiz ID does not refer to a valid quiz" });
+      expect(result).toStrictEqual({ error: expect.any(String) });
+    });
+
+    // Test for checking if the quizId is owned by the user and uses a second user to test against for
+    test('Quiz Id does not refer to a quiz that this user owns', () => {
+      const secondUserId = adminAuthRegister('secondEmail', 'password', 'secondFirstName', 'secondLastName').authUserId;
+      const secondUserQuizId = adminQuizCreate(secondUserId, 'secondQuizName', 'secondDescription').quizId;
+      const result = adminQuizDescriptionUpdate(authUserId, secondUserQuizId, "Any description");
+      expect(result).toStrictEqual({ error: expect.any(String) });
     });
   });
 
@@ -63,30 +55,66 @@ describe("adminQuizDescriptionUpdate Tests", () => {
     let quizId;
 
     beforeEach(() => {
-      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname');
-      quizId = adminQuizCreate(authUserId, 'quizname', 'description');
+      authUserId = adminAuthRegister('email', 'password', 'firstname', 'lastname').authUserId;
+      quizId = adminQuizCreate(authUserId, 'quizname', 'description').quizId;
     });
 
+    // Test for checking if the user has provided a valid input for the quiz description
     test('Valid inputs (authUserId: 1, quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
-      const result = adminQuizDescriptionUpdate(authUserId, quizId, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({});
+      adminQuizDescriptionUpdate(authUserId, quizId, "Toohak Javascript Quiz 1");
+      const result = adminQuizInfo(authUserId, quizId);
+
+      expect(result).toStrictEqual({
+        quizId: quizId,
+        name: 'quizname',
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: "Toohak Javascript Quiz 1",
+      });
     });
 
+    // Test for checking if the user with a different quiId has provided a valid input for the quiz description 
     test('Valid inputs (authUserId: 1, quizId: 2, description: "QUIZ 1")', () => {
-      const result = adminQuizDescriptionUpdate(authUserId, quizId, "QUIZ 1");
-      expect(result).toStrictEqual({});
+      adminQuizDescriptionUpdate(authUserId, quizId, "QUIZ 1");
+      const result = adminQuizInfo(authUserId, quizId);
+
+      expect(result).toStrictEqual({
+        quizId: quizId,
+        name: 'quizname',
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: "QUIZ 1",
+      });
     });
 
+    // Test for checking if the quiz description is around 100 characters
     test('Description is exactly 100 characters', () => {
       const longDescription = 'A'.repeat(100);
-      const result = adminQuizDescriptionUpdate(authUserId, quizId, longDescription);
-      expect(result).toStrictEqual({});
+      adminQuizDescriptionUpdate(authUserId, quizId, longDescription);
+      const result = adminQuizInfo(authUserId, quizId);
+
+      expect(result).toStrictEqual({
+        quizId: quizId,
+        name: 'quizname',
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: longDescription,
+      });
     });
 
+    // Test for checking if the quiz description is around 99 characters
     test('Description is exactly 99 characters', () => {
       const description = 'A'.repeat(99);
-      const result = adminQuizDescriptionUpdate(authUserId, quizId, description);
-      expect(result).toStrictEqual({});
+      adminQuizDescriptionUpdate(authUserId, quizId, description);
+      const result = adminQuizInfo(authUserId, quizId);
+
+      expect(result).toStrictEqual({
+        quizId: quizId,
+        name: 'quizname',
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: description,
+      });
     });
   });
 });

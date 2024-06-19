@@ -229,13 +229,15 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
 */
 
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  let alphabet = /[a-zA-Z]/;
-  let numbers = /[0-9]/;
   let data = getData();
 
-  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  const user = data.users.findIndex(user => user.authUserId === authUserId);
 
-  if (data.users[userIndex].password !== oldPassword) {
+  if (!Number.isInteger(user.authUserId)) {
+    return { error: 'invalid userId' };
+  };
+
+  if (user.password !== oldPassword) {
     return { error: 'incorrect password' };
   };
   
@@ -243,34 +245,27 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
     return { error: 'new password is the same as old password' };
   };
   
-  if (1) {
-    data.users.passwordHistory.forEach(element => {
-    if (element === newPassword) {
-      return { error: 'password has already been used' };
-    };
-    });
+  if (user.passwordHistory.includes(newPassword)) {
+    return { error: 'password has already been used' };
   };
   
   if (newPassword.length < 8) {
     return { error: 'password is too short' };
   };
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  };
   
-  if (!alphabet.test(newPassword) || !numbers.test(newPassword)) {
-    return { error: 'new password should contain at least one letter and one number'}
+  const hasNumber = /\d/.test(newPassword);
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  if (!hasNumber || !hasLetter) {
+    return { error: 'new password should contain at least one letter and one number' };
   }
 
-  if (!Number.isInteger(authUserId)) {
-    return { error: 'invalid userId' };
-  };
+  user.passwordHistory.push(newPassword);
+  user.password = newPassword;
 
-  if (userIndex === -1) {
-    return { error: 'userId does not exist' };
-  };
-
-  
-
-  data.users.passwordHistory.push(oldPassword);
-  data.users[index].password = newPassword;
   return {};
 }
 

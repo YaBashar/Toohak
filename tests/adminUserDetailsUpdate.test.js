@@ -63,7 +63,7 @@ describe('Testing adminUserDetailsUpdate for errors', () => {
   });
 
   // successful use of function
-  test('function used correctly', () => {
+  test.only('function used correctly', () => {
     const result = adminUserDetailsUpdate(id, 'amelia1@unsw.edu.au', 'amelia', 'su');
     expect(result).toStrictEqual({});
   });

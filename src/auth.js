@@ -113,7 +113,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   userArr.push(newUser);
   setData(store);
-
   return {authUserId: iD};
 }
 
@@ -236,6 +235,9 @@ function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   return {
   };
 }
+<<<<<<< HEAD
 
 export {adminUserPasswordUpdate};
 
+=======
+>>>>>>> a3c5f05a629ab7ae13f8d738e3d65d99ea8e8f65

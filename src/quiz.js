@@ -2,6 +2,8 @@
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+import { getData, setData } from "./dataStore";
+
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -99,11 +101,43 @@ export {adminQuizList};
   *                             identifier for the quiz 
   * 
 */
-
 function adminQuizCreate(authUserId, name, description) {
-  return {
-    quizId: 2
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  if (!user) return {error: 'Invalid User id'};
+  
+  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 
+                        ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  for (let i = 0; i < specialChars.length; i++) {
+    if (name.includes(specialChars[i])) {
+      return { error: 'Name contains invalid characters' };
+    }
+  }
+  if (name.length < 3) {
+    return { error: 'name is less than 3 characters' };
+  }
+  if (name.length > 30) {
+    return { error: 'name is more than 30 characters' };
+  }
+  if (description.length > 100) {
+    return { error: 'Description is more than 100 characters in length' };
+  }
+  if (quizArr.find((quiz) => quiz.name === name && quiz.authUserId === authUserId)) {
+    return { error: 'Name is already used by current logged in user' };
+  }
+  
+  const id = quizArr.length + 1;
+  const quiz = {
+    quizId: id,
+    name: name,
+    description: description,
+    authUserId: authUserId,
   };
+  store.quizzes.push(quiz);
+  setData(store);
+  return { quizId: id };
 }
 
 export {adminQuizCreate};

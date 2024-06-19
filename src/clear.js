@@ -7,7 +7,8 @@
   * @returns {} - empty object
   *
 */
- 
+import { getData, setData } from "./dataStore";
+
 export function clear () {
   let store = getData();    
 

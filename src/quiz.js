@@ -3,8 +3,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import { getData, setData } from "./dataStore";
-
-import { getData, setData } from "./dataStore";
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -101,7 +99,7 @@ function adminQuizList(authUserId) {
   *                             identifier for the quiz 
   * 
 */
-function adminQuizCreate(authUserId, name, description) {
+export function adminQuizCreate(authUserId, name, description) {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
@@ -248,13 +246,3 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   return {
   };
 }
-
-export {
-  adminQuizCreate
-}
-
-
-export {
-  adminQuizCreate,
-  adminQuizRemove
-};

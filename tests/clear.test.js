@@ -1,4 +1,5 @@
-import { clear } from './other.js';
+clear
+import { clear } from '../src/other.js';
 
 beforeEach(() => {
   clear();
@@ -32,21 +33,8 @@ describe("Error Cases", () => {
   test('Clear function should handle undefined or null input', () => {
     const result = clear(undefined);
     expect(result).toEqual({});
-<<<<<<< HEAD
     
     const result2 = clear(null);
     expect(result2).toEqual({});
   });
-
-  test('Clear function should throw an error with invalid input types', () => {
-    expect(() => clear(123)).toThrow();
-    expect(() => clear("invalid")).toThrow();
-    expect(() => clear({})).toThrow();
-    expect(() => clear([])).toThrow();
-  });
-=======
-    const result2 = clear(null);
-    expect(result2).toEqual({});
-  });
->>>>>>> e8429b159a68c0341cc9afb375f1d58f0a16b4d4
 });

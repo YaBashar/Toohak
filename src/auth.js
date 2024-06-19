@@ -242,7 +242,6 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   let specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
   let data = getData();
 
-  // something wrong with this function - this is returning error in 'email already used' test
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid userId' };
   };

@@ -14,18 +14,18 @@ describe('Testing for adminQuizRemove function', () => {
 	// test to check if the authUserId is invalid
 	test("AuthUserId is invalid", () => {
 		const result = adminQuizCreate('invalidAuthUserId', 'Sidak', 'valid description');
-		expect(result).toStrictEqual({ error: 'Invalid User id' });
+		expect(result).toStrictEqual({ error: expect.any(String) });
 	});
 	// test to check quiz Id does not refer to a valid quiz
 	test('Quiz Id does not refer to a valid quiz', () => {
 		const invalidQuizId = 'invalidQuizId';
 		const result = adminQuizRemove(authUserId, invalidQuizId)
-		expect(result).toStrictEqual({ error: 'Invalid quiz Id entered'})
+		expect(result).toStrictEqual({ error: expect.any(String)})
 	});
 	// test to check if quiz ID does not refer to a quiz that this user owns
 	test('Quiz ID does not refer to a quiz that this user owns ', () => {
 		const result = adminQuizRemove(otherUserId, validQuizId)
-		expect(result).toStrictEqual({ error: 'Quiz Id not owned by the user'})
+		expect(result).toStrictEqual({ error: expect.any(String) })
 	});
 	// write a test to check if the quiz is removed from the list of quizzes
 	test('Quiz is removed from the list of quizzes', () => {

@@ -4,7 +4,6 @@
 
 import { getData, setData } from "./dataStore";
 
-import { getData, setData } from "./dataStore";
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -74,7 +73,7 @@ DATA STRUCTURES
   * 
 */
 
-function adminQuizList(authUserId) {
+export function adminQuizList(authUserId) {
   return {
     quizzes: [
       {
@@ -101,7 +100,7 @@ function adminQuizList(authUserId) {
   *                             identifier for the quiz 
   * 
 */
-function adminQuizCreate(authUserId, name, description) {
+export function adminQuizCreate(authUserId, name, description) {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
@@ -198,13 +197,29 @@ export function adminQuizRemove(authUserId, quizId) {
   * 
 */
 
-function adminQuizInfo(authUserId, quizId) {
+export function adminQuizInfo(authUserId, quizId) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
+
+  if (!quiz ) {
+    return {error: "Invalid Quiz id"};
+  } else if (!user) {
+    return {error: "Invalid User id"};
+  } else if (!userQuiz) {
+    return {error : "This Quiz Id does not refer to a quiz that this user owns"}
+  }
+
   return {
-    quizId: 1,
-    name: 'My Quiz',
+    quizId: quizId,
+    name: quiz.name,
     timeCreated: 1683125870,
     timeLastEdited: 1683125871,
-    description: 'This is my quiz'
+    description: quiz.description
   };
 }
 
@@ -224,9 +239,41 @@ function adminQuizInfo(authUserId, quizId) {
   * 
 */
 
-function adminQuizNameUpdate(authUserId, quizId, name) {
-  return {
-  };
+export function adminQuizNameUpdate(authUserId, quizId, name) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
+  const user = userArr.find(user => user.authUserId === authUserId);
+  
+  if (!quiz ) {
+    return {error : "Invalid Quiz id"};
+  } else if (!user) {
+    return {error : "Invalid User id"};
+  } else if (quizArr.some(quiz => quiz.name === name)) {
+    return {error : "Quiz does not exist with name"};
+  }
+
+  quiz.name = name;
+  setData(store);
+  
+  return {};
+
+}
+
+
+function checkName (name) {
+  
+  if (name === ' ') {
+    return {error : "Name cannot be empty"};
+  } else if (name.length <= 3) {
+    return {error : "Name is too short"};
+  } else if (name.length > 30) {
+    return {error : "Name is too long"};
+  } else if (/[!-\/:-@[-`{-~]/.test(name)) {
+    return {error : "Quiz name cannot have symbols"};
+  } 
 }
 
 
@@ -244,17 +291,8 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   * 
 */
 
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   return {
   };
 }
 
-export {
-  adminQuizCreate
-}
-
-
-export {
-  adminQuizCreate,
-  adminQuizRemove
-};

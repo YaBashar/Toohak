@@ -32,6 +32,7 @@ describe("Error Cases", () => {
   test('Clear function should handle undefined or null input', () => {
     const result = clear(undefined);
     expect(result).toEqual({});
+<<<<<<< HEAD
     
     const result2 = clear(null);
     expect(result2).toEqual({});
@@ -43,4 +44,9 @@ describe("Error Cases", () => {
     expect(() => clear({})).toThrow();
     expect(() => clear([])).toThrow();
   });
+=======
+    const result2 = clear(null);
+    expect(result2).toEqual({});
+  });
+>>>>>>> e8429b159a68c0341cc9afb375f1d58f0a16b4d4
 });

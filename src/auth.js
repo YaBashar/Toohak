@@ -182,17 +182,27 @@ function adminAuthLogin(email, password) {
   * 
 */
 
-function adminUserDetails(authUserId) {
-  return {
-    user: 
-      {
-        userId: 1,
-        name: 'Hayden Smith',
-        email: 'hayden.smith@unsw.edu.au',
-        numSuccessfulLogins: 3,
-        numFailedPasswordsSinceLastLogin: 1,
+export function adminUserDetails(authUserId) {
+
+  let store = getData();
+  let userArr = store.users;
+
+  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
+
+  if (!user) {
+    return {error: 'Invalid AuthUserId'};
+
+  } else {
+    return {
+      user: {
+        userId: user.authUserId,
+        name: user.name,
+        email: user.email,
+        numSuccessfulLogins: user.numSuccessfulLogins,
+        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
       }
-  };
+    };
+  }
 } 
 
 

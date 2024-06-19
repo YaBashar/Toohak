@@ -8,7 +8,6 @@ beforeEach(() => {
   clear();
   user = adminAuthRegister('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su');
   id = user.authUserId;
-  console.log(id);
 });
 
 describe('Testing adminUserDetailsUpdate for errors', () => {
@@ -63,7 +62,7 @@ describe('Testing adminUserDetailsUpdate for errors', () => {
   });
 
   // successful use of function
-  test.only('function used correctly', () => {
+  test('function used correctly', () => {
     const result = adminUserDetailsUpdate(id, 'amelia1@unsw.edu.au', 'amelia', 'su');
     expect(result).toStrictEqual({});
   });

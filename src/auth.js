@@ -261,7 +261,6 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
   const user = data.users.find(user => user.authUserId === authUserId);
 
   if (!Number.isInteger(authUserId)) {
-    //console.log(authUserId);
     return { error: 'invalid userId' };
   };
 

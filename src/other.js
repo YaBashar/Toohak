@@ -25,9 +25,7 @@
 DEPENDENCIES
  
 */
- 
- 
- 
+import { getData, setData } from "./dataStore.js";
 /*
  
 GLOBAL DEFINITIONS
@@ -68,9 +66,12 @@ DATA STRUCTURES
   *
 */
  
-function clear() {
-  return {  
-  };  
-}
+export function clear () {
+  let store = getData();    
 
-export{clear};
+  store.users = [];         
+  store.quizzes = [];       
+
+  setData(store);           
+  return {};                
+}

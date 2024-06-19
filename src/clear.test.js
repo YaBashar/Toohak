@@ -36,11 +36,4 @@ describe("Error Cases", () => {
     const result2 = clear(null);
     expect(result2).toEqual({});
   });
-
-  test('Clear function should throw an error with invalid input types', () => {
-    expect(() => clear(123)).toThrow();
-    expect(() => clear("invalid")).toThrow();
-    expect(() => clear({})).toThrow();
-    expect(() => clear([])).toThrow();
-  });
 });

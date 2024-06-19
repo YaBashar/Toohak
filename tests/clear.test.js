@@ -1,4 +1,5 @@
-import { clear } from './other.js';
+clear
+import { clear } from '../src/other.js';
 
 beforeEach(() => {
   clear();
@@ -32,6 +33,7 @@ describe("Error Case", () => {
   test('Clear function should handle undefined or null input', () => {
     const result = clear(undefined);
     expect(result).toEqual({});
+    
     const result2 = clear(null);
     expect(result2).toEqual({});
   });

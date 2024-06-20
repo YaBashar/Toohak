@@ -135,6 +135,7 @@ export function adminQuizCreate(authUserId, name, description) {
     quizId: id,
     name: name,
     description: description,
+    timeCreated : Math.round(Date.now() / 1000),
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -229,8 +230,8 @@ export function adminQuizInfo(authUserId, quizId) {
   return {
     quizId: quizId,
     name: quiz.name,
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
 }
@@ -253,8 +254,42 @@ export function adminQuizInfo(authUserId, quizId) {
 */
 
 export function adminQuizNameUpdate(authUserId, quizId, name) {
-  return {
-  };
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
+  const user = userArr.find(user => user.authUserId === authUserId);
+  
+  if (!quiz ) {
+    return {error : "Invalid Quiz id"};
+  } else if (!user) {
+    return {error : "Invalid User id"};
+  } else if (quizArr.some(quiz => quiz.name === name)) {
+    return {error : "Quiz does not exist with name"};
+  }
+  
+  checkName(name);
+  quiz.name = name;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  setData(store);
+  
+  return {};
+
+}
+
+
+function checkName (name) {
+  
+  if (name === ' ') {
+    return {error : "Name cannot be empty"};
+  } else if (name.length <= 3) {
+    return {error : "Name is too short"};
+  } else if (name.length > 30) {
+    return {error : "Name is too long"};
+  } else if (/[!-\/:-@[-`{-~]/.test(name)) {
+    return {error : "Quiz name cannot have symbols"};
+  } 
 }
 
 /** [6] adminQuizDescriptionUpdate
@@ -337,3 +372,4 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   }
 }
+

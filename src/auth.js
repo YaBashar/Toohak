@@ -26,8 +26,8 @@
 /*
 DEPENDENCIES
 */
-import { getData, setData } from "./dataStore.js";
-import { isEmail } from "validator";
+import { getData, setData } from './dataStore.js';
+import { isEmail } from 'validator';
 
 /*
 GLOBAL DEFINITIONS
@@ -98,7 +98,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     }
   }
 
-  // TODO: change id creation method to ensure unique id is created each time
   const iD = userArr.length + 1;
 
   let newUser = {
@@ -126,7 +125,7 @@ function checkEmail(email, userArr) {
 }
 
 function checkName(name) {
-  if (/[^A-Za-z0-9'\ \-]/.test(name)) {
+  if (/[^A-Za-z'\ \-]/.test(name)) {
     return false;
   } else {
     return true;

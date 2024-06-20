@@ -26,8 +26,8 @@
 /*
 DEPENDENCIES
 */
-import { getData, setData } from "./dataStore.js";
-import { isEmail } from "validator";
+import { getData, setData } from './dataStore.js';
+import { isEmail } from 'validator';
 
 /*
 GLOBAL DEFINITIONS
@@ -98,7 +98,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     }
   }
 
-  // TODO: change id creation method to ensure unique id is created each time
   const iD = userArr.length + 1;
 
   let newUser = {
@@ -126,7 +125,7 @@ function checkEmail(email, userArr) {
 }
 
 function checkName(name) {
-  if (/[^A-Za-z0-9'\ \-]/.test(name)) {
+  if (/[^A-Za-z'\ \-]/.test(name)) {
     return false;
   } else {
     return true;
@@ -237,12 +236,57 @@ export function adminUserDetails(authUserId) {
   * ...
   * @returns {} - empty object
 */
+import validator from 'validator';
 
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  return {
+export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+  let specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
+  let data = getData();
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
   };
-}
 
+  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  };
+  
+  if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  };
+  
+  if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters'}
+  };
+  
+  if (nameFirst.length < 2) {
+    return { error: 'first name is too short'};
+  };
+  
+  if (nameFirst.length > 20) {
+    return { error: 'first name is too long'};
+  };
+  
+  if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters'}
+  };
+  
+  if (nameLast.length < 2) {
+    return { error: 'last name is too short'};
+  };
+  
+  if (nameLast.length > 20) {
+    return { error: 'last name is too long'};
+  } 
+
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  };
+
+  data.users[userIndex].email = email;
+  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+  return {};
+};
 
 
 /** [5] adminUserPasswordUpdate
@@ -257,7 +301,43 @@ function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * @returns {} - empty object
 */
 
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  return {
+export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+  let data = getData();
+
+  const user = data.users.find(user => user.authUserId === authUserId);
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
   };
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  };
+  
+  if (oldPassword === newPassword) {
+    return { error: 'new password is the same as old password' };
+  };
+  
+  if (user.passwordHistory.includes(newPassword)) {
+    return { error: 'password has already been used' };
+  };
+  
+  if (newPassword.length < 8) {
+    return { error: 'password is too short' };
+  };
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  };
+  
+  const hasNumber = /\d/.test(newPassword);
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  if (!hasNumber || !hasLetter) {
+    return { error: 'new password should contain at least one letter and one number' };
+  }
+
+  user.passwordHistory.push(newPassword);
+  user.password = newPassword;
+
+  return {};
 }

@@ -105,7 +105,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     name: name,
     email: email,
     password: password,
-    numSuccessfulLogins: 0,
+    numSuccessfulLogins: 1,
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password,],    
   };

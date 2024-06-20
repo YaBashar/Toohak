@@ -1,9 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-import { getData, setData } from "./dataStore";
-
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -28,6 +25,7 @@ import { getData, setData } from "./dataStore";
 /*
 DEPENDENCIES
 */
+import { getData, setData } from "./dataStore.js";
 
 /*
 GLOBAL DEFINITIONS
@@ -49,7 +47,7 @@ DATA STRUCTURES
 // adminQuizNameUpdate: [5]
 // adminQuizDescriptionUpdate: [6]
 
-
+ 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,19 +70,24 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
-
 export function adminQuizList(authUserId) {
-  return {
-    quizzes: [
-      {
-        quizId: 1,
-        name: 'My Quiz',
-      },
-    ]
+  let data = getData();
+  let user = data.users.find(user => user.authUserId === authUserId)
+  const allQuizzes = [];
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid user id' };
   };
+
+  const userQuizzes = data.quizzes
+    .filter(quiz => quiz.authUserId === authUserId)
+    .map(quiz => ({
+      quizId: quiz.quizId,
+      name: quiz.name,
+    }));
+
+  return { quizzes: userQuizzes };
 }
-
-
 
 /** [2] adminQuizCreate
   * 
@@ -127,7 +130,7 @@ export function adminQuizCreate(authUserId, name, description) {
     return { error: 'Name is already used by current logged in user' };
   }
   
-  const id = quizArr.length + 1;
+  const id = uniqueId(quizArr);
   const quiz = {
     quizId: id,
     name: name,
@@ -139,6 +142,15 @@ export function adminQuizCreate(authUserId, name, description) {
   return { quizId: id };
 }
 
+// function to create a random id everytime
+function uniqueId(quizArr) {
+  let uId;
+  do {
+    uId = Math.random();
+  } while (quizArr.find(quiz => (quiz.quizId === uId)))
+
+  return uId;
+}
 
 
 /** [3] adminQuizRemove
@@ -225,6 +237,7 @@ export function adminQuizInfo(authUserId, quizId) {
 
 
 
+
 /** [5] adminQuizNameUpdate
   * 
   * Update the name of the relevant quiz.
@@ -276,8 +289,6 @@ function checkName (name) {
   } 
 }
 
-
-
 /** [6] adminQuizDescriptionUpdate
   * 
   * Update The description of the relevant quiz.
@@ -291,8 +302,71 @@ function checkName (name) {
   * 
 */
 
+/** [11] adminQuizDescriptionUpdate
+  * 
+  * Update The description of the relevant quiz.
+  * 
+  * @param {number} authUserId - Id number representing a unique 
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} description - a string containing the current
+  *                               description of the quiz
+  * ...
+  * @returns {} - empty object if successful
+  * 
+*/
+
+// My constant define for the 'Description is more than 100 characters' test case
+const MAX_DESCRIPTION_LENGTH = 100;
+
 export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-  return {
-  };
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  // Type checks for authUserId and quizId
+  if (typeof authUserId !== 'number') {
+    return { error: 'Invalid user Id type' };
+  }
+  
+  if (typeof quizId !== 'number') {
+    return { error: 'Invalid quiz Id type' };
+  }
+  
+  // These two lines finds the Tahook user with both a valid userId and quidId
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  const quiz = quizArr.find((quiz) => quiz.quizId == quizId);
+
+  // Check if the quiz is owned by the user with the given UserId
+  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+
+  // Error messages returned if the error tests cases are activated within the program
+  // If a person's Tahook quiz does not match the userId, an error will then be returned
+  if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  // If the description length exceeds 100 characters, return an error
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return { error: "Quiz description is more than 100 characters in length" };
+  }
+
+  // If the Tahook user does not exist, an error will then be returned
+  if (!user) {
+    return {error: 'authUserId does not exist'};
+
+   // If a person's Tahook quiz does not exist, an error will then be returned
+  } else if (!quiz) {
+    return {error: 'quizId does not exist'};
+  
+  } else {
+
+    quiz.description = description;
+    setData(store);
+
+    return {};
+
+  }
 }
 

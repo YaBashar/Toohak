@@ -289,6 +289,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   }
 
   quiz.name = name;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000)
   setData(store);
   
   return {};

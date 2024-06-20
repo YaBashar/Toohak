@@ -2,9 +2,6 @@
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-import { getData, setData } from "./dataStore";
-
-import { getData, setData } from "./dataStore";
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -29,6 +26,7 @@ import { getData, setData } from "./dataStore";
 /*
 DEPENDENCIES
 */
+import { getData, setData } from './dataStore'
 
 /*
 GLOBAL DEFINITIONS
@@ -101,7 +99,7 @@ function adminQuizList(authUserId) {
   *                             identifier for the quiz 
   * 
 */
-function adminQuizCreate(authUserId, name, description) {
+export function adminQuizCreate(authUserId, name, description) {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
@@ -248,13 +246,3 @@ function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   return {
   };
 }
-
-export {
-  adminQuizCreate
-}
-
-
-export {
-  adminQuizCreate,
-  adminQuizRemove
-};

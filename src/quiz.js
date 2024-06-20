@@ -136,6 +136,7 @@ export function adminQuizCreate(authUserId, name, description) {
     quizId: id,
     name: name,
     description: description,
+    timeCreated : Math.round(Date.now() / 1000),
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -230,8 +231,8 @@ export function adminQuizInfo(authUserId, quizId) {
   return {
     quizId: quizId,
     name: quiz.name,
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
 
@@ -266,8 +267,6 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
 
-  
-  
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
   } else if (!user) {

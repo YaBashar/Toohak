@@ -130,7 +130,7 @@ export function adminQuizCreate(authUserId, name, description) {
     return { error: 'Name is already used by current logged in user' };
   }
   
-  const id = quizArr.length + 1;
+  const id = uniqueId(quizArr);
   const quiz = {
     quizId: id,
     name: name,
@@ -142,6 +142,15 @@ export function adminQuizCreate(authUserId, name, description) {
   return { quizId: id };
 }
 
+// function to create a random id everytime
+function uniqueId(quizArr) {
+  let uId;
+  do {
+    uId = Math.random();
+  } while (quizArr.find(quiz => (quiz.quizId === uId)))
+
+  return uId;
+}
 
 
 /** [3] adminQuizRemove

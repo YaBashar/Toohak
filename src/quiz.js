@@ -267,7 +267,8 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   } else if (quizArr.some(quiz => quiz.name === name)) {
     return {error : "Quiz does not exist with name"};
   }
-
+  
+  checkName(name);
   quiz.name = name;
   setData(store);
   

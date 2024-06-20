@@ -1,4 +1,3 @@
-clear
 import { clear } from '../src/other.js';
 
 beforeEach(() => {

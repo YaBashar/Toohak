@@ -13,17 +13,13 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
    
     beforeEach( () => {
-      authUserId = adminAuthRegister("email", "password" , "firstname", "lastname").authUserId;
+      authUserId = adminAuthRegister("email@gmail.com", "1password" , "firstname", "lastname").authUserId;
       quizId = adminQuizCreate(authUserId, "quizname", "description").quizId
       
     });
 
     test.each([
-      {
-        testName : "Check fail for quiz with invalid quiz name",
-        quizName :  "Name",
-        errorMessage : expect.any(String),
-      },
+      
       {
         testName : "Check fail for empty input",
         quizName : " ",
@@ -71,6 +67,19 @@ describe ("adminQuizNameUpdate Tests", () => {
       const name = adminQuizNameUpdate(authUserId, quizId + 1, "Name");
       expect(name).toStrictEqual( {error : expect.any(String)});
     });
+
+    test('Quiz Id does not refer to a quiz that this user owns', () => {
+      const name = adminQuizNameUpdate(authUserId + 1, quizId, "Name");
+      expect(name).toStrictEqual({ error: expect.any(String) });
+    });
+
+    test('Name is already used by the current logged in user for another quiz', () => {
+      adminQuizCreate(authUserId, "anotherQuizName", "description2").quizId;
+      const nameUpdate = adminQuizNameUpdate(authUserId, quizId, "anotherQuizName");
+      expect(nameUpdate).toStrictEqual({ error: 'Name is already used' });
+
+    });
+
   });
   
 
@@ -79,33 +88,42 @@ describe ("adminQuizNameUpdate Tests", () => {
     let quizId;
   
     beforeEach( () => {
-      authUserId = adminAuthRegister("email", "password", "firstname", "lastname");
-      quizId = adminQuizCreate(authUserId, 'name', 'description').iD
-      console.log("Quiz ID:", quizId); 
+      authUserId = adminAuthRegister("email@gmail.com", "1password", "firstname", "lastname").authUserId;
+      quizId = adminQuizCreate(authUserId, 'name', 'description').quizId;
     });
 
     test ("Check that function returns empty object", () => {
       console.log("Before Name Update:", quizId );
       const name = adminQuizNameUpdate(authUserId, quizId, "Name");
-      console.log("Name Update Response:", name); 
+      console.log(adminQuizNameUpdate(authUserId, quizId, "Name")); 
       expect(name).toStrictEqual({});
     });
 
-    test.only ("Check name has been updated successfully", () => {
-      const name = adminQuizNameUpdate(authUserId, quizId, "newName");
-      expect(name).toStrictEqual({authUserId, quizId, name: "newName"});
-    });
-
-    test ("QuizInfo gives updated name",() => {
+    test ("Check name has been updated successfully", () => {
       adminQuizNameUpdate(authUserId, quizId, "newName");
-      const quiz = adminQuizInfo(authUserId, quizId.quizId);
-      expect(quiz).toStrictEqual
-      ({ 
+      const updatedQuizInfo = adminQuizInfo(authUserId, quizId);
+      expect(updatedQuizInfo).toStrictEqual({
         quizId: quizId,
         name: "newName",
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
-        description: "description"});
+        description: 'description'
+      });
+    });
+
+    test ("Successfully Returned quizInfo after quizNameUpdate", () =>{
+      adminQuizNameUpdate(authUserId, quizId, "newName");
+      const updatedQuizInfo = adminQuizInfo(authUserId, quizId);
+    
+      expect(updatedQuizInfo).toStrictEqual (
+        {
+          quizId: quizId,
+          name: "newName",
+          timeCreated: expect.any(Number),
+          timeLastEdited: expect.any(Number),
+          description: 'description'
+        }
+      );
     });
   });
 });

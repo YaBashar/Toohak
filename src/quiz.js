@@ -51,7 +51,7 @@ DATA STRUCTURES
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-import { getData, setData } from "./dataStore";
+
 
 /** [1] adminQuizList
   * 
@@ -189,7 +189,6 @@ export function adminQuizRemove(authUserId, quizId) {
   return {};
 }
 
-export {adminQuizRemove};
 
 
 /** [4] adminQuizInfo
@@ -258,44 +257,28 @@ export function adminQuizInfo(authUserId, quizId) {
 */
 
 export function adminQuizNameUpdate(authUserId, quizId, name) {
-  
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
 
-  console.log(adminQuizCreate(1, "Name", "descrption"));
-  console.log(store);
+  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
+  const user = userArr.find(user => user.authUserId === authUserId);
+  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
 
-  const quiz = quizArr.find(quiz => quiz.id === quizId);
-  const user = userArr.find(user => user.id === authUserId);
-
-
-
+  
+  
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
   } else if (!user) {
     return {error : "Invalid User id"};
-  } else {
-
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  } else if (findName) {
+    return { error : 'Name is already used'};
+  }
   
-
-  checkName(name);
-  quiz.name = name;
-  
-  setData(quiz);
-
-  return {};
-
-}
-
-  
-}
-
-function checkName (name) {
-  const findName = data.quizzes.find(quiz => quiz.name === name);
-  if (findName === undefined) {
-    return {error : "Invalid Quiz Name"}
-  } else if (name === ' ') {
+  if (name === ' ') {
     return {error : "Name cannot be empty"};
   } else if (name.length <= 3) {
     return {error : "Name is too short"};
@@ -303,8 +286,18 @@ function checkName (name) {
     return {error : "Name is too long"};
   } else if (/[!-\/:-@[-`{-~]/.test(name)) {
     return {error : "Quiz name cannot have symbols"};
-  } 
+  }
+
+  quiz.name = name;
+  setData(store);
+  
+  return {};
+
 }
+
+
+
+
 
 /** [6] adminQuizDescriptionUpdate
   * 

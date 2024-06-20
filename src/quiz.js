@@ -27,6 +27,7 @@ import { getData, setData } from "./dataStore";
 /*
 DEPENDENCIES
 */
+import { getData, setData } from './dataStore'
 
 /*
 GLOBAL DEFINITIONS

@@ -89,8 +89,6 @@ export function adminQuizList(authUserId) {
   return { quizzes: userQuizzes };
 }
 
-
-
 /** [2] adminQuizCreate
   * 
   * Given basic details about a new quiz, create one for the logged in user.

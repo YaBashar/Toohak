@@ -116,6 +116,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 }
 
 
+
 function checkEmail(email, userArr) {
   if (!isEmail(email) || userArr.some((user) => user.email === email)) {
     return false;
@@ -179,6 +180,7 @@ export function adminAuthLogin(email, password) {
   
 }
 
+export {adminAuthLogin};
 
 /** [3] adminUserDetails
   * 
@@ -222,7 +224,7 @@ export function adminUserDetails(authUserId) {
   }
 } 
 
-
+export {adminUserDetails};
 
 /** [4] adminUserDetailsUpdate
   * 
@@ -246,6 +248,7 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
     return { error: 'invalid userId' };
   };
 
+<<<<<<< HEAD
   if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
     return { error: 'email used by another user' };
   };
@@ -288,6 +291,9 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   return {};
 };
 
+=======
+export {adminUserDetailsUpdate};
+>>>>>>> 425b7e362c1543784beec57886d95e6abff1c369
 
 /** [5] adminUserPasswordUpdate
   * 
@@ -341,3 +347,9 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 
   return {};
 }
+<<<<<<< HEAD
+
+export {adminUserPasswordUpdate};
+
+=======
+>>>>>>> a3c5f05a629ab7ae13f8d738e3d65d99ea8e8f65

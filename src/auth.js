@@ -236,13 +236,57 @@ export function adminUserDetails(authUserId) {
   * ...
   * @returns {} - empty object
 */
+import validator from 'validator';
 
-function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  return {
+export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
+  let specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
+  let data = getData();
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
   };
-}
 
+  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  };
+  
+  if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  };
+  
+  if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters'}
+  };
+  
+  if (nameFirst.length < 2) {
+    return { error: 'first name is too short'};
+  };
+  
+  if (nameFirst.length > 20) {
+    return { error: 'first name is too long'};
+  };
+  
+  if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters'}
+  };
+  
+  if (nameLast.length < 2) {
+    return { error: 'last name is too short'};
+  };
+  
+  if (nameLast.length > 20) {
+    return { error: 'last name is too long'};
+  } 
 
+  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  };
+
+  data.users[userIndex].email = email;
+  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+  return {};
+};
 
 /** [5] adminUserPasswordUpdate
   * 

@@ -288,6 +288,7 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   return {};
 };
 
+
 /** [5] adminUserPasswordUpdate
   * 
   * Gets all of the relevant information about the current quiz.
@@ -300,7 +301,43 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * @returns {} - empty object
 */
 
-function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
-  return {
+export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+  let data = getData();
+
+  const user = data.users.find(user => user.authUserId === authUserId);
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
   };
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  };
+  
+  if (oldPassword === newPassword) {
+    return { error: 'new password is the same as old password' };
+  };
+  
+  if (user.passwordHistory.includes(newPassword)) {
+    return { error: 'password has already been used' };
+  };
+  
+  if (newPassword.length < 8) {
+    return { error: 'password is too short' };
+  };
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  };
+  
+  const hasNumber = /\d/.test(newPassword);
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  if (!hasNumber || !hasLetter) {
+    return { error: 'new password should contain at least one letter and one number' };
+  }
+
+  user.passwordHistory.push(newPassword);
+  user.password = newPassword;
+
+  return {};
 }

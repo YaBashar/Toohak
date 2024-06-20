@@ -25,7 +25,7 @@
 /*
 DEPENDENCIES
 */
-import { getData, setData } from './dataStore'
+import { getData, setData } from "./dataStore.js";
 
 /*
 GLOBAL DEFINITIONS
@@ -70,16 +70,23 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
-
 export function adminQuizList(authUserId) {
-  return {
-    quizzes: [
-      {
-        quizId: 1,
-        name: 'My Quiz',
-      },
-    ]
+  let data = getData();
+  let user = data.users.find(user => user.authUserId === authUserId)
+  const allQuizzes = [];
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid user id' };
   };
+
+  const userQuizzes = data.quizzes
+    .filter(quiz => quiz.authUserId === authUserId)
+    .map(quiz => ({
+      quizId: quiz.quizId,
+      name: quiz.name,
+    }));
+
+  return { quizzes: userQuizzes };
 }
 
 

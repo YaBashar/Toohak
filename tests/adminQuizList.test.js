@@ -6,10 +6,6 @@ let id, quiz, quiz2;
 
 beforeEach(() => {
   clear();
-  let id = adminAuthRegister('amelia@unsw.edu.au', 'ABCDabcd1234!@#$', 'Amelia', 'Su').authUserId;
-  console.log(id);
-  let quiz = adminQuizCreate(id, 'quiz 1', 'the first quiz').quizId;
-  let quiz2 = adminQuizCreate(id, 'quiz 2', 'the second quiz').quizId;
 });
 
 describe('Testing for errors', () => {
@@ -22,7 +18,10 @@ describe('Testing for errors', () => {
     expect(result2).toStrictEqual({error: 'invalid user id'});
   });
 
-  test.only('Expected results', () => {
+  test('Expected results', () => {
+    let id = adminAuthRegister('amelia@unsw.edu.au', 'ABCDabcd1234!@#$', 'Amelia', 'Su').authUserId;
+    let quiz = adminQuizCreate(id, 'quiz 1', 'the first quiz').quizId;
+    let quiz2 = adminQuizCreate(id, 'quiz 2', 'the second quiz').quizId;
     const result3 = adminQuizList(id);
     expect(result3).toStrictEqual(
       { quizzes: [

@@ -135,6 +135,7 @@ export function adminQuizCreate(authUserId, name, description) {
     quizId: id,
     name: name,
     description: description,
+    timeCreated : Math.round(Date.now() / 1000),
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -229,8 +230,8 @@ export function adminQuizInfo(authUserId, quizId) {
   return {
     quizId: quizId,
     name: quiz.name,
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
 }
@@ -270,6 +271,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   
   checkName(name);
   quiz.name = name;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
   
   return {};

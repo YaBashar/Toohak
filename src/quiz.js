@@ -76,7 +76,7 @@ export function adminQuizList(authUserId) {
   let user = data.users.find(user => user.authUserId === authUserId)
   const allQuizzes = [];
 
-  if (!Number.isInteger(user)) {
+  if (!Number.isInteger(authUserId)) {
     return { error: 'invalid user id' };
   };
 

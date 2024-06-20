@@ -319,8 +319,6 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
     quiz.description = description;
     setData(store);
 
-    console.log(store);
-
     return {};
 
   }

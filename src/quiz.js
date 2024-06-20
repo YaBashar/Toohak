@@ -52,6 +52,7 @@ DATA STRUCTURES
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+
 /** [1] adminQuizList
   * 
   * Provides a list of all quizzes that are owned by the currently 
@@ -234,6 +235,9 @@ export function adminQuizInfo(authUserId, quizId) {
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
+
+
+  
 }
 
 
@@ -260,26 +264,18 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
 
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
-  
+  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+
   if (!quiz ) {
     return {error : "Invalid Quiz id"};
   } else if (!user) {
     return {error : "Invalid User id"};
-  } else if (quizArr.some(quiz => quiz.name === name)) {
-    return {error : "Quiz does not exist with name"};
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  } else if (findName) {
+    return { error : 'Name is already used'};
   }
-  
-  checkName(name);
-  quiz.name = name;
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
-  setData(store);
-  
-  return {};
-
-}
-
-
-function checkName (name) {
   
   if (name === ' ') {
     return {error : "Name cannot be empty"};
@@ -289,8 +285,19 @@ function checkName (name) {
     return {error : "Name is too long"};
   } else if (/[!-\/:-@[-`{-~]/.test(name)) {
     return {error : "Quiz name cannot have symbols"};
-  } 
+  }
+
+  quiz.name = name;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  setData(store);
+  
+  return {};
+
 }
+
+
+
+
 
 /** [6] adminQuizDescriptionUpdate
   * 
@@ -366,10 +373,10 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   } else {
 
     quiz.description = description;
+    quiz.timeLastEdited = Math.round(Date.now() / 1000);
     setData(store);
 
     return {};
 
   }
 }
-

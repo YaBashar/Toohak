@@ -116,6 +116,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 }
 
 
+
 function checkEmail(email, userArr) {
   if (!isEmail(email) || userArr.some((user) => user.email === email)) {
     return false;
@@ -179,7 +180,6 @@ export function adminAuthLogin(email, password) {
   
 }
 
-
 /** [3] adminUserDetails
   * 
   * Given an admin user's authUserId, returns details about the user.
@@ -221,7 +221,6 @@ export function adminUserDetails(authUserId) {
     };
   }
 } 
-
 
 
 /** [4] adminUserDetailsUpdate

@@ -288,6 +288,7 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   return {};
 };
 
+
 /** [5] adminUserPasswordUpdate
   * 
   * Gets all of the relevant information about the current quiz.

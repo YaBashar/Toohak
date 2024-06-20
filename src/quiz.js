@@ -1,8 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-
-import { getData, setData } from "./dataStore";
 /*
 
 	COMP1531 24T2 --- Major Project: `Toohak', 
@@ -27,6 +25,7 @@ import { getData, setData } from "./dataStore";
 /*
 DEPENDENCIES
 */
+import { getData, setData } from "./dataStore.js";
 
 /*
 GLOBAL DEFINITIONS
@@ -48,7 +47,7 @@ DATA STRUCTURES
 // adminQuizNameUpdate: [5]
 // adminQuizDescriptionUpdate: [6]
 
-
+ 
 ///////////////////////////////////////////////////////////////////////////////
 //////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -71,19 +70,24 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
+export function adminQuizList(authUserId) {
+  let data = getData();
+  let user = data.users.find(user => user.authUserId === authUserId)
+  const allQuizzes = [];
 
-function adminQuizList(authUserId) {
-  return {
-    quizzes: [
-      {
-        quizId: 1,
-        name: 'My Quiz',
-      },
-    ]
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid user id' };
   };
+
+  const userQuizzes = data.quizzes
+    .filter(quiz => quiz.authUserId === authUserId)
+    .map(quiz => ({
+      quizId: quiz.quizId,
+      name: quiz.name,
+    }));
+
+  return { quizzes: userQuizzes };
 }
-
-
 
 /** [2] adminQuizCreate
   * 
@@ -196,15 +200,32 @@ export function adminQuizRemove(authUserId, quizId) {
   * 
 */
 
-function adminQuizInfo(authUserId, quizId) {
+export function adminQuizInfo(authUserId, quizId) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
+
+  if (!quiz ) {
+    return {error: "Invalid Quiz id"};
+  } else if (!user) {
+    return {error: "Invalid User id"};
+  } else if (!userQuiz) {
+    return {error : "This Quiz Id does not refer to a quiz that this user owns"}
+  }
+
   return {
-    quizId: 1,
-    name: 'My Quiz',
+    quizId: quizId,
+    name: quiz.name,
     timeCreated: 1683125870,
     timeLastEdited: 1683125871,
-    description: 'This is my quiz'
+    description: quiz.description
   };
 }
+
 
 
 
@@ -222,12 +243,10 @@ function adminQuizInfo(authUserId, quizId) {
   * 
 */
 
-function adminQuizNameUpdate(authUserId, quizId, name) {
+export function adminQuizNameUpdate(authUserId, quizId, name) {
   return {
   };
 }
-
-
 
 /** [6] adminQuizDescriptionUpdate
   * 
@@ -242,7 +261,70 @@ function adminQuizNameUpdate(authUserId, quizId, name) {
   * 
 */
 
-function adminQuizDescriptionUpdate(authUserId, quizId, description) {
-  return {
-  };
+/** [11] adminQuizDescriptionUpdate
+  * 
+  * Update The description of the relevant quiz.
+  * 
+  * @param {number} authUserId - Id number representing a unique 
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} description - a string containing the current
+  *                               description of the quiz
+  * ...
+  * @returns {} - empty object if successful
+  * 
+*/
+
+// My constant define for the 'Description is more than 100 characters' test case
+const MAX_DESCRIPTION_LENGTH = 100;
+
+export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  // Type checks for authUserId and quizId
+  if (typeof authUserId !== 'number') {
+    return { error: 'Invalid user Id type' };
+  }
+  
+  if (typeof quizId !== 'number') {
+    return { error: 'Invalid quiz Id type' };
+  }
+  
+  // These two lines finds the Tahook user with both a valid userId and quidId
+  const user = userArr.find((user) => user.authUserId === authUserId);
+  const quiz = quizArr.find((quiz) => quiz.quizId == quizId);
+
+  // Check if the quiz is owned by the user with the given UserId
+  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+
+  // Error messages returned if the error tests cases are activated within the program
+  // If a person's Tahook quiz does not match the userId, an error will then be returned
+  if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  // If the description length exceeds 100 characters, return an error
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    return { error: "Quiz description is more than 100 characters in length" };
+  }
+
+  // If the Tahook user does not exist, an error will then be returned
+  if (!user) {
+    return {error: 'authUserId does not exist'};
+
+   // If a person's Tahook quiz does not exist, an error will then be returned
+  } else if (!quiz) {
+    return {error: 'quizId does not exist'};
+  
+  } else {
+
+    quiz.description = description;
+    setData(store);
+
+    return {};
+
+  }
 }

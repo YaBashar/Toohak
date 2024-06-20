@@ -1,4 +1,3 @@
-clear
 import { clear } from '../src/other.js';
 
 beforeEach(() => {
@@ -29,7 +28,7 @@ describe("clear Function Tests", () => {
   });
 });
 
-describe("Error Cases", () => {
+describe("Error Case", () => {
   test('Clear function should handle undefined or null input', () => {
     const result = clear(undefined);
     expect(result).toEqual({});

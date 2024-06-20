@@ -93,9 +93,7 @@ describe ("adminQuizNameUpdate Tests", () => {
     });
 
     test ("Check that function returns empty object", () => {
-      console.log("Before Name Update:", quizId );
       const name = adminQuizNameUpdate(authUserId, quizId, "Name");
-      console.log(adminQuizNameUpdate(authUserId, quizId, "Name")); 
       expect(name).toStrictEqual({});
     });
 

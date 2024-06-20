@@ -137,6 +137,7 @@ export function adminQuizCreate(authUserId, name, description) {
     name: name,
     description: description,
     timeCreated : Math.round(Date.now() / 1000),
+    timeLastEdited: Math.round(Date.now() / 1000),
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);

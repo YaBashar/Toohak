@@ -289,7 +289,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   }
 
   quiz.name = name;
-  quiz.timeLastEdited = Math.round(Date.now() / 1000)
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
   
   return {};
@@ -374,6 +374,7 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   } else {
 
     quiz.description = description;
+    quiz.timeLastEdited = Math.round(Date.now() / 1000);
     setData(store);
 
     return {};

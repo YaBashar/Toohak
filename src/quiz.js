@@ -1,57 +1,27 @@
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-/*
-
-	COMP1531 24T2 --- Major Project: `Toohak', 
-	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
-  CRUNCHIE/project-backend/-/blob/master/README.md>
-
-	This program was written by 
-  z5478214 | z5599894 | z5525050 | z5362173 | z5478980
-  on 04/06/2024
-
-	quiz.js contains the stub functions for the implementation of quiz mechanics
-  in the Toohak project. This includes functions that create, remove, list
-  and update information regarding quizzes. 
-	
-*/
-
-
-///////////////////////////////////////////////////////////////////////////////
-/////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+/*/////////////////////////////////////////////////////////////////////////////
+//////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-DEPENDENCIES
-*/
+COMP1531 24T2 --- Major Project: `Toohak', 
+<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
+CRUNCHIE/project-backend/-/blob/master/README.md>
+
+This program was written by 
+z5478214 | z5599894 | z5525050 | z5362173 | z5478980
+on 04/06/2024
+
+quiz.js contains the functions for the implementation of quiz mechanics
+in the Toohak project. This includes functions that create, remove, list
+and update information regarding quizzes. 
+
+*//////////////////////////////////////////////////////////////////////////////
+
+// DEPENDENCIES 
+
 import { getData, setData } from "./dataStore.js";
 
-/*
-GLOBAL DEFINITIONS
-*/
-
-/*
-DATA STRUCTURES
-*/
-
 
 ///////////////////////////////////////////////////////////////////////////////
-//////////////////////////   FUNCTION CONTENTS    /////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-// adminQuizList: [1]
-// adminQuizCreate: [2]
-// adminQuizRemove: [3]
-// adminQuizInfo: [4]
-// adminQuizNameUpdate: [5]
-// adminQuizDescriptionUpdate: [6]
-
- 
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////   FUNCTIONS   //////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
 
 /** [1] adminQuizList
   * 
@@ -236,11 +206,8 @@ export function adminQuizInfo(authUserId, quizId) {
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
-
-
   
 }
-
 
 
 
@@ -297,23 +264,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
 }
 
 
-
-
-
 /** [6] adminQuizDescriptionUpdate
-  * 
-  * Update The description of the relevant quiz.
-  * 
-  * @param {number} authUserId - number representing a unique 
-  *                              identifier for the user
-  * @param {string} description - a string containing the current
-  *                               description of the quiz
-  * ...
-  * @returns {} - empty object
-  * 
-*/
-
-/** [11] adminQuizDescriptionUpdate
   * 
   * Update The description of the relevant quiz.
   * 

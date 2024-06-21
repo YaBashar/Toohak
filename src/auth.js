@@ -80,22 +80,28 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   const name = nameFirst + ' ' + nameLast;
 
-  if(!checkEmail(email, userArr)) {
-    return {error: 
-      'email is invalid or has already been registered'
-    };
+  if(!isEmail(email)){
+    return { error: 'email is not a valid email address' };
+
+  } else if (userArr.some(user => user.email === email)) {
+    return { error: 'email is used by another user' };
+  } 
+
+  if (/[^A-Za-z'\ \-]/.test(name)) {
+    return { error: 'name contains invalid characters' };
+
+  } else if (nameFirst.length < 2 || nameFirst.length > 20) {
+    return { error: 'first name must be at least 2 characters and no more than 20' };
+
+  } else if (nameLast.length < 2 || nameLast.length > 20) {
+    return { error: 'last name must be at least 2 characters and no more than 20' };
   }
 
-  if(!checkName(name)) {
-    return {error: 
-      'name contains invalid characters'
-    };
-  }
+  if (password.length < 8) {
+    return { error: 'password must be at least 8 characters' };
 
-  if(!checkPassword(password)) {
-    return {error: 
-      'password must be at least 8 characters and include one letter and number'
-    }
+  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
+    return { error: 'password must contain at least one number and one letter'};
   }
 
   const iD = userArr.length + 1;
@@ -115,31 +121,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   return {authUserId: iD};
 }
 
-
-
-function checkEmail(email, userArr) {
-  if (!isEmail(email) || userArr.some((user) => user.email === email)) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function checkName(name) {
-  if (/[^A-Za-z'\ \-]/.test(name)) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function checkPassword(password) {
-  if (password.length < 8 || !(/\d/.test(password) && /[a-zA-z]/.test(password))) {
-    return false;
-  } else {
-    return true;
-  }
-}
 
 
 /** [2] adminAuthLogin
@@ -340,3 +321,6 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 
   return {};
 }
+
+
+////////////////////////////////////////////////

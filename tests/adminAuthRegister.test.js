@@ -1,35 +1,33 @@
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister, adminUserDetails } from '../src/auth.js';
 import { clear } from '../src/other.js';
-import isEmail from 'validator/lib/isEmail.js';
 
 beforeEach(() => {
     clear();
 });
 
 
-describe('Testing email address', () => {
+describe('Testing email address input', () => {
 
-  // Email address is used by another user.
-  test('Email address is already registered', () => {
-    adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
-    const result = adminAuthRegister('zid@unsw.edu.au', 'defg4567',
-                                       'first', 'last');
-    expect(result).toStrictEqual({error: expect.any(String)});
-  });
+  // email address is used by another user
+    test('email address is already used by another user', () => {
+      adminAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+      const result = adminAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+      expect(result).toStrictEqual({
+        error: 'email is used by another user'
+      });
+    });
 
-  // Email does not satisfy validator.isEmail function.
-  test('Provided email is not a valid email address', () => {
-    const result1 = adminAuthRegister('invalidunsw.edu.au', 
-                                        'abcd1234', 'first', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('invalidemailslkcom', 
-                                        'abcd1234', 'first', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
-
-    const result3 = adminAuthRegister('invalid@emailcom', 
-                                        'abcd1234', 'first', 'last');
-    expect(result3).toStrictEqual({error: expect.any(String)});
+  // email address does not satisfy isEmail 
+  test.each([
+    'invalidunsw.edu.au', 'invalidemailslkcom',
+    'invalid@emailcom', 'yrigushfsgpishfd',
+    '34678893487', '#$%^&*()&*()',
+  
+  ])('invalid email address', (email) => {
+    const result = adminAuthRegister(email, 'abcd1234', 'first', 'last');
+    expect(result).toStrictEqual({
+      error: 'email is not a valid email address'
+    });
   });
 
 });
@@ -39,285 +37,57 @@ describe('Testing first name', () => {
 
   // NameFirst contains characters other than lowercase
   // letters, uppercase letters, spaces, hyphens, or apostrophes.
-  test('First name contains invalid characters', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first~', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
+  test.each([
+    '~','`', '!', '@', '#', '$', '%', '^', '&','*','(',')',
+    '_','+','=','{','[','}',']','|','\\',':',';','"','<',',',
+    '>','.','?','/','1',
+   ])('first name containing invalid charcters', (char) => {
+     const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first'+ char, 'last');
+     expect(result).toStrictEqual({
+        error: 'name contains invalid characters'
+     });
+   }) 
 
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first`', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+  // NameFirst is less than 2 characters or more than 20 characters.
+  test.each([
+    'a', ' ', 'abcdefghijklmnopqrstu',
+    'abcdefghijk-lmnopqrstuvwxyz',
+  ])('first name is an invalid length', (first) => {
 
-    const result3 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first!', 'last');
-    expect(result3).toStrictEqual({error: expect.any(String)});
-
-    const result4 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first@', 'last');
-    expect(result4).toStrictEqual({error: expect.any(String)});
-
-    const result5 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first#', 'last');
-    expect(result5).toStrictEqual({error: expect.any(String)});
-
-    const result6 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first$', 'last');
-    expect(result6).toStrictEqual({error: expect.any(String)});
-
-    const result7 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first%', 'last');
-    expect(result7).toStrictEqual({error: expect.any(String)});
-
-    const result8 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first^', 'last');
-    expect(result8).toStrictEqual({error: expect.any(String)});
-
-    const result9 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first&', 'last');
-    expect(result9).toStrictEqual({error: expect.any(String)});
-
-    const result10 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first*', 'last');
-    expect(result10).toStrictEqual({error: expect.any(String)});
-
-    const result11 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first(', 'last');
-    expect(result11).toStrictEqual({error: expect.any(String)});
-
-    const result12 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first)', 'last');
-    expect(result12).toStrictEqual({error: expect.any(String)});
-
-    const result13 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first_', 'last');
-    expect(result13).toStrictEqual({error: expect.any(String)});
-
-    const result14 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first+', 'last');
-    expect(result14).toStrictEqual({error: expect.any(String)});
-
-    const result15 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first=', 'last');
-    expect(result15).toStrictEqual({error: expect.any(String)});
-
-    const result16 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first{', 'last');
-    expect(result16).toStrictEqual({error: expect.any(String)});
-
-    const result17 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first[', 'last');
-    expect(result17).toStrictEqual({error: expect.any(String)});
-
-    const result18 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first]', 'last');
-    expect(result18).toStrictEqual({error: expect.any(String)});
-
-    const result19 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first}', 'last');
-    expect(result19).toStrictEqual({error: expect.any(String)});
-
-    const result20 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first|', 'last');
-    expect(result20).toStrictEqual({error: expect.any(String)});
-
-    const result21 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first\\', 'last');
-    expect(result21).toStrictEqual({error: expect.any(String)});
-
-    const result22 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first:', 'last');
-    expect(result22).toStrictEqual({error: expect.any(String)});
-
-    const result23 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first;', 'last');
-    expect(result23).toStrictEqual({error: expect.any(String)});
-
-    const result24 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first"', 'last');
-    expect(result24).toStrictEqual({error: expect.any(String)});
-
-    const result25 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first<', 'last');
-    expect(result25).toStrictEqual({error: expect.any(String)});
-
-    const result26 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first,', 'last');
-    expect(result26).toStrictEqual({error: expect.any(String)});
-
-    const result27 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first>', 'last');
-    expect(result27).toStrictEqual({error: expect.any(String)});
-
-    const result28 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first.', 'last');
-    expect(result28).toStrictEqual({error: expect.any(String)});
-
-    const result29 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first?', 'last');
-    expect(result29).toStrictEqual({error: expect.any(String)});
-
-    const result30 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first/', 'last');
-    expect(result30).toStrictEqual({error: expect.any(String)});
-
-    const result31 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first1', 'last');
-    expect(result31).toStrictEqual({error: expect.any(String)});
-  });
-
-  // NameFirst is less than 2 characters or more than 20 characters
-  test('Invalid length of first name', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'f,', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 
-                                       'abcdefghijklmnopqrstu,', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+    const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', first, 'last');
+    expect(result).toStrictEqual({
+      error: 'first name must be at least 2 characters and no more than 20'
+    });
   });
 
 });
 
 
-describe('Testing email address', () => {
+describe('Testing last name', () => {
 
-  // NameLast contains characters other than lowercase letters, 
-  // uppercase letters, spaces, hyphens, or apostrophes.
-  test('Last name contains invalid characters', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last~');
-    expect(result1).toStrictEqual({error: expect.any(String)});
+  // NameFirst contains characters other than lowercase
+  // letters, uppercase letters, spaces, hyphens, or apostrophes.
+  test.each([
+    '~','`', '!', '@', '#', '$', '%', '^', '&','*','(',')',
+    '_','+','=','{','[','}',']','|','\\',':',';','"','<',',',
+    '>','.','?','/','1',
+   ])('last name containing invalid charcters', (char) => {
+     const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last' + char);
+     expect(result).toStrictEqual({
+        error: 'name contains invalid characters'
+     });
+   }) 
 
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last`');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+  // NameFirst is less than 2 characters or more than 20 characters.
+  test.each([
+    'a', ' ', 'abcdefghijklmnopqrstu',
+    'abcdefghijk-lmnopqrstuvwxyz',
+  ])('first name is an invalid length', (last) => {
 
-    const result3 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last!');
-    expect(result3).toStrictEqual({error: expect.any(String)});
-
-    const result4 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last@');
-    expect(result4).toStrictEqual({error: expect.any(String)});
-
-    const result5 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last#');
-    expect(result5).toStrictEqual({error: expect.any(String)});
-
-    const result6 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last$');
-    expect(result6).toStrictEqual({error: expect.any(String)});
-
-    const result7 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last%');
-    expect(result7).toStrictEqual({error: expect.any(String)});
-
-    const result8 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last^');
-    expect(result8).toStrictEqual({error: expect.any(String)});
-
-    const result9 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first', 'last&');
-    expect(result9).toStrictEqual({error: expect.any(String)});
-
-    const result10 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last*');
-    expect(result10).toStrictEqual({error: expect.any(String)});
-
-    const result11 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last(');
-    expect(result11).toStrictEqual({error: expect.any(String)});
-
-    const result12 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last)');
-    expect(result12).toStrictEqual({error: expect.any(String)});
-
-    const result13 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last_');
-    expect(result13).toStrictEqual({error: expect.any(String)});
-
-    const result14 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last+');
-    expect(result14).toStrictEqual({error: expect.any(String)});
-
-    const result15 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last=');
-    expect(result15).toStrictEqual({error: expect.any(String)});
-
-    const result16 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last{');
-    expect(result16).toStrictEqual({error: expect.any(String)});
-
-    const result17 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last[');
-    expect(result17).toStrictEqual({error: expect.any(String)});
-
-    const result18 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last]');
-    expect(result18).toStrictEqual({error: expect.any(String)});
-
-    const result19 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last}');
-    expect(result19).toStrictEqual({error: expect.any(String)});
-
-    const result20 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first', 'last|');
-    expect(result20).toStrictEqual({error: expect.any(String)});
-
-    const result21 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first\\', 'last');
-    expect(result21).toStrictEqual({error: expect.any(String)});
-
-    const result22 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first:', 'last');
-    expect(result22).toStrictEqual({error: expect.any(String)});
-
-    const result23 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first;', 'last');
-    expect(result23).toStrictEqual({error: expect.any(String)});
-
-    const result24 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first"', 'last');
-    expect(result24).toStrictEqual({error: expect.any(String)});
-
-    const result25 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first<', 'last');
-    expect(result25).toStrictEqual({error: expect.any(String)});
-
-    const result26 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first,', 'last');
-    expect(result26).toStrictEqual({error: expect.any(String)});
-
-    const result27 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first>', 'last');
-    expect(result27).toStrictEqual({error: expect.any(String)});
-
-    const result28 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first.', 'last');
-    expect(result28).toStrictEqual({error: expect.any(String)});
-
-    const result29 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first?', 'last');
-    expect(result29).toStrictEqual({error: expect.any(String)});
-
-    const result30 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first/', 'last');
-    expect(result30).toStrictEqual({error: expect.any(String)});
-
-    const result31 = adminAuthRegister('zid@unsw.edu.au', 
-                                         'abcd1234', 'first1', 'last');
-    expect(result31).toStrictEqual({error: expect.any(String)});
-  });
-
-  // NameLast is less than 2 characters or more than 20 characters.
-  test('Invalid length of first name', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-                                        'abcd1234', 'first,', 'l');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 
-                                       'first,', 'abcdefghijklmnopqrstu');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+    const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', last);
+    expect(result).toStrictEqual({
+      error: 'last name must be at least 2 characters and no more than 20'
+    });
   });
 
 });
@@ -327,21 +97,73 @@ describe('Testing password', () => {
 
   // Password is less than 8 characters.
   test('Invalid password length', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-        'abcd123', 'first,', 'last');
-
-    expect(result1).toStrictEqual({error: expect.any(String)});
+    const result = adminAuthRegister('zid@unsw.edu.au', 
+        'abcd123', 'first', 'last');
+    expect(result).toStrictEqual({
+      error: 'password must be at least 8 characters' 
+    });
   });
 
   // Password does not contain at least one number and at least one letter.
-  test('Password does not contain at least one number and one letter', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-        'abcdefgh', 'first,', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 
-        '12345678', 'first,', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+  test.each([
+    'abcdefgh', '12345678', 'shfvfhj^&&*%', '253768%&^*',
+  ])('Password does not contain at least one number and one letter', (password) => {
+    const result = adminAuthRegister('zid@unsw.edu.au', 
+      password, 'first', 'last');
+    expect(result).toStrictEqual({ 
+      error: 'password must contain at least one number and one letter'
+    });
   });
+
+});
+
+
+describe('Testing that information has been correctly registered', () => {
+  let id;
+
+  beforeEach(() => {
+    id = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+  });
+
+  // Registers correct details to the database
+  test('Testing one registration', () => {
+    expect(adminUserDetails(id)).toStrictEqual({
+      user:
+        {
+          userId: id.authUserId,
+          name: 'first last',
+          email: 'zid@unsw.edu.au',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0,
+        }
+    });
+  });
+
+  // checks that user array is able to be navigated to get access to correct information
+  test('Testing multiple registrations', () => {
+    adminAuthRegister('zid2@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const uid = adminAuthRegister('zid3@unsw.edu.au', 'abcd1234', 'first', 'last');
+    adminAuthRegister('zid4@unsw.edu.au', 'abcd1234', 'first', 'last');
+
+    expect(adminUserDetails(uid)).toStrictEqual({
+      user:
+        {
+          userId: uid.authUserId,
+          name: 'first last',
+          email: 'zid3@unsw.edu.au',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0,
+        }
+    });
+  });
+
+})
+
+// checks for correct return type
+test('Returns correct object type', () => {
+  const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+  expect(result).toStrictEqual(
+    { authUserId: expect.any(Number) }
+  );
 
 });

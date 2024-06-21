@@ -131,7 +131,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
-  * ...
+  * ... 
   * @returns {authUserId: number} - number representing a unique 
   *                                 identifier for the user
   * 

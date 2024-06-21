@@ -100,7 +100,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   if (password.length < 8) {
     return { error: 'password must be at least 8 characters' };
 
-  } else if (!(/\d/.test(password)) || !(/[a-zA-Z]/.test(password))) {
+  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
     return { error: 'password must contain at least one number and one letter'};
   }
 

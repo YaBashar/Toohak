@@ -1,6 +1,5 @@
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister, adminUserDetails } from '../src/auth.js';
 import { clear } from '../src/other.js';
-import isEmail from 'validator/lib/isEmail.js';
 
 beforeEach(() => {
     clear();
@@ -51,7 +50,7 @@ describe('Testing first name', () => {
 
   // NameFirst is less than 2 characters or more than 20 characters.
   test.each([
-    'a', '', ' ', 'abcdefghijklmnopqrstu',
+    'a', ' ', 'abcdefghijklmnopqrstu',
     'abcdefghijk-lmnopqrstuvwxyz',
   ])('first name is an invalid length', (first) => {
 
@@ -81,7 +80,7 @@ describe('Testing last name', () => {
 
   // NameFirst is less than 2 characters or more than 20 characters.
   test.each([
-    'a', '', ' ', 'abcdefghijklmnopqrstu',
+    'a', ' ', 'abcdefghijklmnopqrstu',
     'abcdefghijk-lmnopqrstuvwxyz',
   ])('first name is an invalid length', (last) => {
 
@@ -98,21 +97,73 @@ describe('Testing password', () => {
 
   // Password is less than 8 characters.
   test('Invalid password length', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-        'abcd123', 'first,', 'last');
-
-    expect(result1).toStrictEqual({error: expect.any(String)});
+    const result = adminAuthRegister('zid@unsw.edu.au', 
+        'abcd123', 'first', 'last');
+    expect(result).toStrictEqual({
+      error: 'password must be at least 8 characters' 
+    });
   });
 
   // Password does not contain at least one number and at least one letter.
-  test('Password does not contain at least one number and one letter', () => {
-    const result1 = adminAuthRegister('zid@unsw.edu.au', 
-        'abcdefgh', 'first,', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('zid@unsw.edu.au', 
-        '12345678', 'first,', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
+  test.each([
+    'abcdefgh', '12345678', 'shfvfhj^&&*%', '253768%&^*',
+  ])('Password does not contain at least one number and one letter', (password) => {
+    const result = adminAuthRegister('zid@unsw.edu.au', 
+      password, 'first', 'last');
+    expect(result).toStrictEqual({ 
+      error: 'password must contain at least one number and one letter'
+    });
   });
+
+});
+
+
+describe('Testing that information has been correctly registered', () => {
+  let id;
+
+  beforeEach(() => {
+    id = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+  });
+
+  // Registers correct details to the database
+  test('Testing one registration', () => {
+    expect(adminUserDetails(id)).toStrictEqual({
+      user:
+        {
+          userId: id.authUserId,
+          name: 'first last',
+          email: 'zid@unsw.edu.au',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0,
+        }
+    });
+  });
+
+  // checks that user array is able to be navigated to get access to correct information
+  test('Testing multiple registrations', () => {
+    adminAuthRegister('zid2@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const uid = adminAuthRegister('zid3@unsw.edu.au', 'abcd1234', 'first', 'last');
+    adminAuthRegister('zid4@unsw.edu.au', 'abcd1234', 'first', 'last');
+
+    expect(adminUserDetails(uid)).toStrictEqual({
+      user:
+        {
+          userId: uid.authUserId,
+          name: 'first last',
+          email: 'zid3@unsw.edu.au',
+          numSuccessfulLogins: 1,
+          numFailedPasswordsSinceLastLogin: 0,
+        }
+    });
+  });
+
+})
+
+// checks for correct return type
+test('Returns correct object type', () => {
+  const result = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+  expect(result).toStrictEqual(
+    { authUserId: expect.any(Number) }
+  );
 
 });

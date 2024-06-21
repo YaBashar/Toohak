@@ -7,29 +7,28 @@ beforeEach(() => {
 });
 
 
-describe('Testing email address', () => {
+describe ('Testing email address input', () => {
 
-  // Email address is used by another user.
-  test('Email address is already registered', () => {
-    adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
-    const result = adminAuthRegister('zid@unsw.edu.au', 'defg4567',
-                                       'first', 'last');
-    expect(result).toStrictEqual({error: expect.any(String)});
-  });
+  // email address is used by another user
+    test('email address is already registered', () => {
+      adminAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+      const result = adminAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+      expect(result).toStrictEqual({
+        error: 'email is invalid or has already been registered'
+      });
+    });
 
-  // Email does not satisfy validator.isEmail function.
-  test('Provided email is not a valid email address', () => {
-    const result1 = adminAuthRegister('invalidunsw.edu.au', 
-                                        'abcd1234', 'first', 'last');
-    expect(result1).toStrictEqual({error: expect.any(String)});
-
-    const result2 = adminAuthRegister('invalidemailslkcom', 
-                                        'abcd1234', 'first', 'last');
-    expect(result2).toStrictEqual({error: expect.any(String)});
-
-    const result3 = adminAuthRegister('invalid@emailcom', 
-                                        'abcd1234', 'first', 'last');
-    expect(result3).toStrictEqual({error: expect.any(String)});
+  // email address does not satisfy isEmail 
+  test.each([
+    'invalidunsw.edu.au', 'invalidemailslkcom',
+    'invalid@emailcom', 'yrigushfsgpishfd',
+    '34678893487', '#$%^&*()&*()',
+  
+  ])('invalid email address', (email) => {
+    const result = adminAuthRegister(email, 'abcd1234', 'first', 'last');
+    expect(result).toStrictEqual({
+      error: 'email is invalid or has already been registered'
+    });
   });
 
 });

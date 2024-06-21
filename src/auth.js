@@ -105,7 +105,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     name: name,
     email: email,
     password: password,
-    numSuccessfulLogins: 0,
+    numSuccessfulLogins: 1,
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password,],    
   };
@@ -150,7 +150,7 @@ function checkPassword(password) {
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
-  * ...
+  * ... 
   * @returns {authUserId: number} - number representing a unique 
   *                                 identifier for the user
   * 

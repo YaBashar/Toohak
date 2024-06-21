@@ -1,32 +1,60 @@
-import { adminAuthRegister, adminUserDetails } from '../src/auth.js';
+import { adminAuthRegister, adminUserDetails, adminAuthLogin } from '../src/auth.js';
 import { clear } from '../src/other.js';
 
 beforeEach(() => {
-    clear();
+  clear();
 });
 
-describe('Testing user details retrieval', () => {
-  
+describe('Testing error cases', () => {
+
   // AuthUserId is not a valid user.
   test('Invalid AuthUserId', () => {
     const result = adminUserDetails('randomstring');
-    expect(result).toStrictEqual({error: expect.any(String)});
+    expect(result).toStrictEqual({error: 'Invalid AuthUserId'});
   });
 
-  // Successful user details retrieval.
-  test('Successful user details retrieval', () => {
-    const id = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+})
+
+describe('Testing successful user details retrieval', () => {
+  let id;
+
+  beforeEach(() => {
+    id = adminAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
+  });
+
+  // Successful user details retrieval - one user.
+  test('Details retrival with one registered user', () => {
     const result = adminUserDetails(id);
+    expect(result).toStrictEqual({
+      user: {
+        userId: id.authUserId,
+        name: 'first last',
+        email: 'zid@unsw.edu.au',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+      }
+    });
+  });
+
+  // Successful user details retrieval - multiple users
+  test('Details retrieval with multiple registered users', () => {
+    adminAuthRegister('zid1@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const uid = adminAuthRegister('zid2@unsw.edu.au', 'abcd1234', 'first', 'last');
+    adminAuthLogin('zid2@unsw.edu.au', 'abcd1234');
+    adminAuthRegister('zid3@unsw.edu.au', 'abcd1234', 'first', 'last');
+    
+    const result = adminUserDetails(uid);
 
     expect(result).toStrictEqual({
       user: {
-        userId: 1,
+        userId: uid.authUserId,
         name: 'first last',
-        email: 'zid@unsw.edu.au',
-        numSuccessfulLogins: expect.any(Number),
-        numFailedPasswordsSinceLastLogin: expect.any(Number),
+        email: 'zid2@unsw.edu.au',
+        numSuccessfulLogins: 2,
+        numFailedPasswordsSinceLastLogin: 0,
       }
     });
+
   });
 
 });

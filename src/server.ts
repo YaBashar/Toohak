@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminUserDetailsUpdate } from '../src/auth.ts';
 
 // Set up web app
 const app = express();
@@ -39,9 +40,9 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-// adminUserDetailsUpdate
-app.put('/echo', (req: Request, res: Response) => {
-  const { email, nameFirst, nameLast} = req.body
+// adminUserDetailsUpdate route
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const { authUserId, email, nameFirst, nameLast } = req.body
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
   if ('error' in result) {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {

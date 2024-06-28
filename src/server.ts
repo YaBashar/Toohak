@@ -39,6 +39,20 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
+// adminUserDetailsUpdate
+app.put('/echo', (req: Request, res: Response) => {
+  const { email, nameFirst, nameLast} = req.body
+  const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+  if ('error' in result) {
+    if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+      return res.status(401).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  }
+  res.json(result);
+});
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

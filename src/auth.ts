@@ -301,7 +301,7 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: String, oldPassword: String, newPassword: String): Object {
+export function adminUserPasswordUpdate(authUserId: String, oldPassword: string, newPassword: string): Object {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 

@@ -1,55 +1,26 @@
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 0 'QUIZ.JS'  ////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-/*
-
-	COMP1531 24T2 --- Major Project: `Toohak', 
-	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
-  CRUNCHIE/project-backend/-/blob/master/README.md>
-
-	This program was written by 
-  z5478214 | z5599894 | z5525050 | z5362173 | z5478980
-  on 04/06/2024
-
-	quiz.js contains the stub functions for the implementation of quiz mechanics
-  in the Toohak project. This includes functions that create, remove, list
-  and update information regarding quizzes. 
-	
-*/
-
-
-///////////////////////////////////////////////////////////////////////////////
-/////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+/*/////////////////////////////////////////////////////////////////////////////
+//////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-DEPENDENCIES
-*/
+COMP1531 24T2 --- Major Project: `Toohak', 
+<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
+CRUNCHIE/project-backend/-/blob/master/README.md>
+
+This program was written by 
+z5478214 | z5599894 | z5525050 | z5362173 | z5478980
+on 04/06/2024
+
+quiz.js contains the functions for the implementation of quiz mechanics
+in the Toohak project. This includes functions that create, remove, list
+and update information regarding quizzes. 
+
+*//////////////////////////////////////////////////////////////////////////////
+
+// DEPENDENCIES 
+
 import { getData, setData } from "./dataStore.js";
 
-/*
-GLOBAL DEFINITIONS
-*/
 
-/*
-DATA STRUCTURES
-*/
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////   FUNCTION CONTENTS    /////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-// adminQuizList: [1]
-// adminQuizCreate: [2]
-// adminQuizRemove: [3]
-// adminQuizInfo: [4]
-// adminQuizNameUpdate: [5]
-// adminQuizDescriptionUpdate: [6]
-
- 
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminQuizList
@@ -88,8 +59,6 @@ export function adminQuizList(authUserId) {
 
   return { quizzes: userQuizzes };
 }
-
-
 
 /** [2] adminQuizCreate
   * 
@@ -132,11 +101,13 @@ export function adminQuizCreate(authUserId, name, description) {
     return { error: 'Name is already used by current logged in user' };
   }
   
-  const id = quizArr.length + 1;
+  const id = uniqueId(quizArr);
   const quiz = {
     quizId: id,
     name: name,
     description: description,
+    timeCreated : Math.round(Date.now() / 1000),
+    timeLastEdited: Math.round(Date.now() / 1000),
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -144,6 +115,15 @@ export function adminQuizCreate(authUserId, name, description) {
   return { quizId: id };
 }
 
+// function to create a random id everytime
+function uniqueId(quizArr) {
+  let uId;
+  do {
+    uId = Math.random();
+  } while (quizArr.find(quiz => (quiz.quizId === uId)))
+
+  return uId;
+}
 
 
 /** [3] adminQuizRemove
@@ -222,12 +202,12 @@ export function adminQuizInfo(authUserId, quizId) {
   return {
     quizId: quizId,
     name: quiz.name,
-    timeCreated: 1683125870,
-    timeLastEdited: 1683125871,
+    timeCreated: quiz.timeCreated,
+    timeLastEdited: quiz.timeLastEdited,
     description: quiz.description
   };
+  
 }
-
 
 
 
@@ -246,24 +226,45 @@ export function adminQuizInfo(authUserId, quizId) {
 */
 
 export function adminQuizNameUpdate(authUserId, quizId, name) {
-  return {
-  };
+  let store = getData();
+  let userArr = store.users;
+  let quizArr = store.quizzes;
+
+  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
+  const user = userArr.find(user => user.authUserId === authUserId);
+  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+
+  if (!quiz ) {
+    return {error : "Invalid Quiz id"};
+  } else if (!user) {
+    return {error : "Invalid User id"};
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  } else if (findName) {
+    return { error : 'Name is already used'};
+  }
+  
+  if (name === ' ') {
+    return {error : "Name cannot be empty"};
+  } else if (name.length <= 3) {
+    return {error : "Name is too short"};
+  } else if (name.length > 30) {
+    return {error : "Name is too long"};
+  } else if (/[!-\/:-@[-`{-~]/.test(name)) {
+    return {error : "Quiz name cannot have symbols"};
+  }
+
+  quiz.name = name;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  setData(store);
+  
+  return {};
+
 }
 
-/** [6] adminQuizDescriptionUpdate
-  * 
-  * Update The description of the relevant quiz.
-  * 
-  * @param {number} authUserId - number representing a unique 
-  *                              identifier for the user
-  * @param {string} description - a string containing the current
-  *                               description of the quiz
-  * ...
-  * @returns {} - empty object
-  * 
-*/
 
-/** [11] adminQuizDescriptionUpdate
+/** [6] adminQuizDescriptionUpdate
   * 
   * Update The description of the relevant quiz.
   * 
@@ -324,6 +325,7 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
   } else {
 
     quiz.description = description;
+    quiz.timeLastEdited = Math.round(Date.now() / 1000);
     setData(store);
 
     return {};

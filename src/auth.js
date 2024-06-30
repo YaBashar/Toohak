@@ -1,60 +1,27 @@
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 0 'AUTH.JS'  ////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-/*
-
-	COMP1531 24T2 --- Major Project: `Toohak', 
-	<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
-  CRUNCHIE/project-backend/-/blob/master/README.md>
-
-	This program was written by 
-  z5478214 | z5599894 | z5525050 | z5362173 | z5478980
-  on 04/06/2024
-
-	auth.js currently contains the authentification stub functions for the 
-  Toohak project backend. These functions manage the authentification 
-  process of the site, including user details, login mechanics, and updating 
-  passwords and usernames. 
-	
-*/
-
-///////////////////////////////////////////////////////////////////////////////
-/////////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
+/*/////////////////////////////////////////////////////////////////////////////
+//////////////////////   TOOHAK ITERATION 1 'AUTH.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-/*
-DEPENDENCIES
-*/
+COMP1531 24T2 --- Major Project: `Toohak', 
+<https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
+CRUNCHIE/project-backend/-/blob/master/README.md>
+
+This program was written by 
+z5478214 | z5599894 | z5525050 | z5362173 | z5478980
+on 04/06/2024
+
+auth.js contains functions for the Toohak project backend. These functions 
+manage the authentification process of the site, including user details, 
+login mechanics, and updating passwords and usernames. 
+
+*//////////////////////////////////////////////////////////////////////////////
+
+// DEPENDENCIES 
+
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
-/*
-GLOBAL DEFINITIONS
-*/
 
-/*
-DATA STRUCTURES
-*/
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////   FUNCTION CONTENTS    /////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
-
-/* adminAuthRegister: [1]
-    - checkEmail                 (1.1)
-    - checkName                  (1.2)
-    - checkPassword              (1.3)
-*/
-
-// adminAuthLogin: [2]
-// adminUserDetails: [3]
-// adminUserDetailsUpdate: [4]
-// adminUserPasswordUpdate: [5]
-
-
-///////////////////////////////////////////////////////////////////////////////
-//////////////////////////////   FUNCTIONS   //////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminAuthRegister
@@ -80,24 +47,32 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   const name = nameFirst + ' ' + nameLast;
 
-  if(!checkEmail(email, userArr)) {
-    return {error: 
-      'email is invalid or has already been registered'
-    };
+  // checking for error cases
+  if(!isEmail(email)){
+    return { error: 'email is not a valid email address' };
+
+  } else if (userArr.some(user => user.email === email)) {
+    return { error: 'email is used by another user' };
+  } 
+
+  if (/[^A-Za-z'\ \-]/.test(name)) {
+    return { error: 'name contains invalid characters' };
+
+  } else if (nameFirst.length < 2 || nameFirst.length > 20) {
+    return { error: 'first name must be at least 2 characters and no more than 20' };
+
+  } else if (nameLast.length < 2 || nameLast.length > 20) {
+    return { error: 'last name must be at least 2 characters and no more than 20' };
   }
 
-  if(!checkName(name)) {
-    return {error: 
-      'name contains invalid characters'
-    };
+  if (password.length < 8) {
+    return { error: 'password must be at least 8 characters' };
+
+  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
+    return { error: 'password must contain at least one number and one letter'};
   }
 
-  if(!checkPassword(password)) {
-    return {error: 
-      'password must be at least 8 characters and include one letter and number'
-    }
-  }
-
+  // registering the user to the database
   const iD = userArr.length + 1;
 
   let newUser = {
@@ -105,7 +80,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     name: name,
     email: email,
     password: password,
-    numSuccessfulLogins: 0,
+    numSuccessfulLogins: 1,
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password,],    
   };
@@ -116,30 +91,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 }
 
 
-function checkEmail(email, userArr) {
-  if (!isEmail(email) || userArr.some((user) => user.email === email)) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function checkName(name) {
-  if (/[^A-Za-z'\ \-]/.test(name)) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
-function checkPassword(password) {
-  if (password.length < 8 || !(/\d/.test(password) && /[a-zA-z]/.test(password))) {
-    return false;
-  } else {
-    return true;
-  }
-}
-
 
 /** [2] adminAuthLogin
   * 
@@ -149,7 +100,7 @@ function checkPassword(password) {
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
-  * ...
+  * ... 
   * @returns {authUserId: number} - number representing a unique 
   *                                 identifier for the user
   * 
@@ -161,7 +112,8 @@ export function adminAuthLogin(email, password) {
   let userArr = store.users;
 
   const user = userArr.find((user) => user.email === email);
-
+  
+  // checking for error cases
   if (!user) {
     return {error: 'Email address does not exist'};
 
@@ -170,6 +122,7 @@ export function adminAuthLogin(email, password) {
     setData(store);
     return {error: 'Incorrect password'};
 
+  // logging in the user
   } else {
     user.numSuccessfulLogins++;
     user.numFailedPasswordSinceLastLogin = 0;
@@ -178,6 +131,7 @@ export function adminAuthLogin(email, password) {
   }
   
 }
+
 
 
 /** [3] adminUserDetails
@@ -205,10 +159,12 @@ export function adminUserDetails(authUserId) {
   let userArr = store.users;
 
   const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
-
+  
+  // checking for error cases
   if (!user) {
     return {error: 'Invalid AuthUserId'};
 
+  // returning object containing user details
   } else {
     return {
       user: {
@@ -221,7 +177,6 @@ export function adminUserDetails(authUserId) {
     };
   }
 } 
-
 
 
 /** [4] adminUserDetailsUpdate

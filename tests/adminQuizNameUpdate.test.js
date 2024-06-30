@@ -83,28 +83,33 @@ describe('adminQuizNameUpdate Tests', () => {
     ])('Test $# => $testName', ({ quizName, errorMessage }) => {
       const name = quizNameUpdate(token, quizId, 'Name');
       expect(name).toStrictEqual({ error: errorMessage });
+      expect(name.statusCode).toStrictEqual(400);
     });
 
     // Testing Invalid User id and Quiz id
     test('Invalid User id', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
       expect(name).toStrictEqual({ error: expect.any(String) });
+      expect(name.statusCode).toStrictEqual(401);
     });
 
     test('Invalid Quiz id', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
       expect(name).toStrictEqual({ error: expect.any(String) });
+      expect(name.statusCode).toStrictEqual(403);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
       expect(name).toStrictEqual({ error: expect.any(String) });
+      expect(name.statusCode).toStrictEqual(403);
     });
 
     test('Name is already used by the current logged in user for another quiz', () => {
       const quiz = createQuiz(token, 'anotherQuizName', 'description2').quizId;
       const nameUpdate = quizNameUpdate(token, quiz, 'Name');
       expect(nameUpdate).toStrictEqual({ error: expect.any(String) });
+      expect(nameUpdate.statusCode).toStrictEqual(400);
     });
   });
 
@@ -120,6 +125,7 @@ describe('adminQuizNameUpdate Tests', () => {
     test('Check that function returns empty object', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
       expect(name).toStrictEqual({});
+      expect(name.statusCode).toStrictEqual(200);
     });
 
     test('Check name has been updated successfully', () => {

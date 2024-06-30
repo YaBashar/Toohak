@@ -226,7 +226,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
-  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
   if (!quiz) {
     return { error: 'Invalid Quiz id' };

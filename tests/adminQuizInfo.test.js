@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from './config.json';
+import { port, url } from '../src/config.json';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -48,7 +48,7 @@ describe('adminQuizInfo Tests', () => {
     test('Info of a Quiz which does not exist ', () => {
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId + 1}`, { qs: { token } });
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(quizInfo.statusCode).toStrictEqual(403);
+      expect(quizInfo.statusCode).toStrictEqual(401);
     });
 
     test('Info of a Quiz with invalid Authuser id', () => {

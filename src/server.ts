@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
+import { adminQuizCreate, adminQuizRemove } from './quiz';
+
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -35,9 +37,21 @@ app.get('/echo', (req: Request, res: Response) => {
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
 });
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const request = req.body;
+  const result = adminQuizCreate(request.authUserId, request.name, request.description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      res.status(401);
+    } else {
+      res.status(400);
+    }
+  }
+  return res.json(result);
+})
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

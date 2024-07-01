@@ -41,7 +41,7 @@ app.get('/echo', (req: Request, res: Response) => {
 });
 
 // adminQuizNameUpdate server route
-app.put('v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
+app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const { token, name } = req.body;
   const quizid = parseInt(req.params.quizid as string);
   const quizNameUpdate = adminQuizNameUpdate(token, quizid, name);

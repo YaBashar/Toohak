@@ -1,29 +1,19 @@
 import request from 'sync-request-curl';
-import { port, url } from './config.json';
+import { port, url } from '../src/config.json';
 
 const SERVER_URL = `${url}:${port}`;
-const TIMEOUT_MS = 1000;
+const TIMEOUT_MS = 5*1000;
+
+let user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+let id = JSON.parse(user.body.toString()).authUserId;
 
 beforeEach(() => {
-  request('DELETE', SERVER_URL + '/clear', { timeout: TIMEOUT_MS });
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+  user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+  id = JSON.parse(user.body.toString()).authUserId;
 });
 
 describe('POST /v1/admin/quiz', () => {
-  let id;
-  beforeEach(() => {
-  const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
-    json: {
-      email: 'z5525050@unsw.edu.au',
-      password: '123ABCabc@#$',
-      firstName: 'sidak',
-      lastName: 'singh'
-    },
-    timeout: TIMEOUT_MS
-  });
-  const body = JSON.parse(res.body.toString());
-  id = body.id;
-});
-
   test('AuthUserId is invalid', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {

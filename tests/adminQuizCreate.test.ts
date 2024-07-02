@@ -4,8 +4,8 @@ import { port, url } from '../src/config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5*1000;
 
-let user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-let id = JSON.parse(user.body.toString()).authUserId;
+const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+const id = JSON.parse(user.body.toString()).authUserId;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });

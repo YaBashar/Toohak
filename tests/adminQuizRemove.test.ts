@@ -12,7 +12,7 @@ beforeEach(() => {
   uid = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
   qid = request('POST', SERVER_URL + '/v1/admin/quiz/create', { json: { authUserId: uid.authUserId, name: 'validQuiz', description: 'valid description'}});
   u2id = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
-  q2id = request('POST', SERVER_URL + '/v1/admin/quiz/create', { json: { authUserId: ui2d.authUserId, name: 'validQuiz2', description: 'valid description2'}});
+  q2id = request('POST', SERVER_URL + '/v1/admin/quiz/create', { json: { authUserId: u2id.authUserId, name: 'validQuiz2', description: 'valid description2'}});
 });
 
 // test to check if the authUserId is invalid

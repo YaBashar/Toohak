@@ -139,7 +139,7 @@ function uniqueId(quizArr) {
   * 
 */
 
-export function adminQuizRemove(authUserId, quizId) {
+export function adminQuizRemove(authUserId: number, quizId: number): Object {
   let store = getData();
   let quizArray = store.quizzes;
   let userArray = store.users;

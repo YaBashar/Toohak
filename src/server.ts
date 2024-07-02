@@ -53,6 +53,23 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   return res.json(result);
 })
 
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = parseInt(req.query.token as string);
+  const quizId = parseInt(req.query.quizid as string);
+  const result = adminQuizRemove(token, quizId);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      res.status(401);
+    } else {
+      res.status(400);
+    }
+  } 
+  return res.json(result);
+});
+
+
+
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

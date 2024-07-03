@@ -103,3 +103,5 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
 function createSessionId () {
   return (Math.random()).toString();
 };
+
+

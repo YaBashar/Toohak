@@ -99,7 +99,6 @@ describe('Testing last name', () => {
 
 });
 
-
 describe('Testing password', () => {
   // Password is less than 8 characters.
   test('Invalid password length', () => {

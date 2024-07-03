@@ -53,6 +53,7 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.json(quizInfo);
   res.status(200).json(quizInfo);
 });
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

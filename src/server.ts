@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 
+import { adminAuthRegister, adminAuthLogin } from './auth';
+
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -37,6 +39,16 @@ app.get('/echo', (req: Request, res: Response) => {
   }
 
   return res.json(result);
+});
+
+app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const response = adminAuthLogin(email, password);
+
+  if (typeof response === typeof Error) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
 });
 
 // ====================================================================

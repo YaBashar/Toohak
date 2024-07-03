@@ -129,5 +129,7 @@ describe('Testing that information has been correctly registered', () => {
 
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-  return (request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email, password, nameFirst, nameLast}}));
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register', { 
+    json: {email, password, nameFirst, nameLast}, timeout: TIMEOUT_MS
+  }));
 }

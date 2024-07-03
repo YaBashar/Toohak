@@ -124,6 +124,17 @@ describe('Testing password', () => {
 
 
 describe('Testing that information has been correctly registered', () => {
+  // Registers correct details to the database
+  // checks that user array is able to be navigated to get access to correct information
+  
+  // checks for correct return type
+  test('Returns correct object type', () => {
+    const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const data = JSON.parse(res.body.toString());
+
+    expect(data).toStrictEqual({token: expect.any(String)});
+    expect(res.statusCode).toStrictEqual(200);
+  });
 });
 
 

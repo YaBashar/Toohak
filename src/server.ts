@@ -8,6 +8,8 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { clear } from '../src/other.js';
+import { adminAuthRegister } from './auth';
 
 import { adminAuthRegister, adminAuthLogin } from './auth';
 
@@ -37,10 +39,10 @@ app.get('/echo', (req: Request, res: Response) => {
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
 });
 
+<<<<<<< HEAD
 app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
   const response = adminAuthLogin(email, password);
@@ -49,6 +51,24 @@ app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
     return res.status(400).json(response);
   }
   res.json(response);
+=======
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const result = clear();
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(JSON.stringify(response));
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
 });
 
 // ====================================================================

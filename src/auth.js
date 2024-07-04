@@ -179,7 +179,7 @@ export function adminUserDetails(authUserId) {
 import validator from 'validator';
 
 export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  const specialChars = /[@!#$%^&*()_+[\]{};:"\\|,.<>/?]/;
+  const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
   if (!Number.isInteger(authUserId)) {

@@ -42,6 +42,7 @@ import { getData, setData } from './dataStore.js';
 */
 export function adminQuizList(authUserId) {
   const data = getData();
+
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid user id' };
   }
@@ -241,7 +242,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
     return { error: 'Name is too short' };
   } else if (name.length > 30) {
     return { error: 'Name is too long' };
-  } else if (/[!-:-@[-`{-~]/.test(name)) {
+  } else if (/[!-/:-@[-`{-~]/.test(name)) {
     return { error: 'Quiz name cannot have symbols' };
   }
 

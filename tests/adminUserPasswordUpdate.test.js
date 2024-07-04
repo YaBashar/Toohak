@@ -34,6 +34,7 @@ describe('Testing for errors', () => {
 
   // New password has been used before
   test('New password has been used before', () => {
+    adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABC');
     const result2 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABC', 'abcd1234!@#$ABCD');
     expect(result2).toStrictEqual({ error: 'password has already been used' });
   });

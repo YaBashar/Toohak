@@ -4,8 +4,8 @@ beforeEach(() => {
   clear();
 });
 
-describe("clear Function Tests", () => {
-  describe("Success Cases", () => {
+describe('clear Function Tests', () => {
+  describe('Success Cases', () => {
     test('Clear function should return an empty object', () => {
       const result = clear();
       expect(result).toEqual({});
@@ -28,11 +28,11 @@ describe("clear Function Tests", () => {
   });
 });
 
-describe("Error Case", () => {
+describe('Error Case', () => {
   test('Clear function should handle undefined or null input', () => {
     const result = clear(undefined);
     expect(result).toEqual({});
-    
+
     const result2 = clear(null);
     expect(result2).toEqual({});
   });

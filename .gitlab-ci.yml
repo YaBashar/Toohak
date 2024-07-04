@@ -16,7 +16,10 @@ tests:
     - npm run start >& $SERVER_LOG &
     - timeout 10s grep -q "⚡️ Server started on port" <(tail -f $SERVER_LOG) || (cat $SERVER_LOG && exit 1)
     - timeout -s SIGINT 180s npm run test || (cat $SERVER_LOG && exit 1)
+    - npm run lint
+    - npm run lint-tests
     - kill -SIGINT %1
     - sleep 2
     - cat $SERVER_LOG
 
+ 

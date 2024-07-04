@@ -5,6 +5,9 @@ let data = {
 
   quizzes: [
   ],
+
+  sessions: [
+  ],
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY

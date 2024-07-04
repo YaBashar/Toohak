@@ -22,12 +22,13 @@ import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
 // INTERFACES
-interface ID {
-  authUserId: number,
-}
-
 interface Error {
   error: String,
+}
+
+interface Session {
+  sessionId: Number, 
+  authUserId: Number,
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -49,7 +50,7 @@ interface Error {
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): ID | Error {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): Session | Error {
   const store = getData();
   const userArr = store.users;
 
@@ -78,7 +79,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
 
   // registering the user to the database
   const iD = userArr.length + 1;
-
   const newUser = {
     authUserId: iD,
     name: name,
@@ -88,10 +88,20 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password],
   };
-
   userArr.push(newUser);
-  setData(store);
-  return { authUserId: iD };
+  const sID = createSessionId();
+
+  // creating token for session
+  const session = {
+    sessionId: sID,
+    authUserId: iD,
+  }
+  store.sessions.push(session);
+  return session;
+}
+
+function createSessionId(): Number {
+  return Math.random();
 }
 
 /** [2] adminAuthLogin
@@ -108,7 +118,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   *
 */
 
-export function adminAuthLogin(email: string, password: string) {
+export function adminAuthLogin(email: string, password: string): Session | Error {
   const store = getData();
   const userArr = store.users;
 

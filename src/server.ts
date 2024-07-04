@@ -31,6 +31,9 @@ const HOST: string = process.env.IP || '127.0.0.1';
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
 
+// TOKEN
+
+
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
   const result = echo(req.query.echo as string);
@@ -41,7 +44,7 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-app.delete('/v1/clear', (req : Request, res: Response) => {
+app.delete('/v1/clear', (res: Response) => {
   const result = clear();
   if ('error' in result) {
     return res.status(400).json(result);
@@ -51,14 +54,12 @@ app.delete('/v1/clear', (req : Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const response = adminAuthRegister(email, password, nameFirst, nameLast);
-
-  console.log(response);
-
+  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+    
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  res.json(response);
+  res.json(JSON.stringify(response));
 })
 
 // ====================================================================

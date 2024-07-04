@@ -1,4 +1,4 @@
-import { adminUserDetailsUpdate, adminAuthRegister } from '../src/auth.js';
+import { adminUserDetailsUpdate, adminAuthRegister } from '../src/auth';
 import { clear } from '../src/other.js';
 
 let id;

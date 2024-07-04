@@ -1,5 +1,5 @@
 import { adminQuizInfo, adminQuizNameUpdate } from '../src/quiz.js';
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister } from '../src/auth';
 import { adminQuizCreate } from '../src/quiz.js';
 import { clear } from '../src/other.js';
 

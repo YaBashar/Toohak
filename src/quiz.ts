@@ -41,7 +41,7 @@ import { getData, setData } from "./dataStore.js";
   * } - an array containing the names of all quizzes and their quizIds
   * 
 */
-export function adminQuizList(authUserId) {
+export function adminQuizList(authUserId: number) {
   let data = getData();
   let user = data.users.find(user => user.authUserId === authUserId)
   const allQuizzes = [];
@@ -74,7 +74,7 @@ export function adminQuizList(authUserId) {
   *                             identifier for the quiz 
   * 
 */
-export function adminQuizCreate(authUserId: number, name: string, description: string): { quizId: number } {
+export function adminQuizCreate(authUserId: number, name: string, description: string): { quizId: number } | { error: string } {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
@@ -116,15 +116,13 @@ export function adminQuizCreate(authUserId: number, name: string, description: s
 }
 
 // function to create a random id everytime
-function uniqueId(quizArr) {
-  let uId;
+function uniqueId(quizArr: { quizId: number }[]): number {
+  let uId: number;
   do {
     uId = Math.random();
   } while (quizArr.find(quiz => (quiz.quizId === uId)))
-
   return uId;
 }
-
 
 /** [3] adminQuizRemove
   * 

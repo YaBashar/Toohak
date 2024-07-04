@@ -132,7 +132,7 @@ describe('Testing that information has been correctly registered', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({token: expect.any(String)});
+    expect(data).toStrictEqual({ authUserId: expect.any(Number) });
     expect(res.statusCode).toStrictEqual(200);
   });
 });

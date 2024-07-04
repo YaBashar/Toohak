@@ -22,8 +22,8 @@ import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
 // INTERFACES
-interface SessionId {
-  token: String,
+interface ID {
+  authUserId: number,
 }
 
 interface Error {
@@ -32,77 +32,67 @@ interface Error {
 
 ///////////////////////////////////////////////////////////////////////////////
 
+
 /** [1] adminAuthRegister
-  * 
-  * Registers a user with an email, password, and name, 
+  *
+  * Registers a user with an email, password, and name,
   * then returns their authUserId value.
-  * 
+  *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
   * @param {string} nameFirst - user's first name
   * @param {string} nameLast - user's last name
   * ...
-  * @returns {SessionId} - string representing a unique 
-  *                                 identifier for the session
-  * 
+  * @returns {authUserId: number} - number representing a unique
+  *                                 identifier for the user
+  *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): SessionId | Error {
-
-  let store = getData();
-  let userArr = store.users;
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): ID | Error {
+  const store = getData();
+  const userArr = store.users;
 
   const name = nameFirst + ' ' + nameLast;
 
   // checking for error cases
-  if(!isEmail(email)){
+  if (!isEmail(email)) {
     return { error: 'email is not a valid email address' };
-
   } else if (userArr.some(user => user.email === email)) {
     return { error: 'email is used by another user' };
-  } 
+  }
 
-  if (/[^A-Za-z'\ \-]/.test(name)) {
+  if (/[^A-Za-z' -]/.test(name)) {
     return { error: 'name contains invalid characters' };
-
   } else if (nameFirst.length < 2 || nameFirst.length > 20) {
     return { error: 'first name must be at least 2 characters and no more than 20' };
-
   } else if (nameLast.length < 2 || nameLast.length > 20) {
     return { error: 'last name must be at least 2 characters and no more than 20' };
   }
 
   if (password.length < 8) {
     return { error: 'password must be at least 8 characters' };
-
   } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
-    return { error: 'password must contain at least one number and one letter'};
+    return { error: 'password must contain at least one number and one letter' };
   }
 
   // registering the user to the database
   const iD = userArr.length + 1;
-  const sessionId = createSessionId();
 
-  let newUser = {
+  const newUser = {
     authUserId: iD,
     name: name,
     email: email,
     password: password,
     numSuccessfulLogins: 1,
     numFailedPasswordSinceLastLogin: 0,
-    passwordHistory: [password,],  
-    sessions: [sessionId,]  
+    passwordHistory: [password],
   };
 
   userArr.push(newUser);
   setData(store);
-  return {token: sessionId};
+  return { authUserId: iD };
 }
-
-function createSessionId () {
-  return (Math.random()).toString();
-};
 
 /** [2] adminAuthLogin
   *
@@ -118,7 +108,7 @@ function createSessionId () {
   *
 */
 
-export function adminAuthLogin(email: string, password: string): SessionId | Error {
+export function adminAuthLogin(email: string, password: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -160,7 +150,7 @@ export function adminAuthLogin(email: string, password: string): SessionId | Err
   *
 */
 
-export function adminUserDetails(authUserId: string) {
+export function adminUserDetails(authUserId: ID) {
   const store = getData();
   const userArr = store.users;
 
@@ -198,7 +188,7 @@ export function adminUserDetails(authUserId: string) {
 */
 import validator from 'validator';
 
-export function adminUserDetailsUpdate(authUserId: string, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: ID, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
@@ -260,7 +250,7 @@ export function adminUserDetailsUpdate(authUserId: string, email: string, nameFi
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: string, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: ID, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);
@@ -300,4 +290,3 @@ export function adminUserPasswordUpdate(authUserId: string, oldPassword: string,
 
   return {};
 }
-

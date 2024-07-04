@@ -40,15 +40,14 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-app.delete('/v1/clear',  (req : Request, res: Response) => {
+app.delete('/v1/clear', (req : Request, res: Response) => {
   const result = clear();
- 
+
   if ('error' in result) {
-    res.status(400);
+    res.status(400).json(result);
+  } else {
+    res.status(200).json(result);
   }
- 
-  res.json(result);
-  return res.status(200).json(result);
 });
 
 // ====================================================================

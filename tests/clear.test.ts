@@ -4,7 +4,6 @@ import { port, url } from '../src/config.json';
 const SERVER_URL = `${url}:${port}`;
 
 beforeEach(() => {
-  // Perform the DELETE request to clear data before each test
   request('DELETE', SERVER_URL + '/v1/clear');
 });
 

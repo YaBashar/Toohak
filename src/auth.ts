@@ -26,11 +26,6 @@ interface Error {
   error: String,
 }
 
-interface Session {
-  sessionId: Number, 
-  authUserId: Number,
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 
 
@@ -50,7 +45,7 @@ interface Session {
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): Session | Error {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -118,7 +113,7 @@ function createSessionId(): Number {
   *
 */
 
-export function adminAuthLogin(email: string, password: string): Session | Error {
+export function adminAuthLogin(email: string, password: string): String | Error {
   const store = getData();
   const userArr = store.users;
 

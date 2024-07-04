@@ -31,20 +31,16 @@ const HOST: string = process.env.IP || '127.0.0.1';
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
 
-// TOKEN
-
-
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
   const result = echo(req.query.echo as string);
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
 });
 
-app.delete('/v1/clear', (res: Response) => {
+app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
     return res.status(400).json(result);

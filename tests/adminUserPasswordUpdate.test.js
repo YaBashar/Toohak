@@ -1,5 +1,5 @@
-import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth.js'
-import { clear } from '../src/other.js'
+import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth.js';
+import { clear } from '../src/other.js';
 
 let user;
 let id;
@@ -34,7 +34,6 @@ describe('Testing for errors', () => {
 
   // New password has been used before
   test('New password has been used before', () => {
-    const result1 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABC');
     const result2 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABC', 'abcd1234!@#$ABCD');
     expect(result2).toStrictEqual({ error: 'password has already been used' });
   });
@@ -48,9 +47,9 @@ describe('Testing for errors', () => {
   // New password doesn't contain at least on number and one letter
   test('Password does not contain at least one number and one letter', () => {
     const result1 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcdefgh');
-    expect(result1).toStrictEqual({ error: 'new password should contain at least one letter and one number'});
+    expect(result1).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
 
     const result2 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', '12345678');
-    expect(result2).toStrictEqual({ error: 'new password should contain at least one letter and one number'});
+    expect(result2).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
   });
 });

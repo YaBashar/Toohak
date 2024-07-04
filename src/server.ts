@@ -8,7 +8,11 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+<<<<<<< HEAD
 import { adminUserDetailsUpdate } from '../src/auth.ts';
+=======
+import { clear } from '../src/other.js';
+>>>>>>> fa3ba8373d2bee9e1e7624ef6744834b6e3f7594
 
 // Set up web app
 const app = express();
@@ -40,6 +44,7 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
+<<<<<<< HEAD
 // adminUserDetailsUpdate route
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { authUserId, email, nameFirst, nameLast } = req.body
@@ -50,6 +55,12 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
     } else {
       return res.status(400).json(result);
     }
+=======
+app.delete('/v1/clear', (req : Request, res: Response) => {
+  const result = clear();
+  if ('error' in result) {
+    return res.status(400).json(result);
+>>>>>>> fa3ba8373d2bee9e1e7624ef6744834b6e3f7594
   }
   res.json(result);
 });

@@ -1,4 +1,4 @@
-import { adminAuthRegister, adminAuthLogin, adminUserDetails } from '../src/auth.js';
+import { adminAuthRegister, adminAuthLogin, adminUserDetails } from '../src/auth';
 import { clear } from '../src/other.js';
 
 beforeEach(() => {

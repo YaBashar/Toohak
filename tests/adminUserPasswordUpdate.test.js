@@ -1,4 +1,4 @@
-import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth.js';
+import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth';
 import { clear } from '../src/other.js';
 
 let user;

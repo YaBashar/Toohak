@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { clear } from '../src/other.js';
 
 // Set up web app
 const app = express();
@@ -39,7 +40,16 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-
+app.delete('/v1/clear',  (req : Request, res: Response) => {
+  const result = clear();
+ 
+  if ('error' in result) {
+    res.status(400);
+  }
+ 
+  res.json(result);
+  return res.status(200).json(result);
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

@@ -52,7 +52,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     return { error: 'email is used by another user' };
   }
 
-  if (/[^A-Za-z'\ \-]/.test(name)) {
+  if (/[^A-Za-z' -]/.test(name)) {
     return { error: 'name contains invalid characters' };
   } else if (nameFirst.length < 2 || nameFirst.length > 20) {
     return { error: 'first name must be at least 2 characters and no more than 20' };
@@ -179,7 +179,7 @@ export function adminUserDetails(authUserId) {
 import validator from 'validator';
 
 export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  const specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
+  const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
   if (!Number.isInteger(authUserId)) {

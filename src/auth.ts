@@ -1,33 +1,29 @@
-/*/////////////////////////////////////////////////////////////////////////////
+/* /////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 2 'AUTH.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-COMP1531 24T2 --- Major Project: `Toohak', 
+COMP1531 24T2 --- Major Project: `Toohak',
 <https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
 CRUNCHIE/project-backend/-/blob/master/README.md>
 
-This program was written by 
+This program was written by
 z5478214 | z5599894 | z5525050 | z5362173 | z5478980
 on 04/06/2024
 
-auth.ts contains functions for the Toohak project backend. These functions 
-manage the authentification process of the site, including user details, 
-login mechanics, and updating passwords and usernames. 
+auth.ts contains functions for the Toohak project backend. These functions
+manage the authentification process of the site, including user details,
+login mechanics, and updating passwords and usernames.
 
-*//////////////////////////////////////////////////////////////////////////////
+*//// //////////////////////////////////////////////////////////////////////////
 
-// DEPENDENCIES 
+// DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
 // INTERFACES
-interface Error {
-  error: String,
-}
 
-///////////////////////////////////////////////////////////////////////////////
-
+/// ////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminAuthRegister
   *
@@ -90,12 +86,12 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   const session = {
     sessionId: sID,
     authUserId: iD,
-  }
+  };
   store.sessions.push(session);
   return session;
 }
 
-function createSessionId(): Number {
+function createSessionId(): number {
   return Math.random();
 }
 
@@ -113,7 +109,7 @@ function createSessionId(): Number {
   *
 */
 
-export function adminAuthLogin(email: string, password: string): String | Error {
+export function adminAuthLogin(email: string, password: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -155,7 +151,7 @@ export function adminAuthLogin(email: string, password: string): String | Error 
   *
 */
 
-export function adminUserDetails(authUserId: ID) {
+export function adminUserDetails(authUserId: {authUserId: number}) {
   const store = getData();
   const userArr = store.users;
 
@@ -193,7 +189,7 @@ export function adminUserDetails(authUserId: ID) {
 */
 import validator from 'validator';
 
-export function adminUserDetailsUpdate(authUserId: ID, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
@@ -255,7 +251,7 @@ export function adminUserDetailsUpdate(authUserId: ID, email: string, nameFirst:
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: ID, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

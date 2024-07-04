@@ -51,12 +51,12 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
-    
+
   if ('error' in response) {
     return res.status(400).json(response);
   }
   res.json(JSON.stringify(response));
-})
+});
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

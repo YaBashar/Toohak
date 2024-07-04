@@ -33,7 +33,7 @@ describe('Testing login success cases', () => {
   // Successful Login return type
   test('Successful login return type', () => {
     const result = adminAuthLogin('zid@unsw.edu.au', 'abcd1234');
-    expect(result).toStrictEqual(id);
+    expect(result).toStrictEqual({ authUserId: expect.any(Number) });
   });
 
   // updating the successful login count

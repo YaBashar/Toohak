@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizDescriptionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -37,6 +38,30 @@ app.get('/echo', (req: Request, res: Response) => {
   }
 
   return res.json(result);
+});
+
+// adminQuizDescriptionUpdate server route
+app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
+  const { token, description } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const descriptionUpdate = adminQuizDescriptionUpdate(token, quizid, description);
+
+  // Check if the descriptionUpdate contains an error
+  if (descriptionUpdate.error) {
+    if (
+      descriptionUpdate.error === 'Description cannot be empty' ||
+      descriptionUpdate.error === 'Description is too long' ||
+      descriptionUpdate.error === 'Invalid Quiz id' ||
+      descriptionUpdate.error === 'Invalid User id'
+    ) {
+      return res.status(400).json({ error: descriptionUpdate.error });
+    } else if (descriptionUpdate.error === 'Quiz Id not owned by the user') {
+      return res.status(403).json({ error: descriptionUpdate.error });
+    }
+  }
+
+  res.json(descriptionUpdate);
+  return res.status(200).json(descriptionUpdate);
 });
 
 // ====================================================================

@@ -18,8 +18,6 @@ describe('Testing for adminQuizCreate', () => {
   });
 
   test('Name contains invalid characters', () => {
-    const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
-      ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const result = adminQuizCreate(id.authUserId, 'sid!ak', 'valid description');
     expect(result).toStrictEqual({ error: expect.any(String) });
   });

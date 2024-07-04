@@ -5,6 +5,10 @@ stages:
 
 before_script:
   - npm install
+  - npm lint
+  - npm lint-fix
+  - npm lint-tests
+  - npm lint-fix-tests
 
 tests:
   stage: checks

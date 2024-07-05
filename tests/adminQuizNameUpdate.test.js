@@ -1,5 +1,5 @@
 import { adminQuizInfo, adminQuizNameUpdate } from '../src/quiz.js';
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister } from '../src/auth';
 import { adminQuizCreate } from '../src/quiz.js';
 import { clear } from '../src/other.js';
 
@@ -72,7 +72,7 @@ describe('adminQuizNameUpdate Tests', () => {
     });
 
     test('Name is already used by the current logged in user for another quiz', () => {
-      adminQuizCreate(authUserId, 'anotherQuizName', 'description2').quizId;
+      adminQuizCreate(authUserId, 'anotherQuizName', 'description2');
       const nameUpdate = adminQuizNameUpdate(authUserId, quizId, 'anotherQuizName');
       expect(nameUpdate).toStrictEqual({ error: 'Name is already used' });
     });

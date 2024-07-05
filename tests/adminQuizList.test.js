@@ -1,8 +1,6 @@
 import { adminQuizList, adminQuizCreate } from '../src/quiz.js';
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister } from '../src/auth';
 import { clear } from '../src/other.js';
-
-let id, quiz, quiz2;
 
 beforeEach(() => {
   clear();

@@ -1,5 +1,5 @@
 import { adminQuizCreate } from '../src/quiz.js';
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister } from '../src/auth';
 import { clear } from '../src/other.js';
 
 beforeEach(() => {
@@ -18,8 +18,6 @@ describe('Testing for adminQuizCreate', () => {
   });
 
   test('Name contains invalid characters', () => {
-    const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
-      ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const result = adminQuizCreate(id.authUserId, 'sid!ak', 'valid description');
     expect(result).toStrictEqual({ error: expect.any(String) });
   });

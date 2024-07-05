@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { adminUserDetailsUpdate, adminAuthRegister } from '../src/auth.js';
+=======
+import { adminUserDetailsUpdate, adminAuthRegister } from '../src/auth';
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
 import { clear } from '../src/other.js';
 
 let id;

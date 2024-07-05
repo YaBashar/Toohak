@@ -1,5 +1,9 @@
 /* /////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD:src/auth.js
 //////////////////////   TOOHAK ITERATION 1 'AUTH.JS'  ////////////////////////
+=======
+//////////////////////   TOOHAK ITERATION 2 'AUTH.JS'  ////////////////////////
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -10,7 +14,11 @@ This program was written by
 z5478214 | z5599894 | z5525050 | z5362173 | z5478980
 on 04/06/2024
 
+<<<<<<< HEAD:src/auth.js
 auth.js contains functions for the Toohak project backend. These functions
+=======
+auth.ts contains functions for the Toohak project backend. These functions
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
 manage the authentification process of the site, including user details,
 login mechanics, and updating passwords and usernames.
 
@@ -21,6 +29,11 @@ login mechanics, and updating passwords and usernames.
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
+<<<<<<< HEAD:src/auth.js
+=======
+// INTERFACES
+
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
 /// ////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminAuthRegister
@@ -39,7 +52,11 @@ import { isEmail } from 'validator';
   *
 */
 
+<<<<<<< HEAD:src/auth.js
 export function adminAuthRegister(email, password, nameFirst, nameLast) {
+=======
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const store = getData();
   const userArr = store.users;
 
@@ -52,7 +69,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     return { error: 'email is used by another user' };
   }
 
-  if (/[^A-Za-z'\ \-]/.test(name)) {
+  if (/[^A-Za-z' -]/.test(name)) {
     return { error: 'name contains invalid characters' };
   } else if (nameFirst.length < 2 || nameFirst.length > 20) {
     return { error: 'first name must be at least 2 characters and no more than 20' };
@@ -68,7 +85,10 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   // registering the user to the database
   const iD = userArr.length + 1;
+<<<<<<< HEAD:src/auth.js
 
+=======
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const newUser = {
     authUserId: iD,
     name: name,
@@ -78,12 +98,29 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password],
   };
-
   userArr.push(newUser);
+<<<<<<< HEAD:src/auth.js
   setData(store);
   return { authUserId: iD };
 }
 
+=======
+  const sID = createSessionId();
+
+  // creating token for session
+  const session = {
+    sessionId: sID,
+    authUserId: iD,
+  };
+  store.sessions.push(session);
+  return session;
+}
+
+function createSessionId(): number {
+  return Math.random();
+}
+
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
@@ -98,7 +135,11 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   *
 */
 
+<<<<<<< HEAD:src/auth.js
 export function adminAuthLogin(email, password) {
+=======
+export function adminAuthLogin(email: string, password: string) {
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const store = getData();
   const userArr = store.users;
 
@@ -140,7 +181,11 @@ export function adminAuthLogin(email, password) {
   *
 */
 
+<<<<<<< HEAD:src/auth.js
 export function adminUserDetails(authUserId) {
+=======
+export function adminUserDetails(authUserId: {authUserId: number}) {
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const store = getData();
   const userArr = store.users;
 
@@ -178,8 +223,13 @@ export function adminUserDetails(authUserId) {
 */
 import validator from 'validator';
 
+<<<<<<< HEAD:src/auth.js
 export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   const specialChars = /[@!#$%^&*()_+\=\[\]{};:"\\|,.<>\/?]/;
+=======
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+  const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const data = getData();
 
   if (!Number.isInteger(authUserId)) {
@@ -240,7 +290,11 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * @returns {} - empty object
 */
 
+<<<<<<< HEAD:src/auth.js
 export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+=======
+export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff:src/auth.ts
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

@@ -42,8 +42,6 @@ import { getData, setData } from './dataStore.js';
 */
 export function adminQuizList(authUserId) {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === authUserId);
-  const allQuizzes = [];
 
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid user id' };
@@ -244,7 +242,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
     return { error: 'Name is too short' };
   } else if (name.length > 30) {
     return { error: 'Name is too long' };
-  } else if (/[!-\/:-@[-`{-~]/.test(name)) {
+  } else if (/[!-/:-@[-`{-~]/.test(name)) {
     return { error: 'Quiz name cannot have symbols' };
   }
 
@@ -289,10 +287,10 @@ export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
 
   // These two lines finds the Tahook user with both a valid userId and quidId
   const user = userArr.find((user) => user.authUserId === authUserId);
-  const quiz = quizArr.find((quiz) => quiz.quizId == quizId);
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
 
   // Check if the quiz is owned by the user with the given UserId
-  const quizUser = quizArr.find((quiz) => quiz.authUserId == authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
   // Error messages returned if the error tests cases are activated within the program
   // If a person's Tahook quiz does not match the userId, an error will then be returned

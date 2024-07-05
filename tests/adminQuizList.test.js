@@ -1,8 +1,13 @@
 import { adminQuizList, adminQuizCreate } from '../src/quiz.js';
+<<<<<<< HEAD
 import { adminAuthRegister } from '../src/auth.js';
 import { clear } from '../src/other.js';
 
 let id, quiz, quiz2;
+=======
+import { adminAuthRegister } from '../src/auth';
+import { clear } from '../src/other.js';
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
 
 beforeEach(() => {
   clear();

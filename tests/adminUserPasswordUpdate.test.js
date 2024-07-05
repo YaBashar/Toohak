@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth.js';
+=======
+import { adminUserPasswordUpdate, adminAuthRegister } from '../src/auth';
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
 import { clear } from '../src/other.js';
 
 let user;
@@ -34,7 +38,7 @@ describe('Testing for errors', () => {
 
   // New password has been used before
   test('New password has been used before', () => {
-    const result1 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABC');
+    adminUserPasswordUpdate(id, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABC');
     const result2 = adminUserPasswordUpdate(id, 'abcd1234!@#$ABC', 'abcd1234!@#$ABCD');
     expect(result2).toStrictEqual({ error: 'password has already been used' });
   });

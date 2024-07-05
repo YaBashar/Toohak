@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import { adminAuthRegister } from '../src/auth.js';
+=======
+import { adminAuthRegister } from '../src/auth';
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
 import { adminQuizDescriptionUpdate, adminQuizCreate, adminQuizInfo } from '../src/quiz.js';
 import { clear } from '../src/other.js';
 

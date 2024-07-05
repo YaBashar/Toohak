@@ -1,4 +1,4 @@
-import { adminAuthRegister, adminAuthLogin, adminUserDetails } from '../src/auth.js';
+import { adminAuthRegister, adminAuthLogin, adminUserDetails } from '../src/auth';
 import { clear } from '../src/other.js';
 
 beforeEach(() => {
@@ -33,7 +33,11 @@ describe('Testing login success cases', () => {
   // Successful Login return type
   test('Successful login return type', () => {
     const result = adminAuthLogin('zid@unsw.edu.au', 'abcd1234');
+<<<<<<< HEAD
     expect(result).toStrictEqual(id);
+=======
+    expect(result).toStrictEqual({ authUserId: expect.any(Number) });
+>>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
   });
 
   // updating the successful login count

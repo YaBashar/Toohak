@@ -10,6 +10,7 @@ import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from '../src/auth.ts';
+import { adminQuizList } from '../src/quiz.ts';
 
 // Set up web app
 const app = express();
@@ -60,11 +61,11 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 // adminQuizList route
 app.put('/v1/admin/quiz', (req: Request, res: Response) => {
-  const { authUserId } = req.body
+  const { authUserId } = req.body;
   const result = adminQuizList(authUserId);
   if ('error' in result) {
     return res.status(401).json(result);
-  } 
+  }
   return res.status(200).json(result);
 });
 

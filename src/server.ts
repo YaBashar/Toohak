@@ -10,6 +10,7 @@ import path from 'path';
 import process from 'process';
 import { adminAuthRegister, adminUserDetailsUpdate } from '../src/auth.ts';
 import { clear } from '../src/other.js';
+import { getData } from './dataStore.js';
 
 // Set up web app
 const app = express();
@@ -32,16 +33,13 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 function getUserFromSessionID(sessionId: number) {
   const data = getData();
-
   const session = data.sessions.find(session => session.sessionId === sessionId);
 
   if (!session) {
-    return {error: 'invalid token'};
+    return { error: 'invalid token' };
   }
-
   return session.authUserId;
-} 
-
+}
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {

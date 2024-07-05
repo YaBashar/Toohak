@@ -19,6 +19,7 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
+import { createSessionId } from '../src/helper.js';
 import { isEmail } from 'validator';
 
 // INTERFACES
@@ -88,12 +89,9 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   };
   store.sessions.push(session);
-  return session;
+  return { token: sID };
 }
 
-function createSessionId(): number {
-  return Math.random();
-}
 
 /** [2] adminAuthLogin
   *
@@ -250,7 +248,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * ...
   * @returns {} - empty object
 */
-
+ 
 export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
 

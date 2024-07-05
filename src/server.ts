@@ -60,7 +60,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 // adminUserPasswordUpdate route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const { authUserId, email, nameFirst, nameLast } = req.body
+  const { authUserId, email, nameFirst, nameLast } = req.body;
   const result = adminUserDetailsPassword(authUserId, email, nameFirst, nameLast);
   if ('error' in result) {
     if (result.error === 'invalid userId') {

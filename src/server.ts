@@ -10,7 +10,7 @@ import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
-import { getUserIdFromToken } from '../src/helper';
+import { getUserIdFromToken } from './helper';
 
 // Set up web app
 const app = express();

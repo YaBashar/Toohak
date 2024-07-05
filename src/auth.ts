@@ -19,7 +19,7 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
-import { createSessionId } from '../src/helper.js';
+import { createSessionId } from './helper.js';
 import { isEmail } from 'validator';
 
 // INTERFACES

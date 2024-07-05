@@ -1,4 +1,4 @@
-import { getData } from '../src/dataStore';
+import { getData } from './dataStore';
 
 export function createSessionId(): number {
   return Math.random();

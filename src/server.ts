@@ -9,8 +9,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
-import { adminAuthRegister } from './auth';
-
 import { adminAuthRegister, adminAuthLogin } from './auth';
 
 // Set up web app
@@ -42,16 +40,6 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-<<<<<<< HEAD
-app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const response = adminAuthLogin(email, password);
-
-  if (typeof response === typeof Error) {
-    return res.status(400).json(response);
-  }
-  res.json(response);
-=======
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -68,7 +56,16 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
     return res.status(400).json(response);
   }
   res.json(JSON.stringify(response));
->>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
+});
+
+app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const response = adminAuthLogin(email, password);
+
+  if (typeof response === typeof Error) {
+    return res.status(400).json(response);
+  }
+  res.json(response);
 });
 
 // ====================================================================
@@ -103,3 +100,16 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
+
+
+function getUserFromSessionID(sessionId: number) {
+  const data = getData();
+
+  const session = data.sessions.find(session => session.sessionId === sessionId);
+
+  if (!session) {
+    return {error: 'invalid token'};
+  }
+
+  return session.authUserId;
+}

@@ -30,6 +30,18 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
+function getUserFromSessionID(sessionId: number) {
+  const data = getData();
+
+  const session = data.sessions.find(session => session.sessionId === sessionId);
+
+  if (!session) {
+    return {error: 'invalid token'};
+  }
+
+  return session.authUserId;
+} 
+
 
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
@@ -57,24 +69,23 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  res.json(JSON.stringify(response));
+  res.json(response);
 });
 
-// adminUserDetailsUpdate route
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-  const token = req.body.token;
+  const { token, email, nameFirst, nameLast } = req.body;
   const sessionId = token.sessionId;
-  const authUserId = getUserFromSession(sessionId);
-  const { email, nameFirst, nameLast } = req.body;
+  const authUserId = getUserFromSessionID(sessionId);
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+
   if ('error' in result) {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
     } else {
       return res.status(400).json(result);
     }
-  } 
-  res.json(JSON.stringify(response));
+  }
+  return res.status(200).json(result);
 });
 
 // ====================================================================

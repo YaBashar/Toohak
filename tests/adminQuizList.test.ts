@@ -22,7 +22,7 @@ describe('GET /v1/admin/quiz/list', () => {
     const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su'}});
     const id = JSON.parse(user.body.toString()).authUserId;   
     const quiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {authUserId: id, name: 'quiz 1', description: 'the first quiz'} });
-    const quiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {authUserId: id, name: 'quiz 2', description: 'the second quiz'} });
+    const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {authUserId: id, name: 'quiz 2', description: 'the second quiz'} });
     const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {authUserId: id} });
     expect(JSON.parse(res.body.toString())).toStrictEqual(
       { quizzes: [

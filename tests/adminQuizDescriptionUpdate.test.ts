@@ -68,6 +68,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
 
     // Test for checking if the individual accessing Tahook has a valid quizId
     test('Invalid quiz Id type (authUserId: 1, quizId: "one", description: "Toohak Javascript Quiz 1")', () => {
+      console.log(quizId)
       const result = quizDescriptionUpdate(token, 'one' as unknown as number, "Toohak Javascript Quiz 1");
       expect(result).toStrictEqual({ error: expect.any(String) });
     });

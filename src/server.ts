@@ -8,7 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminUserDetailsUpdate } from '../src/auth.ts';
+import { adminAuthRegister, adminUserDetailsUpdate } from '../src/auth.ts';
 import { clear } from '../src/other.js';
 
 // Set up web app
@@ -40,19 +40,6 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-// adminUserDetailsUpdate route
-app.put('/v1/admin/user/details', (req: Request, res: Response) => {
-  const { authUserId, email, nameFirst, nameLast } = req.body
-  const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
-  if ('error' in result) {
-    if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
-      return res.status(401).json(result);
-    } else {
-      return res.status(400).json(result);
-    }
-  }
-});
-
 // clear route
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
@@ -62,6 +49,7 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(result);
 });
 
+// adminAuthRegister route
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
@@ -69,6 +57,23 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
+  res.json(JSON.stringify(response));
+});
+
+// adminUserDetailsUpdate route
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const token = req.body.token;
+  const sessionId = token.sessionId;
+  const authUserId = getUserFromSession(sessionId);
+  const { email, nameFirst, nameLast } = req.body;
+  const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+  if ('error' in result) {
+    if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+      return res.status(401).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  } 
   res.json(JSON.stringify(response));
 });
 

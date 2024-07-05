@@ -189,7 +189,6 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
 */
 import validator from 'validator';
 
-
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();

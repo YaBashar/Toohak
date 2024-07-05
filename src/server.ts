@@ -8,7 +8,8 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminUserDetailsPassword } from '../src/auth.ts';
+import { adminAuthRegister, adminUserDetailsPassword } from '../src/auth.ts';
+import { clear } from '../src/other.js';
 
 // Set up web app
 const app = express();
@@ -36,8 +37,25 @@ app.get('/echo', (req: Request, res: Response) => {
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const result = clear();
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+
+  if ('error' in response) {
+    return res.status(400).json(response);
+  }
+  res.json(JSON.stringify(response));
 });
 
 // adminUserPasswordUpdate route
@@ -51,10 +69,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   }
-  res.json(result);
 });
-
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

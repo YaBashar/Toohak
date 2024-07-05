@@ -1,4 +1,4 @@
-import { adminAuthRegister, adminUserDetails, adminAuthLogin } from '../src/auth.js';
+import { adminAuthRegister, adminUserDetails, adminAuthLogin } from '../src/auth';
 import { clear } from '../src/other.js';
 
 beforeEach(() => {
@@ -6,14 +6,12 @@ beforeEach(() => {
 });
 
 describe('Testing error cases', () => {
-
   // AuthUserId is not a valid user.
   test('Invalid AuthUserId', () => {
     const result = adminUserDetails('randomstring');
-    expect(result).toStrictEqual({error: 'Invalid AuthUserId'});
+    expect(result).toStrictEqual({ error: 'Invalid AuthUserId' });
   });
-
-})
+});
 
 describe('Testing successful user details retrieval', () => {
   let id;
@@ -42,7 +40,7 @@ describe('Testing successful user details retrieval', () => {
     const uid = adminAuthRegister('zid2@unsw.edu.au', 'abcd1234', 'first', 'last');
     adminAuthLogin('zid2@unsw.edu.au', 'abcd1234');
     adminAuthRegister('zid3@unsw.edu.au', 'abcd1234', 'first', 'last');
-    
+
     const result = adminUserDetails(uid);
 
     expect(result).toStrictEqual({
@@ -54,7 +52,5 @@ describe('Testing successful user details retrieval', () => {
         numFailedPasswordsSinceLastLogin: 0,
       }
     });
-
   });
-
 });

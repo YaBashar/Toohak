@@ -19,7 +19,7 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
-import { createSessionId } from './helper.js';
+import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 
 // INTERFACES
@@ -83,7 +83,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   userArr.push(newUser);
   const sID = createSessionId();
 
-  // creating token for session
+  // creating token for sessions
   const session = {
     sessionId: sID,
     authUserId: iD,

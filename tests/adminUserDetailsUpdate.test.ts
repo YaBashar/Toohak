@@ -6,11 +6,14 @@ const TIMEOUT_MS = 5 * 1000;
 
 const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su'}});
 const id = JSON.parse(user.body.toString()).authUserId;
+let token: string;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
   const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su'}});
   const id = JSON.parse(user.body.toString()).authUserId;
+  token = JSON.parse(user.body.toString());
+  console.log(token);
 });
 
 describe('PUT /v1/admin/user/details', () => {

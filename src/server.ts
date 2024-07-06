@@ -10,8 +10,6 @@ import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
-import { getUserIdFromToken } from './helper';
-import { adminQuizCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -41,7 +39,7 @@ app.get('/echo', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
- 
+
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {

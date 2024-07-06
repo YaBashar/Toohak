@@ -41,7 +41,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): String | { error: String }  {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): string | { error: string } {
   const store = getData();
   const userArr = store.users;
 
@@ -86,7 +86,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   const session = {
     sessionId: sID,
     authUserId: iD,
-  }; 
+  };
   store.sessions.push(session);
   return JSON.stringify(session);
 }

@@ -23,6 +23,13 @@ const data = {
       authUserId: 1,
     },
   ],
+
+  sessions: [
+    {
+      sessionId: 467894,
+      authUserId: 1,
+    }
+  ]
 };
 
 ```

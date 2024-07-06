@@ -112,11 +112,11 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         name: 'quizname',
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
-        description: "Toohak Javascript Quiz 1",
+        description: 'Toohak Javascript Quiz 1',
       });
     });
 
-    // Test for checking if the user with a different quiId has provided a valid input for the quiz description 
+    // Test for checking if the user with a different quiId has provided a valid input for the quiz description
     test('Valid inputs (authUserId: 1, quizId: 2, description: "QUIZ 1")', () => {
       quizDescriptionUpdate(token, quizId, "QUIZ 1");
       const result = quizInfo(token, quizId);
@@ -126,7 +126,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         name: 'quizname',
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
-        description: "QUIZ 1",
+        description: 'QUIZ 1',
       });
     });
 

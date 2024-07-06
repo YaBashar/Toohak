@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 1 'AUTH.JS'  ////////////////////////
+//////////////////////   TOOHAK ITERATION 2 'AUTH.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -10,7 +10,7 @@ This program was written by
 z5478214 | z5599894 | z5525050 | z5362173 | z5478980
 on 04/06/2024
 
-auth.js contains functions for the Toohak project backend. These functions
+auth.ts contains functions for the Toohak project backend. These functions
 manage the authentification process of the site, including user details,
 login mechanics, and updating passwords and usernames.
 
@@ -19,7 +19,10 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
+import { createSessionId } from './helper';
 import { isEmail } from 'validator';
+
+// INTERFACES
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -39,7 +42,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email, password, nameFirst, nameLast) {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -52,7 +55,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     return { error: 'email is used by another user' };
   }
 
-  if (/[^A-Za-z'-]/.test(name)) {
+  if (/[^A-Za-z' -]/.test(name)) {
     return { error: 'name contains invalid characters' };
   } else if (nameFirst.length < 2 || nameFirst.length > 20) {
     return { error: 'first name must be at least 2 characters and no more than 20' };
@@ -68,7 +71,6 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
 
   // registering the user to the database
   const iD = userArr.length + 1;
-
   const newUser = {
     authUserId: iD,
     name: name,
@@ -78,11 +80,18 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
     numFailedPasswordSinceLastLogin: 0,
     passwordHistory: [password],
   };
-
   userArr.push(newUser);
-  setData(store);
-  return { authUserId: iD };
+  const sID = createSessionId();
+
+  // creating token for sessions
+  const session = {
+    sessionId: sID,
+    authUserId: iD,
+  };
+  store.sessions.push(session);
+  return { token: sID };
 }
+
 
 /** [2] adminAuthLogin
   *
@@ -98,7 +107,7 @@ export function adminAuthRegister(email, password, nameFirst, nameLast) {
   *
 */
 
-export function adminAuthLogin(email, password) {
+export function adminAuthLogin(email: string, password: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -140,7 +149,7 @@ export function adminAuthLogin(email, password) {
   *
 */
 
-export function adminUserDetails(authUserId) {
+export function adminUserDetails(authUserId: {authUserId: number}) {
   const store = getData();
   const userArr = store.users;
 
@@ -178,8 +187,8 @@ export function adminUserDetails(authUserId) {
 */
 import validator from 'validator';
 
-export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
-  const specialChars = /[@!#$%^&*()_+[\]{};:"|,.<>?]/;
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+  const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
   if (!Number.isInteger(authUserId)) {
@@ -239,8 +248,8 @@ export function adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast) {
   * ...
   * @returns {} - empty object
 */
-
-export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
+ 
+export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);
@@ -280,3 +289,4 @@ export function adminUserPasswordUpdate(authUserId, oldPassword, newPassword) {
 
   return {};
 }
+

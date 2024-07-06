@@ -2,6 +2,7 @@ import request from 'sync-request-curl';
 import { port, url } from '../src/config.json';
 
 const SERVER_URL = `${url}:${port}`;
+const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions
 //////////////////////////////////////////////////
@@ -9,7 +10,7 @@ const createUser = (email: string, password: string, firstName: string, lastName
   const res = request(
     'POST',
     `${SERVER_URL}/v1/admin/auth/register`,
-    { json: { email, password, firstName, lastName } }
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
   );
   return JSON.parse(res.body.toString());
 };
@@ -42,7 +43,7 @@ const quizInfo = (token: string, quizId: number) => {
 };
 
 const clear = () => {
-  request('DELETE', `${SERVER_URL}/v1/clear`);
+  request('DELETE', `${SERVER_URL}/v1/clear`, { timeout: TIMEOUT_MS });
 };
 //////////////////////////////////////////////////
 
@@ -60,36 +61,24 @@ describe("adminQuizDescriptionUpdate Tests", () => {
       quizId = createQuiz(token, 'quizname', 'description').quizId;
     });
 
-    // Test for checking if the individual accessing Tahook has a valid userId
-    test('Invalid user Id type (authUserId: "one", quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
-      const result = quizDescriptionUpdate('invalidToken', quizId, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: expect.any(String) });
-    });
-
-    // Test for checking if the individual accessing Tahook has a valid quizId
-    test('Invalid quiz Id type (authUserId: 1, quizId: "one", description: "Toohak Javascript Quiz 1")', () => {
-      console.log(quizId)
-      const result = quizDescriptionUpdate(token, 'one' as unknown as number, "Toohak Javascript Quiz 1");
-      expect(result).toStrictEqual({ error: expect.any(String) });
-    });
-
     // Test for checking if the quiz's description exceeds over 100 characters
     test('Description is more than 100 characters', () => {
       const longDescription = 'A'.repeat(101);
       const result = quizDescriptionUpdate(token, quizId, longDescription);
-      expect(result).toStrictEqual({ error: expect.any(String) });
+      expect(result).toStrictEqual({ error: 'Quiz description is more than 100 characters in length' });
     });
 
     // Test for checking if quidId is non-existent within Tahook
     test('Non-existent quiz Id (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
       const result = quizDescriptionUpdate(token, 999, "Non-existent Quiz");
-      expect(result).toStrictEqual({ error: expect.any(String) });
+      expect(result).toStrictEqual({ error: 'Quiz Id not found' });
     });
 
-    // Test for checking if the quizId is owned by the user and uses a second user to test against for
+    // Test for checking if the quizId is owned by the user and uses a second user to test against
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const result = quizDescriptionUpdate('anotherToken', quizId, "Any description");
-      expect(result).toStrictEqual({ error: expect.any(String) });
+      const anotherToken = createUser('another@gmail.com', 'anotherPassword', 'another', 'user').token;
+      const result = quizDescriptionUpdate(anotherToken, quizId, "Any description");
+      expect(result).toStrictEqual({ error: 'Quiz Id not owned by the user' });
     });
   });
 

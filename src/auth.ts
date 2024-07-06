@@ -18,9 +18,9 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { json } from 'stream/consumers';
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
+import validator from 'validator';
 
 // INTERFACES
 
@@ -42,7 +42,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: String }  {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
   const store = getData();
   const userArr = store.users;
 
@@ -87,9 +87,9 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   const session = {
     sessionId: sID,
     authUserId: iD,
-  }; 
+  };
   store.sessions.push(session);
-  return { token: sID.toString() }
+  return { token: sID.toString() };
   // return JSON.stringify(session);
 }
 
@@ -189,9 +189,6 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-import validator from 'validator';
-import { string } from 'yaml/dist/schema/common/string.js';
-
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();

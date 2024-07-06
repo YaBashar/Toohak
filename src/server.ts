@@ -41,7 +41,7 @@ app.get('/echo', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
- 
+
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -54,12 +54,11 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if (typeof response !== typeof 'string') {
+  if ('error' in response) {
     return res.status(400).json(response);
   }
   console.log(response);
   res.json(response);
-  // res.json(JSON.stringify(response));
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
@@ -73,14 +72,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {
       return res.status(401).json(result);
-
-    } else if ('error' in result ) {
+    } else if ('error' in result) {
       return res.status(400).json(result);
-    } 
+    }
   }
   return res.json(result);
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

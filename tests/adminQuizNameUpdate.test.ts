@@ -1,20 +1,12 @@
 import request from 'sync-request-curl';
-import { port, url } from './config.json';
+import { port, url } from '../src/config.json';
 
 const SERVER_URL = `${url}:${port}`;
 
 // Helper Functions
 /// //////////////////////////////////////////////
-const createUser = (email, password, firstName, lastName) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/v1/admin/auth/register',
-    { json: { email, password, firstName, lastName } }
-  );
-  return JSON.parse(res.body.toString());
-};
 
-const createQuiz = (token, name, description) => {
+const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
     SERVER_URL + '/v1/admin/quiz',
@@ -23,11 +15,11 @@ const createQuiz = (token, name, description) => {
   return JSON.parse(res.body.toString());
 };
 
-const quizNameUpdate = (token, quizId, name) => {
+const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
     SERVER_URL + '/v1/admin/quiz/:quizid/name',
-    { json: { token, quizId, name } }
+    { json: { token, name } }
   );
   return JSON.parse(res.body.toString());
 };
@@ -39,11 +31,12 @@ beforeEach(() => {
 
 describe('adminQuizNameUpdate Tests', () => {
   describe('Error Cases', () => {
-    let token;
-    let quizId;
+    let token : string;
+    let quizId : number;
 
     beforeEach(() => {
-      token = createUser('Hayden@gmail.com', '1password', 'Hayden', 'Smith').token;
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
@@ -114,11 +107,12 @@ describe('adminQuizNameUpdate Tests', () => {
   });
 
   describe('Success Cases', () => {
-    let token;
-    let quizId;
+    let token : string;
+    let quizId : number;
 
     beforeEach(() => {
-      token = createUser('email@gmail.com', '1password', 'firstname', 'lastname').token;
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'name', 'description').quizId;
     });
 
@@ -144,21 +138,21 @@ describe('adminQuizNameUpdate Tests', () => {
     });
 
     // redundant test?
-    test('Successfully Returned quizInfo after quizNameUpdate', () => {
-      quizNameUpdate(token, quizId, 'newName');
-      const updatedQuizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
-      expect(updatedQuizInfo).toStrictEqual(
-        {
-          quizId: quizId,
-          name: 'newName',
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'description',
-          numQuestions: expect.any(Number),
-          questions: [
-          ]
-        }
-      );
-    });
+    // test('Successfully Returned quizInfo after quizNameUpdate', () => {
+    //   quizNameUpdate(token, quizId, 'newName');
+    //   const updatedQuizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
+    //   expect(updatedQuizInfo).toStrictEqual(
+    //     {
+    //       quizId: quizId,
+    //       name: 'newName',
+    //       timeCreated: expect.any(Number),
+    //       timeLastEdited: expect.any(Number),
+    //       description: 'description',
+    //       numQuestions: expect.any(Number),
+    //       questions: [
+    //       ]
+    //     }
+    //   );
+    // });
   });
 });

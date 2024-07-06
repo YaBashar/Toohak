@@ -227,7 +227,7 @@ export function adminQuizInfo(authUserId: number, quizId: number): {
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId:number |{ error : string}, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;

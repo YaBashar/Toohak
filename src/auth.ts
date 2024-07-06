@@ -18,7 +18,7 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { ErrorResponse, getData, setData, AdminAuthLogin, AdminUserDetails, AdminAuthRegister } from './dataStore';
+import { getData, setData } from './dataStore';
 import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
@@ -94,10 +94,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   // return JSON.stringify(session);
 }
 
-function createSessionId(): number {
-  return Math.random();
-}
-
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
@@ -112,7 +108,7 @@ function createSessionId(): number {
   *
 */
 
-export function adminAuthLogin(email: string, password: string) : AdminAuthLogin | ErrorResponse {
+export function adminAuthLogin(email: string, password: string) {
   const store = getData();
   const userArr = store.users;
 
@@ -154,7 +150,7 @@ export function adminAuthLogin(email: string, password: string) : AdminAuthLogin
   *
 */
 
-export function adminUserDetails(authUserId: number) : AdminUserDetails | ErrorResponse {
+export function adminUserDetails(authUserId: number) {
   const store = getData();
   const userArr = store.users;
 
@@ -190,7 +186,7 @@ export function adminUserDetails(authUserId: number) : AdminUserDetails | ErrorR
   * ...
   * @returns {} - empty object
 */
-export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
@@ -252,7 +248,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) : Record<string, never> | ErrorResponse {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) : Record<string, never> | { error : string} {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

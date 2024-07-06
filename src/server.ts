@@ -47,8 +47,11 @@ app.get('/echo', (req: Request, res: Response) => {
 app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const { token, name } = req.body;
   const quizid = parseInt(req.params.quizid as string);
-  const quizNameUpdate = adminQuizNameUpdate(token, quizid, name);
-
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
   // Check if the quizNameUpdate contains an error
   if (quizNameUpdate.error) {
     if (quizNameUpdate.error === 'Name is already used' ||

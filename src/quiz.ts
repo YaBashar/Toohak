@@ -181,13 +181,28 @@ export function adminQuizRemove(authUserId: number, quizId: number): Record<stri
   *
 */
 
-export function adminQuizInfo(authUserId: number, quizId: number): {
-     quizId: number,
-     name: string,
-     timeCreated: number,
-     timeLastEdited: number,
-     description: string,
-    } | { error: string} {
+export interface QuizInfo {
+  quizId: number,
+  name: string,
+  timeCreated: number, // Keeping as number for Unix timestamp
+  timeLastEdited: number, // Keeping as number for Unix timestamp
+  description: string,
+  numQuestions: number,
+  questions: {
+    questionId: number,
+    question: string,
+    duration: number,
+    points: number,
+    answers: {
+      answerId: number,
+      answer: string,
+      colour: string,
+      correct: boolean
+    }[]
+  }[]
+}
+
+export function adminQuizInfo(authUserId: number | { error: string}, quizId: number): QuizInfo | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -209,7 +224,36 @@ export function adminQuizInfo(authUserId: number, quizId: number): {
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description
+    description: quiz.description,
+    numQuestions: quiz.numQuestions,
+    questions: quiz.questions.map((question: {
+      questionId: number,
+      question: string,
+      duration: number,
+      points: number,
+      answers: {
+        answerId: number,
+        answer: string,
+        colour: string,
+        correct: boolean
+      }[]
+    }) => ({
+      questionId: question.questionId,
+      question: question.question,
+      duration: question.duration,
+      points: question.points,
+      answers: question.answers.map((answer: {
+        answerId: number,
+        answer: string,
+        colour: string,
+        correct: boolean
+      }) => ({
+        answerId: answer.answerId,
+        answer: answer.answer,
+        colour: answer.colour,
+        correct: answer.correct
+      }))
+    }))
   };
 }
 

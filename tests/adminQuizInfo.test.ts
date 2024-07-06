@@ -5,15 +5,8 @@ const SERVER_URL = `${url}:${port}`;
 
 // Helper Functions for requests
 /// /////////////////////////////////////////////////////////////
-const createUser = (email, password, nameFirst, nameLast) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/v1/admin/auth/register',
-    { json: { email, password, nameFirst, nameLast } });
-  return JSON.parse(res.body.toString());
-};
 
-const createQuiz = (token, name, description) => {
+const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
     SERVER_URL + '/v1/admin/quiz',
@@ -21,7 +14,7 @@ const createQuiz = (token, name, description) => {
   return JSON.parse(res.body.toString());
 };
 
-const quizNameUpdate = (token, quizId, name) => {
+const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
     SERVER_URL + '/v1/admin/quiz/:quizid/name',
@@ -37,18 +30,19 @@ beforeEach(() => {
 
 describe('adminQuizInfo Tests', () => {
   describe('Error Cases', () => {
-    let token;
-    let quizId;
+    let token : string;
+    let quizId : number;
 
     beforeEach(() => {
-      token = createUser('hayden@gmail.com', '1password', 'Hayden', 'Smith').token;
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
     test('Info of a Quiz which does not exist ', () => {
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId + 1}`, { qs: { token } });
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(quizInfo.statusCode).toStrictEqual(401);
+      expect(quizInfo.statusCode).toStrictEqual(403);
     });
 
     test('Info of a Quiz with invalid Authuser id', () => {
@@ -58,7 +52,8 @@ describe('adminQuizInfo Tests', () => {
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const token2 = createUser('mubashir@gmail.com', '2password', 'Mubashir', 'Hussain').token;
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      const token2 = JSON.parse(user.body.toString()).token;
       const quizId2 = createQuiz(token2, 'quizName2', 'description').quizId;
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId2}`, { qs: { token } });
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
@@ -67,11 +62,12 @@ describe('adminQuizInfo Tests', () => {
   });
 
   describe('Success Cases', () => {
-    let token;
-    let quizId;
+    let token : string;
+    let quizId : number;
 
     beforeEach(() => {
-      token = createUser('hayden@gmail.com', '1password', 'Hayden', 'Smith');
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description');
     });
 

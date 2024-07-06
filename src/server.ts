@@ -64,7 +64,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if (typeof response !== typeof 'string') {
+  if ('error' in response) {
     return res.status(400).json(response);
   }
   console.log(response);
@@ -82,7 +82,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
-    } else {
+    } else if ('error' in result){
       return res.status(400).json(result);
     }
   }

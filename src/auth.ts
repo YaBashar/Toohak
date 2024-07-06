@@ -21,6 +21,7 @@ login mechanics, and updating passwords and usernames.
 import { getData, setData } from './dataStore.js';
 import { createSessionId } from './helper';
 import { isEmail } from 'validator';
+import validator from 'validator';
 
 // INTERFACES
 
@@ -42,7 +43,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
   const store = getData();
   const userArr = store.users;
 
@@ -89,7 +90,8 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   };
   store.sessions.push(session);
-  return { token: sID };
+  return { token: sID.toString() };
+  // return JSON.stringify(session);
 }
 
 
@@ -185,8 +187,6 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-import validator from 'validator';
-
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
@@ -249,7 +249,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
  
-export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

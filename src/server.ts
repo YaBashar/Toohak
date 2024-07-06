@@ -9,6 +9,10 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { adminQuizDescriptionUpdate } from './quiz'; // Corrected import
+import { clear } from '../src/other.js';
+import { adminAuthRegister } from './auth';
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -59,9 +63,26 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
       return res.status(403).json({ error: descriptionUpdate.error });
     }
   }
+  console.log(response);
+  res.json(response);
+});
 
-  res.json(descriptionUpdate);
-  return res.status(200).json(descriptionUpdate);
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  console.log(authUserId);
+  const result = adminQuizCreate(authUserId, name, description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.json(result);
 });
 
 // ====================================================================

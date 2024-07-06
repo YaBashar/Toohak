@@ -10,6 +10,8 @@ import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -39,7 +41,7 @@ app.get('/echo', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
-
+ 
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -52,10 +54,12 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
+  if (typeof response !== typeof 'string') {
     return res.status(400).json(response);
   }
-  res.json(JSON.stringify(response));
+  console.log(response);
+  res.json(response);
+  // res.json(JSON.stringify(response));
 });
 
 // ====================================================================

@@ -189,13 +189,9 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string): Record <string,never> | { error: string } {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-
-  if (!Number.isInteger(authUserId)) {
-    return { error: 'invalid userId' };
-  }
 
   if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
     return { error: 'email used by another user' };
@@ -230,7 +226,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   }
 
   const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
-  if (userIndex === -1) {
+  if (!userIndex) {
     return { error: 'userId does not exist' };
   }
 

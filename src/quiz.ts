@@ -78,7 +78,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   const userArr = store.users;
   const quizArr = store.quizzes;
   const user = userArr.find((user) => {
-    console.log(authUserId, user.authUserId, user.authUserId === authUserId);
+    
     return user.authUserId === authUserId;
   });
 

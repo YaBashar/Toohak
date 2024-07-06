@@ -50,7 +50,6 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-// clear route
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -59,20 +58,20 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
   res.json(result);
 });
 
-// adminAuthRegister route
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
+  if (typeof response !== typeof 'string') {
     return res.status(400).json(response);
   }
+  console.log(response);
   res.json(response);
 });
 
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
-  const authUserId = getUserFromSessionID(token);
+  const authUserId = getUserIdFromToken(token);
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
 
   if ('error' in result) {

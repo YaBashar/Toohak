@@ -13,9 +13,11 @@ describe('GET /v1/admin/quiz/list', () => {
   test('Invalid AuthUserId', () => {
     const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {authUserId: 'randomstring'} });
     expect(JSON.parse(res.body.toString())).toStrictEqual({error: 'invalid user id'});
+    expect(res.statusCode).toBe(401);
 
     const res2 = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {authUserId: '1'} });
     expect(JSON.parse(res2.body.toString())).toStrictEqual({error: 'invalid user id'});
+    expect(res.statusCode).toBe(401);
   });
 
   test('Expected results', () => {
@@ -36,5 +38,6 @@ describe('GET /v1/admin/quiz/list', () => {
         }
       ]
     })
+    expect(res.statusCode).toBe(200);
   });
 });

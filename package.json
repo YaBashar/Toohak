@@ -7,6 +7,7 @@
         "lint-tests": "eslint --fix 'tests/**/*.{ts,js}'",
         "lint-fix-tests": "eslint --fix 'tests/**/*.{ts,js}'",
         "start": "ts-node -T src/server.ts",
+        "start-dev": "ts-node-dev -T src/server.ts",
         "cleanup-sync-request": "pkill -f node_modules/sync-rpc/lib/worker.js > /dev/null 2>&1",
         "posttest": "npm run cleanup-sync-request || true"
     },

@@ -9,8 +9,9 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
-import { adminAuthRegister } from '../src/auth.ts';
-import { adminQuizList } from '../src/quiz.ts';
+import { adminAuthRegister } from './auth';
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate, adminQuizList } from './quiz';
 
 // Set up web app
 const app = express();
@@ -56,12 +57,35 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  res.json(JSON.stringify(response));
+  console.log(response);
+  res.json(response);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  console.log(authUserId);
+  const result = adminQuizCreate(authUserId, name, description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.json(result);
 });
 
 // adminQuizList route
 app.put('/v1/admin/quiz', (req: Request, res: Response) => {
-  const { authUserId } = req.body;
+  const { token } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
   const result = adminQuizList(authUserId);
   if ('error' in result) {
     return res.status(401).json(result);

@@ -4,20 +4,23 @@ import { port, url } from '../src/config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5*1000;
 
-const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-const token = JSON.parse(user.body.toString());
-
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
-  const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-  const token = JSON.parse(user.body.toString());
 });
 
 describe('POST /v1/admin/quiz', () => {
+  let token: string;
+
+  beforeEach(() => {
+    let user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+    token = JSON.parse(user.body.toString());
+    console.log(token);
+  });
+
   test('AuthUserId is invalid', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: 'invalidAuthUserId',
+        token: 'invalidAuthUserId',
         name: 'Sidak',
         description: 'valid description'
       },
@@ -32,7 +35,7 @@ describe('POST /v1/admin/quiz', () => {
                           ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'sid!ak',
         description: 'valid description'
       },
@@ -45,7 +48,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is too short', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 's',
         description: 'valid description'
       },
@@ -58,7 +61,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is too long', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'abcdefghijklmnopqrstuvwxyzabcde',
         description: 'valid description'
       },
@@ -71,7 +74,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is already used by current logged in user', () => {
     request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'Sidak',
         description: 'valid description'
       },
@@ -79,7 +82,7 @@ describe('POST /v1/admin/quiz', () => {
     });
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'Sidak',
         description: 'description'
       },
@@ -93,7 +96,7 @@ describe('POST /v1/admin/quiz', () => {
     const longDescription = 'a'.repeat(101);
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'Sidak',
         description: longDescription
       },
@@ -106,7 +109,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Quiz created successfully', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: token,
+        token: token,
         name: 'John',
         description: 'toohak quiz'
       },

@@ -80,7 +80,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 });
 
 // adminQuizList route
-app.put('/v1/admin/quiz', (req: Request, res: Response) => {
+app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {

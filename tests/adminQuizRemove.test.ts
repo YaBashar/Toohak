@@ -10,27 +10,28 @@ beforeEach(() => {
 describe('DELETE /v1/admin/quiz/:quizid', () => {
   let token1: string
   let token2: string
-  let qid: number;
-
+  let qid: string
+  let q2id: string
 
   beforeEach(() => {
-    let uid = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-    token1 = JSON.parse(uid.body.toString()).token;
-    let qid = request('POST', SERVER_URL + '/v1/admin/quiz/create', { json: { authUserId: token1, name: 'validQuiz', description: 'valid description'}});
-    let u2id = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
-    token2 = JSON.parse(u2id.body.toString()).token;
-    let q2id = request('POST', SERVER_URL + '/v1/admin/quiz/create', { json: { authUserId: token2, name: 'validQuiz2', description: 'valid description2'}});
+    const uid = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+    token1 = JSON.parse(uid.body.toString()).token1;
+    const qid = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token1, name: 'validQuiz', description: 'valid description'}});
+    const u2id = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
+    token2 = JSON.parse(u2id.body.toString()).token2;
+    const q2id = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token2, name: 'validQuiz2', description: 'valid description2'}});
   });
 
   // test to check if the authUserId is invalid
   test('AuthUserId is invalid', () => {
     const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/:quizid', {
       json: {
-        authUserId: 'invalidAuthUserId',
+        token: 'invalidAuthUserId',
         quizId: qid,
       },
       timeout: TIMEOUT_MS
     });
+    // console.log(qid);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -39,8 +40,8 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
   test('Quiz Id does not refer to a valid quiz', () => {
     const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/:quizid', {
       json: {
-        token: uid.authUserId,
-        quizId: 'invalidQuizId'
+        token: token1,
+        quizId: 'invalidQuizId',
       },
       timeout: TIMEOUT_MS
     });
@@ -51,8 +52,8 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
   test('Quiz ID does not refer to a quiz that this user owns', () => {
     const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/:quizid', {
       json: {
-        authUserId: u2id.authUserId,
-        quizId: qid.quizId
+        token: token2,
+        quizId: qid,
       },
       timeout: TIMEOUT_MS
     });
@@ -64,16 +65,16 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
   test('Quiz is removed from the list of quizzes', () => {
     const res = request('DELETE', SERVER_URL + '/v1/admin/quiz/:quizid', {
       json: {
-        authUserId: uid.authUserId,
-        quizId: qid.quizId
+        token: token1,
+        quizId: qid,
       },
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ 
       quizzes: [
         {
-          quizId: q2id.quizId,
           name: 'validQuiz2',
+          quizId: q2id,
         }
     ] 
       });

@@ -1,4 +1,4 @@
-import { adminAuthRegister } from '../src/auth.js';
+import { adminAuthRegister } from '../src/auth';
 import { adminQuizInfo, adminQuizCreate, adminQuizNameUpdate } from '../src/quiz.js';
 import { clear } from '../src/other.js';
 

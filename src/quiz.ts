@@ -19,7 +19,7 @@ and update information regarding quizzes.
 // DEPENDENCIES 
 
 import { getData, setData } from "./dataStore.js";
-
+import { getUserIdFromToken } from './helper'
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -74,7 +74,7 @@ export function adminQuizList(authUserId: number) {
   *                             identifier for the quiz 
   * 
 */
-export function adminQuizCreate(authUserId: number, name: string, description: string): { quizId: number } | { error: string } {
+export function adminQuizCreate(authUserId: number | { error: string}, name: string, description: string): { quizId: number } | { error: string } {
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;

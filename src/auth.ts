@@ -18,6 +18,7 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
+import { json } from 'stream/consumers';
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
 
@@ -41,7 +42,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string)  {
   const store = getData();
   const userArr = store.users;
 
@@ -88,7 +89,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   };
   store.sessions.push(session);
-  return session;
+  return JSON.stringify(session);
 }
 
 function createSessionId(): number {

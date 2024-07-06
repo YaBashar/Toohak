@@ -10,8 +10,9 @@ import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
-import { adminQuizCreate, adminQuizRemove } from './quiz';
-
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate } from './quiz';
+import { error } from 'console';
 
 // Set up web app
 const app = express();
@@ -54,15 +55,21 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
+  if (response.includes("error")) {
     return res.status(400).json(response);
   }
-  res.json(JSON.stringify(response));
+  res.json(response);
+  // res.json(JSON.stringify(response));
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const request = req.body;
-  const result = adminQuizCreate(request.authUserId, request.name, request.description);
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(400);
+  }
+  console.log(authUserId);
+  const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {
       res.status(401);
@@ -71,7 +78,8 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     }
   }
   return res.json(result);
-})
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

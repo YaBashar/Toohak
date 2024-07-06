@@ -5,12 +5,12 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5*1000;
 
 const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-const id = JSON.parse(user.body.toString()).authUserId;
+const token = JSON.parse(user.body.toString());
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
   const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-  const id = JSON.parse(user.body.toString()).authUserId;
+  const token = JSON.parse(user.body.toString());
 });
 
 describe('POST /v1/admin/quiz', () => {
@@ -32,7 +32,7 @@ describe('POST /v1/admin/quiz', () => {
                           ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'sid!ak',
         description: 'valid description'
       },
@@ -45,7 +45,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is too short', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 's',
         description: 'valid description'
       },
@@ -58,7 +58,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is too long', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'abcdefghijklmnopqrstuvwxyzabcde',
         description: 'valid description'
       },
@@ -71,7 +71,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Name is already used by current logged in user', () => {
     request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'Sidak',
         description: 'valid description'
       },
@@ -79,7 +79,7 @@ describe('POST /v1/admin/quiz', () => {
     });
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'Sidak',
         description: 'description'
       },
@@ -93,7 +93,7 @@ describe('POST /v1/admin/quiz', () => {
     const longDescription = 'a'.repeat(101);
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'Sidak',
         description: longDescription
       },
@@ -106,7 +106,7 @@ describe('POST /v1/admin/quiz', () => {
   test('Quiz created successfully', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
-        authUserId: id,
+        authUserId: token,
         name: 'John',
         description: 'toohak quiz'
       },

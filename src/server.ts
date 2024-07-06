@@ -72,8 +72,7 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
-  const sessionId = token.sessionId;
-  const authUserId = getUserFromSessionID(sessionId);
+  const authUserId = getUserFromSessionID(token);
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
 
   if ('error' in result) {

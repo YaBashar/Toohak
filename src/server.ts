@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
 import { getUserIdFromToken } from './helper';
@@ -42,6 +43,31 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
+// adminQuizNameUpdate server route
+app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
+  const { token, name } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const quizNameUpdate = adminQuizNameUpdate(token, quizid, name);
+
+  // Check if the quizNameUpdate contains an error
+  if (quizNameUpdate.error) {
+    if (quizNameUpdate.error === 'Name is already used' ||
+        quizNameUpdate.error === 'Name cannot be empty' ||
+        quizNameUpdate.error === 'Name is too short' ||
+        quizNameUpdate.error === 'Name is too long' ||
+        quizNameUpdate.error === 'Quiz name cannot have symbols'
+    ) {
+      return res.status(400).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' || quizNameUpdate.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizNameUpdate.error });
+    }
+  }
+
+  res.json(quizNameUpdate);
+  return res.status(200).json(quizNameUpdate);
+});
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {

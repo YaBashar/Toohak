@@ -18,7 +18,8 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { ErrorResponse, getData, setData, AdminAuthLogin, AdminUserDetails, AdminAuthRegister } from './dataStore';
+import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
 
@@ -70,9 +71,9 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   }
 
   // registering the user to the database
-  const iD = userArr.length + 1;
+  const newUserId = userArr.length + 1;
   const newUser = {
-    authUserId: iD,
+    authUserId: newUserId,
     name: name,
     email: email,
     password: password,
@@ -83,10 +84,10 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   userArr.push(newUser);
   const sID = createSessionId();
 
-  // creating token for session
+  // creating token for sessions
   const session = {
     sessionId: sID,
-    authUserId: iD,
+    authUserId: newUserId,
   };
   store.sessions.push(session);
   return { token: sID.toString() };
@@ -111,7 +112,7 @@ function createSessionId(): number {
   *
 */
 
-export function adminAuthLogin(email: string, password: string) {
+export function adminAuthLogin(email: string, password: string) : AdminAuthLogin | ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
@@ -153,11 +154,11 @@ export function adminAuthLogin(email: string, password: string) {
   *
 */
 
-export function adminUserDetails(authUserId: {authUserId: number}) {
+export function adminUserDetails(authUserId: number) : AdminUserDetails | ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
-  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
+  const user = userArr.find((user) => user.authUserId === authUserId);
 
   // checking for error cases
   if (!user) {
@@ -167,11 +168,11 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   } else {
     return {
       user: {
-        userId: user.authUserId,
+        authUserId: user.authUserId,
         name: user.name,
         email: user.email,
         numSuccessfulLogins: user.numSuccessfulLogins,
-        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
+        numFailedPasswordSinceLastLogin: user.numFailedPasswordSinceLastLogin,
       }
     };
   }
@@ -251,7 +252,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) : Record<string, never> | ErrorResponse {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

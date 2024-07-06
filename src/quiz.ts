@@ -78,7 +78,11 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   let store = getData();
   let userArr = store.users;
   let quizArr = store.quizzes;
-  const user = userArr.find((user) => user.authUserId === authUserId);
+  const user = userArr.find((user) => {
+    console.log(authUserId, user.authUserId, user.authUserId === authUserId)
+    return user.authUserId === authUserId
+  });
+
   if (!user) return {error: 'Invalid User id'};
 
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']', 

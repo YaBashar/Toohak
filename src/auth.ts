@@ -42,7 +42,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): String | { error: String }  {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: String }  {
   const store = getData();
   const userArr = store.users;
 
@@ -89,7 +89,8 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   }; 
   store.sessions.push(session);
-  return JSON.stringify(session);
+  return { token: sID.toString()}
+  // return JSON.stringify(session);
 }
 
 function createSessionId(): number {
@@ -189,6 +190,7 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * @returns {} - empty object
 */
 import validator from 'validator';
+import { string } from 'yaml/dist/schema/common/string.js';
 
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;

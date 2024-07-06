@@ -13,8 +13,7 @@ describe('POST /v1/admin/quiz', () => {
 
   beforeEach(() => {
     let user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
-    token = JSON.parse(user.body.toString());
-    console.log(token);
+    token = JSON.parse(user.body.toString()).token;
   });
 
   test('AuthUserId is invalid', () => {

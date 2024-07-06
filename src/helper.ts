@@ -5,13 +5,15 @@ export function createSessionId(): number {
 }
 
 export function getUserIdFromToken( sessionId: string ):  number  | { error: string } {
-
-  const result = parseInt(sessionId);
+  const result = parseFloat(sessionId);
 
   const store = getData();
   const sessArr = store.sessions;
 
-  const session = sessArr.find((x) => x.sessionId === result);
+  const session = sessArr.find((x) => {
+    console.log(x.sessionId, result, x.sessionId === result)
+    return x.sessionId === result
+});
   if (!session) {
     return { error: 'invalid token'};
   }

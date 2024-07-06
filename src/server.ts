@@ -63,8 +63,8 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const { sessionId, name, description } = req.body;
-  const authUserId = getUserIdFromToken(sessionId);
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }

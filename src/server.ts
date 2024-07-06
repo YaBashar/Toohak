@@ -12,7 +12,6 @@ import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
 import { getUserIdFromToken } from './helper';
 import { adminQuizCreate } from './quiz';
-import { error } from 'console';
 
 // Set up web app
 const app = express();
@@ -55,10 +54,10 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if (response.includes("error")) {
+  if ('error' in response) {
     return res.status(400).json(response);
   }
-  res.json(response);
+  res.json(response)
   // res.json(JSON.stringify(response));
 });
 

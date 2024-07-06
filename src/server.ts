@@ -8,7 +8,6 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminQuizDescriptionUpdate } from './quiz'; // Corrected import
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
 import { getUserIdFromToken } from './helper';
@@ -40,28 +39,23 @@ app.get('/echo', (req: Request, res: Response) => {
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
 });
 
-// adminQuizDescriptionUpdate server route
-app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
-  const { token, description } = req.body;
-  const quizid = parseInt(req.params.quizid as string);
-  const descriptionUpdate = adminQuizDescriptionUpdate(token, quizid, description);
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const result = clear();
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
 
-  // Check if the descriptionUpdate contains an error
-  if (descriptionUpdate.error) {
-    if (
-      descriptionUpdate.error === 'Description cannot be empty' ||
-      descriptionUpdate.error === 'Description is too long' ||
-      descriptionUpdate.error === 'Invalid Quiz id' ||
-      descriptionUpdate.error === 'Invalid User id'
-    ) {
-      return res.status(400).json({ error: descriptionUpdate.error });
-    } else if (descriptionUpdate.error === 'Quiz Id not owned by the user') {
-      return res.status(403).json({ error: descriptionUpdate.error });
-    }
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+
+  if ('error' in response) {
+    return res.status(400).json(response);
   }
   console.log(response);
   res.json(response);
@@ -117,3 +111,4 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
+

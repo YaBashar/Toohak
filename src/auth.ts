@@ -89,7 +89,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   }; 
   store.sessions.push(session);
-  return { token: sID.toString()}
+  return { token: sID.toString() }
   // return JSON.stringify(session);
 }
 

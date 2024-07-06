@@ -42,7 +42,7 @@ app.get('/echo', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
-
+ 
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -55,27 +55,29 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
   const response = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if (response.includes("error")) {
+  if (typeof response !== typeof 'string') {
     return res.status(400).json(response);
   }
+  console.log(response);
   res.json(response);
   // res.json(JSON.stringify(response));
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const { token, name, description } = req.body;
-  const authUserId = getUserIdFromToken(token);
+  const { sessionId, name, description } = req.body;
+  const authUserId = getUserIdFromToken(sessionId);
   if (!authUserId) {
-    return res.status(400);
+    return res.status(401).json(authUserId);
   }
   console.log(authUserId);
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {
-      res.status(401);
-    } else {
-      res.status(400);
-    }
+      return res.status(401).json(result);
+
+    } else if ('error' in result ) {
+      return res.status(400).json(result);
+    } 
   }
   return res.json(result);
 });

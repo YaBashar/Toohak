@@ -88,7 +88,6 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  console.log(response);
   res.json(response);
 });
 
@@ -98,7 +97,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
-  console.log(authUserId);
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {

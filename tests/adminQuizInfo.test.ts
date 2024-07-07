@@ -72,7 +72,8 @@ describe('adminQuizInfo Tests', () => {
           timeLastEdited: expect.any(Number),
           description: 'description',
           numQuestions: expect.any(Number),
-          questions: expect.any(Array)
+          questions: expect.any(Array),
+          duration: expect.any(Number)
         }
       );
       expect(quizInfo.statusCode).toStrictEqual(200);

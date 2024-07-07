@@ -140,6 +140,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
     timeLastEdited: Math.round(Date.now() / 1000),
     numQuestions: 0,
     questions: Array,
+    duration: 0,
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -229,6 +230,7 @@ export interface QuizInfo {
       correct: boolean
     }[]
   }[]
+  duration : number
 }
 
 export function adminQuizInfo(authUserId: number | { error: string}, quizId: number): QuizInfo | { error: string} {
@@ -286,7 +288,8 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
           }))
           : []
       }))
-      : []
+      : [],
+    duration: quiz.duration,
   };
 }
 

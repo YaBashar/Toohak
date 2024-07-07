@@ -40,10 +40,12 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId) {
+export function adminQuizList(authUserId: number) {
   const data = getData();
+  const user = data.users.find(user => user.authUserId === authUserId);
+  // const allQuizzes = [];
 
-  if (!Number.isInteger(authUserId)) {
+  if (!Number.isInteger(authUserId) || !user) {
     return { error: 'invalid user id' };
   }
 
@@ -63,19 +65,22 @@ export function adminQuizList(authUserId) {
   *
   * @param {number} authUserId - number representing a unique
   *                              identifier for the user
-  * @param {number} quizId - number representing a unique
-  *                          identifier for the quiz
+  * @param {number} name - string containing the name of the quiz
+  *
   * @param {string} description - string containing description of the quiz
   * ...
   * @returns {quizId: number} - number representing a unique
   *                             identifier for the quiz
   *
 */
-export function adminQuizCreate(authUserId, name, description) {
+export function adminQuizCreate(authUserId: number | { error: string}, name: string, description: string): { quizId: number } | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  const user = userArr.find((user) => user.authUserId === authUserId);
+  const user = userArr.find((user) => {
+    return user.authUserId === authUserId;
+  });
+
   if (!user) return { error: 'Invalid User id' };
 
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
@@ -113,12 +118,11 @@ export function adminQuizCreate(authUserId, name, description) {
 }
 
 // function to create a random id everytime
-function uniqueId(quizArr) {
-  let uId;
+function uniqueId(quizArr: { quizId: number }[]): number {
+  let uId: number;
   do {
-    uId = Math.random();
+    uId = Date.now();
   } while (quizArr.find(quiz => (quiz.quizId === uId)));
-
   return uId;
 }
 
@@ -135,7 +139,7 @@ function uniqueId(quizArr) {
   *
 */
 
-export function adminQuizRemove(authUserId, quizId) {
+export function adminQuizRemove(authUserId: number, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
@@ -176,7 +180,13 @@ export function adminQuizRemove(authUserId, quizId) {
   *
 */
 
-export function adminQuizInfo(authUserId, quizId) {
+export function adminQuizInfo(authUserId: number, quizId: number): {
+     quizId: number,
+     name: string,
+     timeCreated: number,
+     timeLastEdited: number,
+     description: string,
+    } | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -216,7 +226,7 @@ export function adminQuizInfo(authUserId, quizId) {
   *
 */
 
-export function adminQuizNameUpdate(authUserId, quizId, name) {
+export function adminQuizNameUpdate(authUserId:number, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -242,7 +252,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
     return { error: 'Name is too short' };
   } else if (name.length > 30) {
     return { error: 'Name is too long' };
-  } else if (/[!-/:-@[-`{-~]/.test(name)) {
+  } else if (/[!-:-@[-`{-~]/.test(name)) {
     return { error: 'Quiz name cannot have symbols' };
   }
 
@@ -271,7 +281,7 @@ export function adminQuizNameUpdate(authUserId, quizId, name) {
 // My constant define for the 'Description is more than 100 characters' test case
 const MAX_DESCRIPTION_LENGTH = 100;
 
-export function adminQuizDescriptionUpdate(authUserId, quizId, description) {
+export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, description: string): Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;

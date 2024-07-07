@@ -9,6 +9,8 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { clear } from '../src/other.js';
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate } from './quiz';
 import { adminAuthRegister, adminAuthLogin } from './auth';
 
 // Set up web app
@@ -55,7 +57,24 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  res.json(JSON.stringify(response));
+  res.json(response);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const result = adminQuizCreate(authUserId, name, description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.json(result);
 });
 
 app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
@@ -100,16 +119,3 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
-
-
-function getUserFromSessionID(sessionId: number) {
-  const data = getData();
-
-  const session = data.sessions.find(session => session.sessionId === sessionId);
-
-  if (!session) {
-    return {error: 'invalid token'};
-  }
-
-  return session.authUserId;
-}

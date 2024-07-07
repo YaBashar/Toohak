@@ -20,6 +20,7 @@ login mechanics, and updating passwords and usernames.
 
 import { getData, setData } from './dataStore.js';
 import { isEmail } from 'validator';
+import validator from 'validator';
 
 // INTERFACES
 
@@ -41,7 +42,7 @@ import { isEmail } from 'validator';
   *
 */
 
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string) {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
   const store = getData();
   const userArr = store.users;
 
@@ -88,7 +89,8 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     authUserId: iD,
   };
   store.sessions.push(session);
-  return session;
+  return { token: sID.toString() };
+  // return JSON.stringify(session);
 }
 
 function createSessionId(): number {
@@ -187,8 +189,6 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-import validator from 'validator';
-
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();

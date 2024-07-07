@@ -60,6 +60,16 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   res.json(result);
 });
 
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const result = adminAuthLogin(email, password);
+
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const authUserId = getUserIdFromToken(token);
@@ -75,16 +85,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     }
   }
   return res.json(result);
-});
-
-app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
-  const { email, password } = req.body;
-  const result = adminAuthLogin(email, password);
-
-  if ('error' in result) {
-    return res.status(400).json(result);
-  }
-  res.json(result);
 });
 
 // ====================================================================

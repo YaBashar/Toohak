@@ -10,8 +10,8 @@ beforeEach(() => {
 describe('DELETE /v1/admin/quiz/:quizid', () => {
   let token1: string
   let token2: string
-  let qid: { quizId: number }
-  let q2id: { quizId: number }
+  let qid: number 
+  let q2id: number
 
   beforeEach(() => {
     const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
@@ -27,10 +27,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if the authUserId is invalid
   test('AuthUserId is invalid', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
       qs: {
         token: 'invalidAuthUserId',
-        quizId: qid,
+        quizid: qid,
       },
       timeout: TIMEOUT_MS
     });
@@ -40,10 +40,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check quiz Id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
       qs: {
         token: token1,
-        quizId: 'invalidQuizId',
+        quizid: qid + 1,
       },
       timeout: TIMEOUT_MS
     });
@@ -53,10 +53,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if quiz ID does not refer to a quiz that this user owns
   test('Quiz ID does not refer to a quiz that this user owns', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
       qs: {
         token: token1,
-        quizId: qid,
+        quizid: qid,
       },
       timeout: TIMEOUT_MS
     });
@@ -66,19 +66,18 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if the quiz is removed from the list of quizzes
   test('Quiz is removed from the list of quizzes', () => {
-    console.log(qid);
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
       qs: {
         token: token1,
       },
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ 
-    //   quizzes: [
-    //     {
+      quizzes: [
+        {
           
-    //     }
-    // ] 
+        }
+    ] 
       });
     expect(res.statusCode).toBe(200);
     });

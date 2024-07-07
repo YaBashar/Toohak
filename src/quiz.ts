@@ -121,7 +121,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
 function uniqueId(quizArr: { quizId: number }[]): number {
   let uId: number;
   do {
-    uId = Math.random();
+    uId = Date.now();
   } while (quizArr.find(quiz => (quiz.quizId === uId)));
   return uId;
 }
@@ -138,15 +138,12 @@ function uniqueId(quizArr: { quizId: number }[]): number {
   * @returns {} - empty object
   *
 */
-
 export function adminQuizRemove(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
-  const user = userArray.find(user => { return user.authUserId === authUserId });
-  console.log(quizId);
-  const quiz = quizArray.find(quiz => { return quiz.quizId === quizId });
-  console.log(quizArray);
+  const user = userArray.find((user) => { return user.authUserId === authUserId; });
+  const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
     return { error: 'Invalid user id' };
   }

@@ -81,11 +81,10 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizid = parseInt(req.params.quizid);
   
-  // if (isNaN(Number(quizid))) {
+  console.log(quizid);
+  // if (isNaN(quizid)) {
   //   return res.status(400).json({ error: 'Invalid quizid' });
   // }
-
-  console.log(req.params);
   
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
@@ -94,9 +93,9 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const result = adminQuizRemove(authUserId, quizid);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {
-      res.status(401);
+      return res.status(401).json(result);
     } else if('error' in result) {
-      res.status(400);
+      return res.status(400).json(result);
     }
   } 
   return res.json(result);

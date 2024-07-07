@@ -48,9 +48,9 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
 
   const authUserId = getUserIdFromToken(token);
-  // if (!authUserId) {
-  //   return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
-  // }
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
   const quizInfo = adminQuizInfo(authUserId, quizId);
 
   if ('error' in quizInfo) {

@@ -73,6 +73,33 @@ export function adminQuizList(authUserId: number) {
   *                             identifier for the quiz
   *
 */
+
+interface Answer {
+  answerId: number;
+  answer: string;
+  colour: string;
+  correct: boolean;
+}
+
+interface Question {
+  questionId: number;
+  question: string;
+  duration: number;
+  points: number;
+  answers: Answer[];
+}
+
+export interface Quiz {
+  quizId: number;
+  name: string;
+  description: string;
+  timeCreated: number;
+  timeLastEdited: number;
+  numQuestions: number;
+  questions: Question[];
+  authUserId: number;
+}
+
 export function adminQuizCreate(authUserId: number | { error: string}, name: string, description: string): { quizId: number } | { error: string } {
   const store = getData();
   const userArr = store.users;
@@ -104,12 +131,15 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   }
 
   const id = uniqueId(quizArr);
+
   const quiz = {
     quizId: id,
     name: name,
     description: description,
     timeCreated: Math.round(Date.now() / 1000),
     timeLastEdited: Math.round(Date.now() / 1000),
+    numQuestions: 0,
+    questions: Array,
     authUserId: authUserId,
   };
   store.quizzes.push(quiz);
@@ -206,8 +236,6 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  console.log(getData());
-
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
@@ -221,13 +249,14 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   }
 
   return {
-    quizId: quizId,
+    quizId: quiz.quizId,
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
-    numQuestions: quiz.numQuestions,
-    questions: quiz.questions.map((question: {
+    numQuestions: quiz.numQuestions || 0, // Ensure numQuestions has a default value
+    questions: Array.isArray(quiz.questions)
+      ? quiz.questions.map((question: {
       questionId: number,
       question: string,
       duration: number,
@@ -239,22 +268,25 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
         correct: boolean
       }[]
     }) => ({
-      questionId: question.questionId,
-      question: question.question,
-      duration: question.duration,
-      points: question.points,
-      answers: question.answers.map((answer: {
+        questionId: question.questionId,
+        question: question.question,
+        duration: question.duration,
+        points: question.points,
+        answers: Array.isArray(question.answers)
+          ? question.answers.map((answer: {
         answerId: number,
         answer: string,
         colour: string,
         correct: boolean
       }) => ({
-        answerId: answer.answerId,
-        answer: answer.answer,
-        colour: answer.colour,
-        correct: answer.correct
+            answerId: answer.answerId,
+            answer: answer.answer,
+            colour: answer.colour,
+            correct: answer.correct
+          }))
+          : []
       }))
-    }))
+      : []
   };
 }
 

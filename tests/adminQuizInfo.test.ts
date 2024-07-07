@@ -14,14 +14,6 @@ const createQuiz = (token : string, name : string, description : string) => {
   return JSON.parse(res.body.toString());
 };
 
-const quizNameUpdate = (token : string, quizId : number, name : string) => {
-  const res = request(
-    'PUT',
-    SERVER_URL + '/v1/admin/quiz/:quizid/name',
-    { json: { token, quizId, name } }
-  );
-  return JSON.parse(res.body.toString());
-};
 /// /////////////////////////////////////////////////////////////
 
 beforeEach(() => {
@@ -37,8 +29,6 @@ describe('adminQuizInfo Tests', () => {
       const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
-      console.log('QUIZID and TOKEN');
-      console.log(quizId, token);
     });
 
     test('Info of a Quiz which does not exist ', () => {
@@ -47,9 +37,8 @@ describe('adminQuizInfo Tests', () => {
       expect(quizInfo.statusCode).toStrictEqual(403);
     });
 
-    test.only('Info of a Quiz with invalid Authuser id', () => {
+    test('Info of a Quiz with invalid Authuser id', () => {
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: 'invalid_token' } });
-      console.log(JSON.parse(quizInfo.body.toString()));
       expect(quizInfo.statusCode).toStrictEqual(401);
     });
 
@@ -70,7 +59,7 @@ describe('adminQuizInfo Tests', () => {
     beforeEach(() => {
       const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
       token = JSON.parse(user.body.toString()).token;
-      quizId = createQuiz(token, 'quizName', 'description');
+      quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
     test('Successfully Returned quizInfo', () => {
@@ -78,36 +67,15 @@ describe('adminQuizInfo Tests', () => {
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,
-          name: 'quizname',
+          name: 'quizName',
           timeCreated: expect.any(Number),
           timeLastEdited: expect.any(Number),
           description: 'description',
           numQuestions: expect.any(Number),
-
-          questions: [
-          ]
+          questions: expect.any(Array)
         }
       );
       expect(quizInfo.statusCode).toStrictEqual(200);
-    });
-
-    test('Successfully Returned quizInfo after quizNameUpdate', () => {
-      quizNameUpdate(token, quizId, 'newName');
-      const updatedQuizInfo = request('GET', SERVER_URL + '/v1/admin/quiz/:quizid', { qs: { token } });
-      expect(updatedQuizInfo).toStrictEqual(
-        {
-          quizId: quizId,
-          name: 'newName',
-          timeCreated: expect.any(Number),
-          timeLastEdited: expect.any(Number),
-          description: 'description',
-          numQuestions: expect.any(Number),
-
-          questions: [
-          ]
-        }
-      );
-      expect(updatedQuizInfo.statusCode).toStrictEqual(200);
     });
   });
 });

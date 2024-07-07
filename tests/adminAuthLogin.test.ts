@@ -28,7 +28,7 @@ describe('Testing login error cases', () => {
 
   // Password is not correct for the given email.
   test('Incorrect password', () => {
-    const res = requestAuthLogin('zidl@unsw.edu.au', 'abcd123');
+    const res = requestAuthLogin('zid@unsw.edu.au', 'abcd123');
     const data = JSON.parse(res.body.toString());
 
     expect(data).toStrictEqual({error: 'Incorrect password' });

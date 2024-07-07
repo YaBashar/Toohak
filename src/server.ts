@@ -52,12 +52,12 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
-    return res.status(400).json(response);
+  if ('error' in result) {
+    return res.status(400).json(result);
   }
-  res.json(response);
+  res.json(result);
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
@@ -77,14 +77,14 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-app.put('/v1/admin/auth/login', (req: Request, res: Response) => {
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const response = adminAuthLogin(email, password);
+  const result = adminAuthLogin(email, password);
 
-  if (typeof response === typeof Error) {
-    return res.status(400).json(response);
+  if ('error' in result) {
+    return res.status(400).json(result);
   }
-  res.json(response);
+  res.json(result);
 });
 
 // ====================================================================

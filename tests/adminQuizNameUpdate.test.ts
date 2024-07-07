@@ -40,7 +40,7 @@ describe('adminQuizNameUpdate Tests', () => {
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
-    test.only.each([
+    test.each([
 
       {
         testName: 'Check fail for empty input',

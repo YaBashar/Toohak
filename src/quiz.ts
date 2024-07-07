@@ -122,7 +122,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
 function uniqueId(quizArr: { quizId: number }[]): number {
   let uId: number;
   do {
-    uId = Math.random();
+    uId = Date.now();
   } while (quizArr.find(quiz => (quiz.quizId === uId)));
   return uId;
 }

@@ -71,6 +71,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
 });
+
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {

@@ -18,7 +18,7 @@ const createQuiz = (token : string, name : string, description : string) => {
 const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
-    SERVER_URL + '/v1/admin/quiz/:quizid/name',
+    SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
     { json: { token, name } }
   );
   return JSON.parse(res.body.toString());
@@ -74,9 +74,8 @@ describe('adminQuizNameUpdate Tests', () => {
       }
 
     ])('Test $# => $testName', ({ quizName, errorMessage }) => {
-      const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name).toStrictEqual({ error: errorMessage });
-      expect(name.statusCode).toStrictEqual(400);
+      const name = quizNameUpdate(token, quizId, quizName);
+      expect(name).toStrictEqual({ error: errorMessage, statusCode: 400 });
     });
 
     // Testing Invalid User id and Quiz id

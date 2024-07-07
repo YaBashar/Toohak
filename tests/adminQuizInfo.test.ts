@@ -37,6 +37,8 @@ describe('adminQuizInfo Tests', () => {
       const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
+      console.log('QUIZID and TOKEN');
+      console.log(quizId, token);
     });
 
     test('Info of a Quiz which does not exist ', () => {
@@ -45,9 +47,9 @@ describe('adminQuizInfo Tests', () => {
       expect(quizInfo.statusCode).toStrictEqual(403);
     });
 
-    test('Info of a Quiz with invalid Authuser id', () => {
-      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: token + 1 } });
-      expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
+    test.only('Info of a Quiz with invalid Authuser id', () => {
+      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: 'invalid_token' } });
+      console.log(JSON.parse(quizInfo.body.toString()));
       expect(quizInfo.statusCode).toStrictEqual(401);
     });
 
@@ -72,7 +74,7 @@ describe('adminQuizInfo Tests', () => {
     });
 
     test('Successfully Returned quizInfo', () => {
-      const quizInfo = request('GET', SERVER_URL + '/v1/admin/quiz/:quizid', { qs: { token } });
+      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,

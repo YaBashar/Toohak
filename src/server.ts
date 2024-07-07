@@ -45,20 +45,21 @@ app.get('/echo', (req: Request, res: Response) => {
 
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
-  const quizId = parseInt(req.query.quizid as string);
+  const quizId = parseInt(req.params.quizid as string);
 
   const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json(authUserId);
-  }
+  // if (!authUserId) {
+  //   return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  // }
   const quizInfo = adminQuizInfo(authUserId, quizId);
 
   if ('error' in quizInfo) {
-    if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+    if (quizInfo.error === 'Invalid User id') {
+      return res.status(401).json(quizInfo);
+    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
       return res.status(403).json(quizInfo);
     }
   }
-  res.json(quizInfo);
   res.status(200).json(quizInfo);
 });
 

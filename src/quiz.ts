@@ -207,14 +207,16 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const userArr = store.users;
   const quizArr = store.quizzes;
 
+  console.log(getData());
+
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!user) {
+  if (!user) {
     return { error: 'Invalid User id' };
+  } else if (!quiz) {
+    return { error: 'Invalid Quiz id' };
   } else if (!userQuiz) {
     return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
   }

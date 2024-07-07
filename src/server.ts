@@ -79,7 +79,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
-  const quizId = parseFloat(req.params.quizid as string);//change to parseInt and random function as well
+  const quizId = parseInt(req.params.quizid as string);//change to parseInt and random function as well
   const authUserId = getUserIdFromToken(token);
   console.log(req.params);
   if (!authUserId) {

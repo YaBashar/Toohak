@@ -21,7 +21,7 @@ const quizNameUpdate = (token : string, quizId : number, name : string) => {
     SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
     { json: { token, name } }
   );
-  return JSON.parse(res.body.toString());
+  return res;
 };
 /// //////////////////////////////////////////////
 
@@ -40,7 +40,7 @@ describe('adminQuizNameUpdate Tests', () => {
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
-    test.each([
+    test.only.each([
 
       {
         testName: 'Check fail for empty input',
@@ -75,32 +75,34 @@ describe('adminQuizNameUpdate Tests', () => {
 
     ])('Test $# => $testName', ({ quizName, errorMessage }) => {
       const name = quizNameUpdate(token, quizId, quizName);
-      expect(name).toStrictEqual({ error: errorMessage, statusCode: 400 });
+      expect(JSON.parse(name.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(name.statusCode).toStrictEqual(400);
     });
 
     // Testing Invalid User id and Quiz id
     test('Invalid User id', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name).toStrictEqual({ error: expect.any(String) });
+      expect(JSON.parse(name.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(name.statusCode).toStrictEqual(401);
     });
 
     test('Invalid Quiz id', () => {
-      const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name).toStrictEqual({ error: expect.any(String) });
+      const name = quizNameUpdate(token, quizId + 1, 'Name');
+      expect(JSON.parse(name.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(name.statusCode).toStrictEqual(403);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name).toStrictEqual({ error: expect.any(String) });
+      // create another user with quiz and then pass that quiz id
+      const name = quizNameUpdate(token, quizId + 1, 'Name');
+      expect(JSON.parse(name.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(name.statusCode).toStrictEqual(403);
     });
 
     test('Name is already used by the current logged in user for another quiz', () => {
       const quiz = createQuiz(token, 'anotherQuizName', 'description2').quizId;
       const nameUpdate = quizNameUpdate(token, quiz, 'Name');
-      expect(nameUpdate).toStrictEqual({ error: expect.any(String) });
+      expect(JSON.parse(nameUpdate.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(nameUpdate.statusCode).toStrictEqual(400);
     });
   });

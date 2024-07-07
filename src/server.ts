@@ -54,17 +54,18 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
   // Check if the quizNameUpdate contains an error
   if (quizNameUpdate.error) {
-    if (quizNameUpdate.error === 'Name is already used' ||
-        quizNameUpdate.error === 'Name cannot be empty' ||
-        quizNameUpdate.error === 'Name is too short' ||
-        quizNameUpdate.error === 'Name is too long' ||
-        quizNameUpdate.error === 'Quiz name cannot have symbols'
-    ) {
-      return res.status(400).json({ error: quizNameUpdate.error });
-    } else if (quizNameUpdate.error === 'Invalid User id') {
+    if (quizNameUpdate.error === 'Invalid User id') {
       return res.status(401).json({ error: quizNameUpdate.error });
     } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' || quizNameUpdate.error === 'Invalid Quiz id') {
+      console.log("AdminQuiz" , quizNameUpdate);
       return res.status(403).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Name is already used' ||
+      quizNameUpdate.error === 'Name cannot be empty' ||
+      quizNameUpdate.error === 'Name is too short' ||
+      quizNameUpdate.error === 'Name is too long' ||
+      quizNameUpdate.error === 'Quiz name cannot have symbols'
+    ) {
+      return res.status(400).json({ error: quizNameUpdate.error });
     }
   }
 

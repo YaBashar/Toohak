@@ -122,7 +122,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
 function uniqueId(quizArr: { quizId: number }[]): number {
   let uId: number;
   do {
-    uId = Math.random();
+    uId = Date.now();
   } while (quizArr.find(quiz => (quiz.quizId === uId)));
   return uId;
 }
@@ -229,6 +229,7 @@ export function adminQuizInfo(authUserId: number, quizId: number): {
 
 export function adminQuizNameUpdate(authUserId:number |{ error : string}, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
+  console.log(getData());
   const userArr = store.users;
   const quizArr = store.quizzes;
 
@@ -237,17 +238,18 @@ export function adminQuizNameUpdate(authUserId:number |{ error : string}, quizId
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!user) {
+  console.log("Line 241");
+  console.log(quizId, quiz);
+
+  if (!user) {
     return { error: 'Invalid User id' };
+  } else if (!quiz) {
+    return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   } else if (findName) {
     return { error: 'Name is already used' };
-  }
-
-  if (name === ' ') {
+  } else if (name === ' ') {
     return { error: 'Name cannot be empty' };
   } else if (name.length <= 3) {
     return { error: 'Name is too short' };

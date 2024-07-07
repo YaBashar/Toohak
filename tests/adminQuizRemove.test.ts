@@ -41,7 +41,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check quiz Id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId + 1}`, {
       qs: {
         token: token1,
         quizid: qid.quizId + 1,

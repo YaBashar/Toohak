@@ -95,7 +95,7 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const result = adminQuizRemove(authUserId, quizid);
   console.log(result);
 
-  if (result.error) {
+  if ('error' in result) {
     return res.status(400).json(result);
   }
 

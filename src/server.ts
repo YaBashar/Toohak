@@ -68,38 +68,45 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
+    if ( result.error === 'Invalid user id') {
       return res.status(401).json(result);
-    } else if ('error' in result) {
+    } else {
       return res.status(400).json(result);
     }
   }
   return res.json(result);
-});
+}); 
 
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizid = parseInt(req.params.quizid as string);
   const token = req.query.token as string;
-  const quizid = parseInt(req.params.quizid);
   
   // if (isNaN(Number(quizid))) {
   //   return res.status(400).json({ error: 'Invalid quizid' });
   // }
 
-  console.log(req.params);
+  console.log(quizid);
+  console.log(token);
   
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
   const result = adminQuizRemove(authUserId, quizid);
-  if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
-      res.status(401);
-    } else if('error' in result) {
-      res.status(400);
-    }
-  } 
-  return res.json(result);
+  console.log(result);
+
+  if (result.error) {
+    return res.status(400).json(result);
+  }
+
+  // if ('error' in result) {
+  //   if (result.error === 'UserId doesn\'t exist') {
+  //     return res.status(401).json(result);
+  //   } else if('error' in result) {
+  //     return res.status(400).json(result);
+  //   }
+  // } 
+  res.json(result);
 });
 
 

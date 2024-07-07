@@ -78,7 +78,6 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   const userArr = store.users;
   const quizArr = store.quizzes;
   const user = userArr.find((user) => {
-    console.log(authUserId, user.authUserId, user.authUserId === authUserId);
     return user.authUserId === authUserId;
   });
 
@@ -140,12 +139,14 @@ function uniqueId(quizArr: { quizId: number }[]): number {
   *
 */
 
-export function adminQuizRemove(authUserId: number | { error: string}, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizRemove(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
-  const user = userArray.find(user => user.authUserId === authUserId);
-  const quiz = quizArray.find(quiz => quiz.quizId === quizId);
+  const user = userArray.find(user => { return user.authUserId === authUserId });
+  console.log(quizId);
+  const quiz = quizArray.find(quiz => { return quiz.quizId === quizId });
+  console.log(quizArray);
   if (!user) {
     return { error: 'Invalid user id' };
   }
@@ -329,3 +330,4 @@ export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, d
     return {};
   }
 }
+

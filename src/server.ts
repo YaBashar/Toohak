@@ -78,9 +78,14 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 });
 
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const token = parseInt(req.query.token as string);
-  const quizId = parseInt(req.query.quizid as string);
-  const result = adminQuizRemove(token, quizId);
+  const token = req.query.token as string;
+  const quizId = parseFloat(req.params.quizid as string);//change to parseInt and random function as well
+  const authUserId = getUserIdFromToken(token);
+  console.log(req.params);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const result = adminQuizRemove(authUserId, quizId);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {
       res.status(401);

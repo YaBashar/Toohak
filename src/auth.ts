@@ -201,6 +201,42 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   const data = getData();
   console.log(getData());
   console.log(authUserId);
+
+  if (!Number.isInteger(authUserId)) {
+    return { error: 'invalid userId' };
+  }
+
+  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  }
+
+  if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  }
+
+  if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters' };
+  }
+
+  if (nameFirst.length < 2) {
+    return { error: 'first name is too short' };
+  }
+
+  if (nameFirst.length > 20) {
+    return { error: 'first name is too long' };
+  }
+
+  if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters' };
+  }
+
+  if (nameLast.length < 2) {
+    return { error: 'last name is too short' };
+  }
+
+  if (nameLast.length > 20) {
+    return { error: 'last name is too long' };
+  }
   const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
 
   if (userIndex === -1) {

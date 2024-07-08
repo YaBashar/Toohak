@@ -36,7 +36,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   // test to check quiz Id does not refer to a valid quiz
@@ -49,20 +49,20 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(403);
   });
 
   // test to check if quiz ID does not refer to a quiz that this user owns
   test('Quiz ID does not refer to a quiz that this user owns', () => {
     const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
-        token: token1,
+        token: token2,
         quizid: qid.quizId,
       },
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(403);
   });
 
   // test to check if the quiz is removed from the list of quizzes

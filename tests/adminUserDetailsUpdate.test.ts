@@ -19,7 +19,7 @@ describe('PUT /v1/admin/user/details', () => {
   test('Email is already used by another user', () => {
     const authUser2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'steph@unsw.edu.au', password: 'Farmingsimulator!1234', nameFirst: 'steph', nameLast: 'liang'}});
     token1 = JSON.parse(authUser2.body.toString()).token;
-    const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token1, email: 'amelia@unsw.edu.au', nameFirst: 'amelia', nameLast: 'su' }});
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token:token1, email: 'amelia@unsw.edu.au', nameFirst: 'amelia', nameLast: 'su' }});
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'email used by another user' });
     expect(res.statusCode).toBe(400);
   });

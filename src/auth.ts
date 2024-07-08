@@ -196,7 +196,7 @@ export function adminUserDetails(authUserId: number) {
   * @returns {} - empty object
 */
 
-export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+export function adminUserDetailsUpdate(authUserId: number | { error: string }, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
   console.log(getData());
@@ -277,7 +277,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number | { error: string }, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

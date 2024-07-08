@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate,adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
 
 // Set up web app
 const app = express();
@@ -89,7 +89,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-// adminQuizCreate
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const authUserId = getUserIdFromToken(token);
@@ -107,30 +106,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-// adminQuizRemove
-app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizid = parseInt(req.params.quizid);
-  
-  console.log(quizid);
-  // if (isNaN(quizid)) {
-  //   return res.status(400).json({ error: 'Invalid quizid' });
-  // }
-  
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json(authUserId);
-  }
-  const result = adminQuizRemove(authUserId, quizid);
-  if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
-      return res.status(401).json(result);
-    } else if('error' in result) {
-      return res.status(400).json(result);
-    }
-  } 
-  return res.json(result);
-});
 // adminUserPasswordUpdate route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;

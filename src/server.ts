@@ -32,16 +32,6 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
-function getUserFromSessionID(sessionId: number) {
-  const data = getData();
-  const session = data.sessions.find(session => session.sessionId === sessionId);
-
-  if (!session) {
-    return { error: 'invalid token' };
-  }
-  return session.authUserId;
-}
-
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
   const result = echo(req.query.echo as string);

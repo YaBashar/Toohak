@@ -8,11 +8,12 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizNameUpdate } from './quiz';
 import { adminQuizInfo } from './quiz';
 import { clear } from '../src/other.js';
-import { adminAuthRegister, adminUserPasswordUpdate } from './auth';
 import { getUserIdFromToken } from './helper';
-import { adminQuizCreate } from './quiz';
+import { adminQuizCreate, adminQuizDescriptionUpdate } from './quiz';
+import { adminAuthRegister, adminAuthLogin, adminUserPasswordUpdate } from './auth';
 
 // Set up web app
 const app = express();
@@ -41,6 +42,35 @@ app.get('/echo', (req: Request, res: Response) => {
     res.status(400);
   }
   return res.json(result);
+});
+
+// adminQuizNameUpdate server route
+app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
+  const { token, name } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
+  // Check if the quizNameUpdate contains an error
+  if (quizNameUpdate.error) {
+    if (quizNameUpdate.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' || quizNameUpdate.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Name is already used' ||
+      quizNameUpdate.error === 'Name cannot be empty' ||
+      quizNameUpdate.error === 'Name is too short' ||
+      quizNameUpdate.error === 'Name is too long' ||
+      quizNameUpdate.error === 'Quiz name cannot have symbols'
+    ) {
+      return res.status(400).json({ error: quizNameUpdate.error });
+    }
+  }
+
+  res.json(quizNameUpdate);
+  return res.status(200).json(quizNameUpdate);
 });
 
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
@@ -73,12 +103,22 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
-    return res.status(400).json(response);
+  if ('error' in result) {
+    return res.status(400).json(result);
   }
-  res.json(response);
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const result = adminAuthLogin(email, password);
+
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
@@ -114,6 +154,22 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
     }
   }
   return res.status(200).json(result);
+});
+
+// My PUT route for updating quiz description
+app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
+  const { token, description } = req.body;
+  const { quizId } = req.params;
+  const authUserId = getUserIdFromToken(token);
+  const quizIdNum = parseInt(quizId);
+  if (isNaN(quizIdNum)) {
+    return res.status(400).json({ error: 'Invalid Quiz id' });
+  }
+  const result = adminQuizDescriptionUpdate(authUserId, quizIdNum, description);
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================

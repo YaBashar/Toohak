@@ -119,14 +119,14 @@ describe('adminQuizNameUpdate Tests', () => {
 
     test('Check that function returns empty object', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name).toStrictEqual({});
+      expect(name.body).toStrictEqual({});
       expect(name.statusCode).toStrictEqual(200);
     });
 
-    test('Check name has been updated successfully', () => {
+    test('Check name has been updated successfully through QuizInfo', () => {
       quizNameUpdate(token, quizId, 'newName');
       const updatedQuizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
-      expect(updatedQuizInfo).toStrictEqual({
+      expect(updatedQuizInfo.body).toStrictEqual({
         quizId: quizId,
         name: 'newName',
         timeCreated: expect.any(Number),
@@ -137,23 +137,5 @@ describe('adminQuizNameUpdate Tests', () => {
         ]
       });
     });
-
-    // redundant test?
-    // test('Successfully Returned quizInfo after quizNameUpdate', () => {
-    //   quizNameUpdate(token, quizId, 'newName');
-    //   const updatedQuizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
-    //   expect(updatedQuizInfo).toStrictEqual(
-    //     {
-    //       quizId: quizId,
-    //       name: 'newName',
-    //       timeCreated: expect.any(Number),
-    //       timeLastEdited: expect.any(Number),
-    //       description: 'description',
-    //       numQuestions: expect.any(Number),
-    //       questions: [
-    //       ]
-    //     }
-    //   );
-    // });
   });
 });

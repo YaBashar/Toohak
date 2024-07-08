@@ -120,6 +120,8 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
     } else {
       return res.status(400).json(result);
     }
+  }
+});
 
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {

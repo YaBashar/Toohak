@@ -19,7 +19,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     token1 = JSON.parse(uid1.body.toString()).token;
     let response = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token1, name: 'validQuiz', description: 'valid description'}});
     qid = JSON.parse(response.body.toString()); 
-
+    
     const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
     token2 = JSON.parse(uid2.body.toString()).token;
     response = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token2, name: 'validQuiz2', description: 'valid description2'}});
@@ -54,9 +54,9 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if quiz ID does not refer to a quiz that this user owns
   test('Quiz ID does not refer to a quiz that this user owns', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${q2id.quizId}`, {
       qs: {
-        token: token2,
+        token: token1,
         quizid: qid.quizId,
       },
       timeout: TIMEOUT_MS
@@ -67,17 +67,21 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if the quiz is removed from the list of quizzes
   test('Quiz is removed from the list of quizzes', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+    let res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
+        token: token1,
+      },
+      timeout: TIMEOUT_MS
+    });
+    res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
+      json: {
         token: token1,
       },
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ 
       quizzes: [
-        {
-          
-        }
+        
     ] 
       });
     expect(res.statusCode).toBe(200);

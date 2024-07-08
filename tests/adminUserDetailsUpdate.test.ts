@@ -6,6 +6,7 @@ const TIMEOUT_MS = 5 * 1000;
 
 const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su'}});
 let token: string;
+let token1: string;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -17,8 +18,8 @@ describe('PUT /v1/admin/user/details', () => {
   // Email is currently used by another user (excluding the current authorised user)
   test('Email is already used by another user', () => {
     const authUser2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: {email: 'steph@unsw.edu.au', password: 'Farmingsimulator!1234', nameFirst: 'steph', nameLast: 'liang'}});
-    const authUserId2 = JSON.parse(authUser2.body.toString()).authUserId;
-    const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { authUserId2, email: 'amelia@unsw.edu.au', nameFirst: 'amelia', nameLast: 'su' }});
+    token1 = JSON.parse(authUser2.body.toString()).token;
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token1, email: 'amelia@unsw.edu.au', nameFirst: 'amelia', nameLast: 'su' }});
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'email used by another user' });
     expect(res.statusCode).toBe(400);
   });

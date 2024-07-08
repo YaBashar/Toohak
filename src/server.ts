@@ -100,7 +100,8 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
-    } else if ('error' in result){
+    } else if ('error' in result) {
+      console.log(result);
       return res.status(400).json(result);
     }
   }

@@ -102,6 +102,9 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
   const authUserId = getUserIdFromToken(token);
+  console.log('here is token:', token);
+  console.log('here is authUserId:', authUserId);
+  console.log(adminQuizList);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }

@@ -17,7 +17,7 @@ describe('GET /v1/admin/quiz/list', () => {
     const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {authUserId: 'randomstring'} });
     expect(JSON.parse(res.body.toString())).toStrictEqual({error: 'invalid user id'});
     expect(res.statusCode).toBe(401);
-
+    console.log('userId:', res);
     const res2 = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {authUserId: '1'} });
     expect(JSON.parse(res2.body.toString())).toStrictEqual({error: 'invalid user id'});
     expect(res.statusCode).toBe(401);
@@ -29,6 +29,8 @@ describe('GET /v1/admin/quiz/list', () => {
     const quiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name: 'quiz 1', description: 'the first quiz'} });
     const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', { json: {token, name: 'quiz 2', description: 'the second quiz'} });
     const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: {token} });
+    console.log('userId for test 2:', token);
+    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual(
       { quizzes: [
         {

@@ -192,6 +192,8 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
+  console.log(getData());
+  console.log(authUserId);
 
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid userId' };

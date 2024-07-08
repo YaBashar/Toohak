@@ -69,7 +69,8 @@ DATA STRUCTURES
 export function adminQuizList(authUserId: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
-  // const allQuizzes = [];
+  console.log(getData());
+  console.log(authUserId);
 
   if (!Number.isInteger(authUserId) || !user) {
     return { error: 'invalid user id' };

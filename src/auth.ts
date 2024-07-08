@@ -93,7 +93,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   return { token: sID.toString() };
 }
 
-
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
@@ -257,7 +256,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * ...
   * @returns {} - empty object
 */
- 
+
 export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
   const data = getData();
 
@@ -298,4 +297,3 @@ export function adminUserPasswordUpdate(authUserId: number, oldPassword: string,
 
   return {};
 }
-

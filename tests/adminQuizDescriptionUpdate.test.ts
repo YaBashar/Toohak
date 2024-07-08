@@ -5,7 +5,7 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions
-//////////////////////////////////////////////////
+/// ///////////////////////////////////////////////
 const createUser = (email: string, password: string, firstName: string, lastName: string) => {
   const res = request(
     'POST',
@@ -45,14 +45,14 @@ const quizInfo = (token: string, quizId: number) => {
 const clear = () => {
   request('DELETE', `${SERVER_URL}/v1/clear`, { timeout: TIMEOUT_MS });
 };
-//////////////////////////////////////////////////
+/// ///////////////////////////////////////////////
 
 beforeEach(() => {
   clear();
 });
 
-describe("adminQuizDescriptionUpdate Tests", () => {
-  describe("Error Cases", () => {
+describe('adminQuizDescriptionUpdate Tests', () => {
+  describe('Error Cases', () => {
     let token: string;
     let quizId: number;
 
@@ -70,19 +70,19 @@ describe("adminQuizDescriptionUpdate Tests", () => {
 
     // Test for checking if quidId is non-existent within Tahook
     test('Non-existent quiz Id (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
-      const result = quizDescriptionUpdate(token, 999, "Non-existent Quiz");
+      const result = quizDescriptionUpdate(token, 999, 'Non-existent Quiz');
       expect(result).toStrictEqual({ error: 'Quiz Id not found' });
     });
 
     // Test for checking if the quizId is owned by the user and uses a second user to test against
     test('Quiz Id does not refer to a quiz that this user owns', () => {
       const anotherToken = createUser('another@gmail.com', 'anotherPassword', 'another', 'user').token;
-      const result = quizDescriptionUpdate(anotherToken, quizId, "Any description");
+      const result = quizDescriptionUpdate(anotherToken, quizId, 'Any description');
       expect(result).toStrictEqual({ error: 'Quiz Id not owned by the user' });
     });
   });
 
-  describe("Success Cases", () => {
+  describe('Success Cases', () => {
     let token: string;
     let quizId: number;
 
@@ -93,7 +93,7 @@ describe("adminQuizDescriptionUpdate Tests", () => {
 
     // Test for checking if the user has provided a valid input for the quiz description
     test('Valid inputs (authUserId: 1, quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
-      quizDescriptionUpdate(token, quizId, "Toohak Javascript Quiz 1");
+      quizDescriptionUpdate(token, quizId, 'Toohak Javascript Quiz 1');
       const result = quizInfo(token, quizId);
 
       expect(result).toStrictEqual({
@@ -102,12 +102,15 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: 'Toohak Javascript Quiz 1',
+        numQuestions: expect.any(Number),
+        questions: expect.any(Array),
+        duration: expect.any(Number)
       });
     });
 
     // Test for checking if the user with a different quiId has provided a valid input for the quiz description
     test('Valid inputs (authUserId: 1, quizId: 2, description: "QUIZ 1")', () => {
-      quizDescriptionUpdate(token, quizId, "QUIZ 1");
+      quizDescriptionUpdate(token, quizId, 'QUIZ 1');
       const result = quizInfo(token, quizId);
 
       expect(result).toStrictEqual({
@@ -116,6 +119,9 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: 'QUIZ 1',
+        numQuestions: expect.any(Number),
+        questions: expect.any(Array),
+        duration: expect.any(Number)
       });
     });
 
@@ -131,6 +137,9 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: longDescription,
+        numQuestions: expect.any(Number),
+        questions: expect.any(Array),
+        duration: expect.any(Number)
       });
     });
 
@@ -146,6 +155,9 @@ describe("adminQuizDescriptionUpdate Tests", () => {
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: description,
+        numQuestions: expect.any(Number),
+        questions: expect.any(Array),
+        duration: expect.any(Number)
       });
     });
   });

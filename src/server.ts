@@ -13,6 +13,7 @@ import { clear } from '../src/other.js';
 import { getUserIdFromToken } from './helper';
 import { adminQuizCreate } from './quiz';
 import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminQuizDescriptionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -156,4 +157,3 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
-

@@ -10,42 +10,17 @@ This program was written by
 z5478214 | z5599894 | z5525050 | z5362173 | z5478980
 on 04/06/2024
 
-quiz.js contains the stub functions for the implementation of quiz mechanics
+quiz.js contains the functions for the implementation of quiz mechanics
 in the Toohak project. This includes functions that create, remove, list
 and update information regarding quizzes.
 
-*/
+*//// //////////////////////////////////////////////////////////////////////////
 
-/// ////////////////////////////////////////////////////////////////////////////
-/// //////////////////////   GLOBAL DECLARATIONS    ////////////////////////////
-/// ////////////////////////////////////////////////////////////////////////////
+// DEPENDENCIES
 
-/*
-DEPENDENCIES
-*/
 import { getData, setData } from './dataStore.js';
 
-/*
-GLOBAL DEFINITIONS
-*/
-
-/*
-DATA STRUCTURES
-*/
-
 /// ////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////   FUNCTION CONTENTS    /////////////////////////////
-/// ////////////////////////////////////////////////////////////////////////////
-
-// adminQuizList: [1]
-// adminQuizCreate: [2]
-// adminQuizRemove: [3]
-// adminQuizInfo: [4]
-// adminQuizNameUpdate: [5]
-// adminQuizDescriptionUpdate: [6]
-
-/// ////////////////////////////////////////////////////////////////////////////
-/// ///////////////////////////   FUNCTIONS   //////////////////////////////////
 
 /** [1] adminQuizList
   *
@@ -65,12 +40,10 @@ DATA STRUCTURES
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-
 export function adminQuizList(authUserId: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
-  console.log(getData());
-  console.log(authUserId);
+  // const allQuizzes = [];
 
   if (!Number.isInteger(authUserId) || !user) {
     return { error: 'invalid user id' };
@@ -409,6 +382,7 @@ export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, d
 
   // Check if the quiz is owned by the user with the given UserId
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
+
   // Error messages returned if the error tests cases are activated within the program
   // If a person's Tahook quiz does not match the userId, an error will then be returned
   if (!quizUser) {

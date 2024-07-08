@@ -19,6 +19,7 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
+import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
 
@@ -70,9 +71,9 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   }
 
   // registering the user to the database
-  const iD = userArr.length + 1;
+  const newUserId = userArr.length + 1;
   const newUser = {
-    authUserId: iD,
+    authUserId: newUserId,
     name: name,
     email: email,
     password: password,
@@ -83,18 +84,13 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   userArr.push(newUser);
   const sID = createSessionId();
 
-  // creating token for session
+  // creating token for sessions
   const session = {
     sessionId: sID,
-    authUserId: iD,
+    authUserId: newUserId,
   };
   store.sessions.push(session);
   return { token: sID.toString() };
-  // return JSON.stringify(session);
-}
-
-function createSessionId(): number {
-  return Math.random();
 }
 
 /** [2] adminAuthLogin
@@ -130,7 +126,17 @@ export function adminAuthLogin(email: string, password: string) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
-    return { authUserId: user.authUserId };
+
+    const sID = createSessionId();
+
+    // creating token for session
+    const session = {
+      sessionId: sID,
+      authUserId: user.authUserId,
+    };
+
+    store.sessions.push(session);
+    return { token: sID.toString() };
   }
 }
 
@@ -153,11 +159,11 @@ export function adminAuthLogin(email: string, password: string) {
   *
 */
 
-export function adminUserDetails(authUserId: {authUserId: number}) {
+export function adminUserDetails(authUserId: number) {
   const store = getData();
   const userArr = store.users;
 
-  const user = userArr.find((user) => user.authUserId === authUserId.authUserId);
+  const user = userArr.find((user) => user.authUserId === authUserId);
 
   // checking for error cases
   if (!user) {
@@ -167,11 +173,11 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   } else {
     return {
       user: {
-        userId: user.authUserId,
+        authUserId: user.authUserId,
         name: user.name,
         email: user.email,
         numSuccessfulLogins: user.numSuccessfulLogins,
-        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
+        numFailedPasswordSinceLastLogin: user.numFailedPasswordSinceLastLogin,
       }
     };
   }
@@ -189,7 +195,7 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
   console.log(getData());
@@ -253,7 +259,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

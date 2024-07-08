@@ -100,12 +100,12 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
 
 // adminUserPasswordUpdate route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
-  const { token, email, nameFirst, nameLast } = req.body;
+  const { token, oldPassword, newPassword } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'Invalid token' });
   }
-  const result = adminUserPasswordUpdate(authUserId, email, nameFirst, nameLast);
+  const result = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
   if ('error' in result) {
     if (result.error === 'invalid userId') {
       return res.status(401).json(result);
@@ -113,6 +113,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   }
+  return res.status(200).json(result);
 });
 
 // ====================================================================

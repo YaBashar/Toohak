@@ -11,7 +11,7 @@ import process from 'process';
 import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
-import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate } from './auth';
+import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
 
 // Set up web app
@@ -104,6 +104,24 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     }
   }
   return res.json(result);
+});
+
+// adminUserPasswordUpdate route
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const { token, oldPassword, newPassword } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  const result = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
+  if ('error' in result) {
+    if (result.error === 'invalid userId') {
+      return res.status(401).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
 });
 
 // adminQuizList route

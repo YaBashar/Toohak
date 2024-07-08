@@ -307,7 +307,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId:number |{ error : string}, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -317,17 +317,15 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!user) {
+  if (!user) {
     return { error: 'Invalid User id' };
+  } else if (!quiz) {
+    return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   } else if (findName) {
     return { error: 'Name is already used' };
-  }
-
-  if (name === ' ') {
+  } else if (name === ' ') {
     return { error: 'Name cannot be empty' };
   } else if (name.length <= 3) {
     return { error: 'Name is too short' };

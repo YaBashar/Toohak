@@ -8,6 +8,13 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizNameUpdate } from './quiz';
+import { adminQuizInfo } from './quiz';
+import { clear } from '../src/other.js';
+import { getUserIdFromToken } from './helper';
+import { adminQuizCreate } from './quiz';
+import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminQuizDescriptionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -35,8 +42,117 @@ app.get('/echo', (req: Request, res: Response) => {
   if ('error' in result) {
     res.status(400);
   }
-
   return res.json(result);
+});
+
+// adminQuizNameUpdate server route
+app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
+  const { token, name } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
+  // Check if the quizNameUpdate contains an error
+  if (quizNameUpdate.error) {
+    if (quizNameUpdate.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' || quizNameUpdate.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizNameUpdate.error });
+    } else if (quizNameUpdate.error === 'Name is already used' ||
+      quizNameUpdate.error === 'Name cannot be empty' ||
+      quizNameUpdate.error === 'Name is too short' ||
+      quizNameUpdate.error === 'Name is too long' ||
+      quizNameUpdate.error === 'Quiz name cannot have symbols'
+    ) {
+      return res.status(400).json({ error: quizNameUpdate.error });
+    }
+  }
+
+  res.json(quizNameUpdate);
+  return res.status(200).json(quizNameUpdate);
+});
+
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
+  const quizInfo = adminQuizInfo(authUserId, quizId);
+
+  if ('error' in quizInfo) {
+    if (quizInfo.error === 'Invalid User id') {
+      return res.status(401).json(quizInfo);
+    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+      return res.status(403).json(quizInfo);
+    }
+  }
+  res.status(200).json(quizInfo);
+});
+
+app.delete('/v1/clear', (req: Request, res: Response) => {
+  const result = clear();
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
+  const { email, password, nameFirst, nameLast } = req.body;
+  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
+
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const result = adminAuthLogin(email, password);
+
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const result = adminQuizCreate(authUserId, name, description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.json(result);
+});
+
+// My PUT route for updating quiz description
+app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
+  const { token, description } = req.body;
+  const { quizId } = req.params;
+  const authUserId = getUserIdFromToken(token);
+  const quizIdNum = parseInt(quizId);
+  if (isNaN(quizIdNum)) {
+    return res.status(400).json({ error: 'Invalid Quiz id' });
+  }
+  const result = adminQuizDescriptionUpdate(authUserId, quizIdNum, description);
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================

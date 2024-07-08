@@ -81,7 +81,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = createSessionId();
+  const sID = Date.now();
 
   // creating token for session
   const session = {
@@ -90,11 +90,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   };
   store.sessions.push(session);
   return { token: sID.toString() };
-  // return JSON.stringify(session);
-}
-
-function createSessionId(): number {
-  return Math.random();
 }
 
 /** [2] adminAuthLogin
@@ -130,7 +125,17 @@ export function adminAuthLogin(email: string, password: string) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
-    return { authUserId: user.authUserId };
+
+    const sID = Date.now();
+
+    // creating token for session
+    const session = {
+      sessionId: sID,
+      authUserId: user.authUserId,
+    };
+
+    store.sessions.push(session);
+    return { token: sID.toString() };
   }
 }
 

@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import { port, url } from '../src/config.json';
+import { adminQuizInfo, adminQuizList } from '../src/quiz';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5*1000;
@@ -7,11 +8,12 @@ const TIMEOUT_MS = 5*1000;
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
+
 describe('DELETE /v1/admin/quiz/:quizid', () => {
-  let token1: string
-  let token2: string
-  let qid: number 
-  let q2id: number
+  let token1: string;
+  let token2: string;
+  let qid: {quizId: number}; 
+  let q2id: {quizId: number};
 
   beforeEach(() => {
     const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
@@ -27,10 +29,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if the authUserId is invalid
   test('AuthUserId is invalid', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
         token: 'invalidAuthUserId',
-        quizid: qid,
+        quizid: qid.quizId,
       },
       timeout: TIMEOUT_MS
     });
@@ -40,10 +42,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check quiz Id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId + 1}`, {
       qs: {
         token: token1,
-        quizid: qid + 1,
+        quizid: qid.quizId + 1,
       },
       timeout: TIMEOUT_MS
     });
@@ -53,10 +55,10 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if quiz ID does not refer to a quiz that this user owns
   test('Quiz ID does not refer to a quiz that this user owns', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
-        token: token1,
-        quizid: qid,
+        token: token2,
+        quizid: qid.quizId,
       },
       timeout: TIMEOUT_MS
     });
@@ -66,16 +68,18 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
   // test to check if the quiz is removed from the list of quizzes
   test('Quiz is removed from the list of quizzes', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid}`, {
+    let res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
         token: token1,
       },
       timeout: TIMEOUT_MS
     });
+    // res = adminQuizList(token1)
     expect(JSON.parse(res.body.toString())).toStrictEqual({ 
       quizzes: [
         {
-          
+          quizid: q2id.quizId,
+          name: 'validQuiz2',
         }
     ] 
       });

@@ -68,36 +68,26 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
+    if ( result.error === 'Invalid user id') {
       return res.status(401).json(result);
-    } else if ('error' in result) {
+    } else {
       return res.status(400).json(result);
     }
   }
   return res.json(result);
-});
+}); 
 
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizid = parseInt(req.params.quizid);
-  
-  console.log(quizid);
-  // if (isNaN(quizid)) {
-  //   return res.status(400).json({ error: 'Invalid quizid' });
-  // }
-  
+  const quizid = parseInt(req.params.quizid as string);
+  const token = req.query.token as string;  
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
   const result = adminQuizRemove(authUserId, quizid);
   if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
-      return res.status(401).json(result);
-    } else if('error' in result) {
-      return res.status(400).json(result);
-    }
-  } 
+    return res.status(400).json(result);
+  }
   return res.json(result);
 });
 

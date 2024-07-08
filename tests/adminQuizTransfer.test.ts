@@ -22,55 +22,99 @@ beforeEach(() => {
 
 describe('adminQuizInfo Tests', () => {
   describe('Error Cases', () => {
-    let token : string;
+    let sourceToken : string;
+    let targetToken : string;
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-      token = JSON.parse(user.body.toString()).token;
-      quizId = createQuiz(token, 'quizName', 'description').quizId;
+      const sourceUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'sourceuser@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'Mubashir', nameLast: 'Hussain' } });
+      sourceToken = JSON.parse(sourceUser.body.toString()).token;
+
+      const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' } });
+      targetToken = JSON.parse(targetUser.body.toString()).token;
+
+      quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
     });
 
-    test('Info of a Quiz which does not exist ', () => {
-      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId + 1}`, { qs: { token } });
-      expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(quizInfo.statusCode).toStrictEqual(403);
+    test('Transferring Quiz which does not exist ', () => {
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/transfer`, { json: { sourceToken, email: 'targetuser@unsw.edu.au' } });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(quizTransfer.statusCode).toStrictEqual(403);
     });
 
-    test('Info of a Quiz with invalid Authuser id', () => {
-      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: 'invalid_token' } });
-      expect(quizInfo.statusCode).toStrictEqual(401);
+    test('Transfer of a Quiz with invalid Authuser id', () => {
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: 'Invalid_token', email: 'targetuser@unsw.edu.au' } });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(quizTransfer.statusCode).toStrictEqual(401);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-      const token2 = JSON.parse(user.body.toString()).token;
-      const quizId2 = createQuiz(token2, 'quizName2', 'description').quizId;
-      const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId2}`, { qs: { token } });
-      expect(JSON.parse(quizInfo.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(quizInfo.statusCode).toStrictEqual(403);
+      const quizId2 = createQuiz(targetToken, 'quizName2', 'description').quizId;
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId2}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' } });
+
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(quizTransfer.statusCode).toStrictEqual(403);
     });
 
     // userEmail is not a real user
+    test('target user email is not a real user', () => {
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { sourceToken, email: 'gurigiurabgiurag@email.unsw.edu.au' } });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'target user email is not a real user' });
+      expect(quizTransfer.statusCode).toBe(400);
+    });
+
     // userEmail is the current logged in user
+    test('Destination user email is the same as current user email', () => {
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { sourceToken, email: 'sourceuser@unsw.edu.au' } });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'target user email is the same as source user email' });
+      expect(quizTransfer.statusCode).toBe(400);
+    });
+
     // Quiz ID refers to a quiz that has a name that is already used by the target user
+    test('Quiz has name already used by target user', () => {
+      const quiz2 = createQuiz(targetToken, 'quizName', 'description').quizId;
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { sourceToken, email: 'targetuser@unsw.edu.au' } });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'Quiz name already in use by target user' });
+    });
   });
 
-
   describe('Success Cases', () => {
-    let token : string;
+    let sourceToken : string;
+    let targetToken : string;
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-      token = JSON.parse(user.body.toString()).token;
-      quizId = createQuiz(token, 'quizName', 'description').quizId;
+      const sourceUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'sourceuser@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'Mubashir', nameLast: 'Hussain' } });
+      sourceToken = JSON.parse(sourceUser.body.toString()).token;
+
+      const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' } });
+      targetToken = JSON.parse(targetUser.body.toString()).token;
+
+      quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
     });
 
-    test.todo('Successful Transfer') {
-      //Create another user
-      //check that quiz id is under that user instead
-      // check that quiz has been removed from original user.
-    }
+    test('Check that transferred quiz is under name of target user through quizList', () => {
+      request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { sourceToken, email: 'targetuser@unsw.edu.au' } });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { targetToken } });
+
+      expect(quizList.body.toString()).toStrictEqual({
+        quizzes:
+        [
+          {
+            quizId: quizId,
+            name: 'quizName'
+          }
+        ]
+      });
+
+      test('Check that transferred quiz has been removed from source user through quizList', () => {
+        request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { sourceToken, email: 'targetuser@unsw.edu.au' } });
+        const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { sourceToken } });
+
+        expect(quizList.body.toString()).toStrictEqual({
+          quizzes: []
+        });
+      });
+    });
   });
 });

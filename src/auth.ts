@@ -195,6 +195,7 @@ export function adminUserDetails(authUserId: number) {
   * ...
   * @returns {} - empty object
 */
+
 export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
@@ -236,15 +237,31 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   if (nameLast.length > 20) {
     return { error: 'last name is too long' };
   }
-
   const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
+  } else if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  } else if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  } else if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters' };
+  } else if (nameFirst.length < 2) {
+    return { error: 'first name is too short' };
+  } else if (nameFirst.length > 20) {
+    return { error: 'first name is too long' };
+  } else if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters' };
+  } else if (nameLast.length < 2) {
+    return { error: 'last name is too short' };
+  } else if (nameLast.length > 20) {
+    return { error: 'last name is too long' };
+  } else {
+    data.users[userIndex].email = email;
+    data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+    return {};
   }
-
-  data.users[userIndex].email = email;
-  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
-  return {};
 }
 
 /** [5] adminUserPasswordUpdate

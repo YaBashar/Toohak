@@ -8,12 +8,11 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminQuizNameUpdate } from './quiz';
-import { adminQuizInfo } from './quiz';
-import { clear } from '../src/other.js';
 import { getUserIdFromToken } from './helper';
-import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate } from './quiz';
-import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminQuizNameUpdate } from './quiz';
+import { clear } from '../src/other.js';
+import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate } from './auth';
+import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
 
 // Set up web app
 const app = express();
@@ -34,7 +33,6 @@ const HOST: string = process.env.IP || '127.0.0.1';
 // ====================================================================
 //  ================= WORK IS DONE BELOW THIS LINE ===================
 // ====================================================================
-
 // Example get request
 app.get('/echo', (req: Request, res: Response) => {
   const result = echo(req.query.echo as string);
@@ -70,6 +68,25 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
     return res.status(400).json(result);
   }
   res.json(result);
+});
+
+app.put('/v1/admin/user/details', (req: Request, res: Response) => {
+  const { token, email, nameFirst, nameLast } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+
+  if ('error' in result) {
+    if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      console.log(result);
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {

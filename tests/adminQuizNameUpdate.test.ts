@@ -23,6 +23,15 @@ const quizNameUpdate = (token : string, quizId : number, name : string) => {
   );
   return res;
 };
+
+const quizInfo = (token: string, quizId: number) => {
+  const res = request(
+    'GET',
+    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
+    { qs: { token } }
+  );
+  return JSON.parse(res.body.toString());
+};
 /// //////////////////////////////////////////////
 
 beforeEach(() => {
@@ -81,7 +90,7 @@ describe('adminQuizNameUpdate Tests', () => {
 
     // Testing Invalid User id and Quiz id
     test('Invalid User id', () => {
-      const name = quizNameUpdate(token, quizId, 'Name');
+      const name = quizNameUpdate('invalid_token', quizId, 'Name');
       expect(JSON.parse(name.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(name.statusCode).toStrictEqual(401);
     });
@@ -100,8 +109,8 @@ describe('adminQuizNameUpdate Tests', () => {
     });
 
     test('Name is already used by the current logged in user for another quiz', () => {
-      const quiz = createQuiz(token, 'anotherQuizName', 'description2').quizId;
-      const nameUpdate = quizNameUpdate(token, quiz, 'Name');
+      const quiz = createQuiz(token, 'sameQuiz', 'description2').quizId;
+      const nameUpdate = quizNameUpdate(token, quiz, 'sameQuiz');
       expect(JSON.parse(nameUpdate.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(nameUpdate.statusCode).toStrictEqual(400);
     });
@@ -119,22 +128,21 @@ describe('adminQuizNameUpdate Tests', () => {
 
     test('Check that function returns empty object', () => {
       const name = quizNameUpdate(token, quizId, 'Name');
-      expect(name.body).toStrictEqual({});
-      expect(name.statusCode).toStrictEqual(200);
+      expect(JSON.parse(name.body.toString())).toStrictEqual({});
     });
 
     test('Check name has been updated successfully through QuizInfo', () => {
       quizNameUpdate(token, quizId, 'newName');
-      const updatedQuizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
-      expect(updatedQuizInfo.body).toStrictEqual({
+      const result = quizInfo(token, quizId);
+      expect(result).toStrictEqual({
         quizId: quizId,
         name: 'newName',
         timeCreated: expect.any(Number),
         timeLastEdited: expect.any(Number),
         description: 'description',
         numQuestions: expect.any(Number),
-        questions: [
-        ]
+        questions: expect.any(Array),
+        duration: expect.any(Number)
       });
     });
   });

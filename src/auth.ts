@@ -18,7 +18,7 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore';
+import { getData, setData } from './dataStore.js';
 import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
@@ -91,7 +91,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   };
   store.sessions.push(session);
   return { token: sID.toString() };
-  // return JSON.stringify(session);
 }
 
 /** [2] adminAuthLogin
@@ -127,7 +126,17 @@ export function adminAuthLogin(email: string, password: string) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
-    return { authUserId: user.authUserId };
+
+    const sID = createSessionId();
+
+    // creating token for session
+    const session = {
+      sessionId: sID,
+      authUserId: user.authUserId,
+    };
+
+    store.sessions.push(session);
+    return { token: sID.toString() };
   }
 }
 
@@ -248,7 +257,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) : Record<string, never> | { error : string} {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

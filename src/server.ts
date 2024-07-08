@@ -13,6 +13,7 @@ import { clear } from '../src/other.js';
 import { getUserIdFromToken } from './helper';
 import { adminQuizCreate } from './quiz';
 import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminQuizDescriptionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -106,6 +107,22 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     }
   }
   return res.json(result);
+});
+
+// My PUT route for updating quiz description
+app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
+  const { token, description } = req.body;
+  const { quizId } = req.params;
+  const authUserId = getUserIdFromToken(token);
+  const quizIdNum = parseInt(quizId);
+  if (isNaN(quizIdNum)) {
+    return res.status(400).json({ error: 'Invalid Quiz id' });
+  }
+  const result = adminQuizDescriptionUpdate(authUserId, quizIdNum, description);
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });
 
 // ====================================================================

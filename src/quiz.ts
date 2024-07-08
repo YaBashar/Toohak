@@ -362,19 +362,10 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
 // My constant define for the 'Description is more than 100 characters' test case
 const MAX_DESCRIPTION_LENGTH = 100;
 
-export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, description: string): Record<string, never> | { error: string } {
+export function adminQuizDescriptionUpdate(authUserId: number | { error: string}, quizId: number, description: string): Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
-  // Type checks for authUserId and quizId
-  if (typeof authUserId !== 'number') {
-    return { error: 'Invalid user Id type' };
-  }
-
-  if (typeof quizId !== 'number') {
-    return { error: 'Invalid quiz Id type' };
-  }
 
   // These two lines finds the Tahook user with both a valid userId and quidId
   const user = userArr.find((user) => user.authUserId === authUserId);
@@ -400,7 +391,7 @@ export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, d
 
     // If a person's Tahook quiz does not exist, an error will then be returned
   } else if (!quiz) {
-    return { error: 'quizId does not exist' };
+    return { error: 'Quiz Id not found' };
   } else {
     quiz.description = description;
     quiz.timeLastEdited = Math.round(Date.now() / 1000);

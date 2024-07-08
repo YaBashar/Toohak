@@ -115,6 +115,8 @@ describe('adminQuizInfo Tests', () => {
           quizzes: []
         });
       });
+
+      // check that function returns empty object
     });
   });
 });

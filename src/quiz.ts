@@ -316,10 +316,10 @@ export function adminQuizNameUpdate(authUserId: number | { error: string}, quizI
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!user) {
+  if (!user) {
     return { error: 'Invalid User id' };
+  } else if (!quiz) {
+    return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   } else if (findName) {
@@ -398,4 +398,43 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
 
     return {};
   }
+}
+
+/** [7] adminQuizTransfer
+  *
+  * Transfers ownership of quiz to a different user
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} userEmail - a string containing the emaill of user
+  * ...
+  * @returns {} - empty object if successful
+  *
+*/
+
+
+export function adminQuizTransfer(authUserId : number, quizId : number, userEmail : string) {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  const userIndex = userArr.findIndex(user => user.authUserId === authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
+
+  if (!userIndex) {
+    return { error: 'Invalid User id' };
+  } else if (!findQuiz) {
+    return { error: 'Invalid Quiz id' };
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  const quiz = store.quizzes[findQuiz];
+  const newOwner = store.users.find(user => user.email === userEmail);
+  quiz.authUserId = newOwner.authUserId;
+
+  return {};
 }

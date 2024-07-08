@@ -20,7 +20,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     token1 = JSON.parse(uid1.body.toString()).token;
     let response = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token1, name: 'validQuiz', description: 'valid description'}});
     qid = JSON.parse(response.body.toString()); 
-
+    
     const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
     token2 = JSON.parse(uid2.body.toString()).token;
     response = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token2, name: 'validQuiz2', description: 'valid description2'}});
@@ -37,7 +37,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   // test to check quiz Id does not refer to a valid quiz
@@ -50,7 +50,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(403);
   });
 
   // test to check if quiz ID does not refer to a quiz that this user owns
@@ -63,7 +63,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(403);
   });
 
   // test to check if the quiz is removed from the list of quizzes

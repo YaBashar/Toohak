@@ -394,9 +394,90 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   } else {
     quiz.description = description;
     quiz.timeLastEdited = Math.round(Date.now() / 1000);
-    setData(store);
+    setData(store);``
 
     return {};
   }
 }
 
+export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): { error: string } | { questionId: number } {
+  const data = getData();
+  const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
+  // let authUserId = -1
+  // for (const session of data.sessions) {
+  //   if (session.token === token) {
+  //     authUserId = session.authUserId;
+  //     break;
+  //   }
+  // }
+  // if (authUserId === -1) return { error: 'Invalid user id' }
+
+  // Question string is less than 5 characters
+  if (question.question.length < 5) {
+    return { error: 'Question is less than 5 characters' };
+  }
+  // Question string is greater than 50 characters in length
+  if (question.question.length > 50) {
+    return { error: 'Question is more than 50 characters' };
+  }
+  // The question has more than 6 answers
+  if (question.answers.length > 6) {
+    return { error: 'Question has more than 6 answers' };
+  }
+  // The question has less than 2 answers
+  if (question.answers.length < 2) {
+    return { error: 'Question has less than 2 answers' };
+  }
+  // The question duration is not a positive number
+  if (question.duration < 0) {
+    return { error: 'Question duration is not a positive number' };
+  }
+  // The sum of the question durations in the quiz exceeds 3 minutes
+  if (question.duration > 180) {
+    return { error: 'Sum of question durations in quiz exceeds 3 minutes' };
+  }
+  // The points awarded for the question are less than 1
+  if (question.points < 1) {
+    return { error: 'Question points are less than 1' };
+  }
+  // The points awarded for the question are greater than 10
+  if (question.points > 10) {
+    return { error: 'Question points are more than 10' };
+  }
+  // The length of any answer is shorter than 1 character long
+  // in answers array there are 2 answers, we need to check every answer and check its length if its less than 1 or not
+  if (question.answers.some((answer) => answer.answer.length < 1)) {
+    return { error: 'Answer is less than 1 character' };
+  }
+  // The length of any answer is longer than 30 characters long
+  if (question.answers.some((answer) => answer.answer.length > 30)) {
+    return { error: 'Answer is more than 30 characters' };
+  }
+  // Any answer strings are duplicates of one another (within the same question)
+  if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
+    return { error: 'Answers are duplicates' };
+  }
+  // There are no correct answers 
+  if (!question.answers.some(answer => answer.correct)) {
+    return { error: 'No correct answers' };
+  }
+  // test to check quiz Id does not refer to a valid quiz
+  if (!quiz) {
+    return { error: 'Invalid quiz Id entered' };
+  }
+  // test to check if quiz ID does not refer to a quiz that this user owns
+  // if (quiz.authUserId !== authUserId) {
+  //   return { error: 'Quiz Id not owned by the user' };
+  // }
+  const questionBody = {
+    question: question.question,
+    duration: question.duration,
+    points: question.points,
+    answers: question.answers
+  }
+  const id = uniqueId(quiz.questions);
+  question.questionId = id;
+  quiz.questions.push(questionBody);
+  setData(data);
+  return { questionId: id };
+}

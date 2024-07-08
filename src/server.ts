@@ -8,13 +8,11 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
-import { adminAuthRegister, adminUserDetailsUpdate } from './auth';
 import { getUserIdFromToken } from './helper';
 import { adminQuizCreate, adminQuizInfo } from './quiz';
 import { adminQuizNameUpdate } from './quiz';
-import { adminQuizInfo } from './quiz';
 import { clear } from '../src/other.js';
-import { adminAuthRegister, adminAuthLogin } from './auth';
+import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate } from './auth';
 import { adminQuizDescriptionUpdate } from './quiz';
 
 // Set up web app

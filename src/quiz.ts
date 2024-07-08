@@ -43,7 +43,6 @@ import { getData, setData } from './dataStore.js';
 export function adminQuizList(authUserId: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
-  // const allQuizzes = [];
 
   if (!Number.isInteger(authUserId) || !user) {
     return { error: 'invalid user id' };

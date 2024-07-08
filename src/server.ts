@@ -77,7 +77,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
     return res.status(401).json(authUserId);
   }
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
-
   if ('error' in result) {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
@@ -105,6 +104,8 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
+
+
 
 // adminUserPasswordUpdate route
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
@@ -201,7 +202,6 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
       return res.status(400).json({ error: quizNameUpdate.error });
     }
   }
-
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
 });

@@ -91,7 +91,6 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   };
   store.sessions.push(session);
   return { token: sID.toString() };
-  // return JSON.stringify(session);
 }
 
 
@@ -128,7 +127,17 @@ export function adminAuthLogin(email: string, password: string) {
     user.numSuccessfulLogins++;
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
-    return { authUserId: user.authUserId };
+
+    const sID = createSessionId();
+
+    // creating token for session
+    const session = {
+      sessionId: sID,
+      authUserId: user.authUserId,
+    };
+
+    store.sessions.push(session);
+    return { token: sID.toString() };
   }
 }
 

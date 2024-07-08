@@ -82,7 +82,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = createSessionId();
+  const sID = Date.now();
 
   // creating token for sessions
   const session = {

@@ -96,14 +96,14 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
+    if ( result.error === 'Invalid user id') {
       return res.status(401).json(result);
-    } else if ('error' in result) {
+    } else {
       return res.status(400).json(result);
     }
   }
   return res.json(result);
-});
+}); 
 
 
 

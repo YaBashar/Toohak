@@ -302,10 +302,6 @@ export function adminUserPasswordUpdate(authUserId: number, oldPassword: string,
     return { error: 'password is too short' };
   }
 
-  if (user.password !== oldPassword) {
-    return { error: 'incorrect password' };
-  }
-
   const hasNumber = /\d/.test(newPassword);
   const hasLetter = /[a-zA-Z]/.test(newPassword);
   if (!hasNumber || !hasLetter) {

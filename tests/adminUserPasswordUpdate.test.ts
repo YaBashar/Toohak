@@ -29,7 +29,8 @@ describe('PUT /v1/admin/user/password', () => {
 
   // New password has been used before
   test('New password has been used before', () => {
-    request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABC' } });
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABC' } });
+    expect(res.statusCode).toBe(200);
     const res2 = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABC', newPassword: 'abcd1234!@#$ABCD' } });
     expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: 'password has already been used' });
     expect(res2.statusCode).toBe(400);

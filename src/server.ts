@@ -121,6 +121,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   }
+  return res.status(200).json(result)
 });
 
 // adminQuizList route

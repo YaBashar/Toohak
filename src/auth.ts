@@ -184,7 +184,6 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * Gets all of the relevant information about the current quiz.
   *
   * @param {number} authUserId - number representing a unique
->>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
   *                              identifier for the user
   * @param {string} email - user's email address
   * @param {string} nameFirst - user's first name
@@ -257,11 +256,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
 export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
-
-  if (!Number.isInteger(authUserId)) {
-    return { error: 'invalid userId' };
-  }
-
+  
   if (user.password !== oldPassword) {
     return { error: 'incorrect password' };
   }

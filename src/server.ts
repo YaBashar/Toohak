@@ -8,6 +8,7 @@ import sui from 'swagger-ui-express';
 import fs from 'fs';
 import path from 'path';
 import process from 'process';
+import { adminQuizInfo } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister } from './auth';
 import { getUserIdFromToken } from './helper';
@@ -42,6 +43,26 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
+  const quizInfo = adminQuizInfo(authUserId, quizId);
+
+  if ('error' in quizInfo) {
+    if (quizInfo.error === 'Invalid User id') {
+      return res.status(401).json(quizInfo);
+    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+      return res.status(403).json(quizInfo);
+    }
+  }
+  res.status(200).json(quizInfo);
+});
+
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -57,7 +78,6 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   if ('error' in response) {
     return res.status(400).json(response);
   }
-  console.log(response);
   res.json(response);
 });
 
@@ -67,7 +87,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
-  console.log(authUserId);
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
     if (result.error === 'UserId doesn\'t exist') {

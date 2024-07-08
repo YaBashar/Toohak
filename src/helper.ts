@@ -11,7 +11,6 @@ export function getUserIdFromToken(sessionId: string): number | { error: string 
   const sessArr = store.sessions;
 
   const session = sessArr.find((x) => {
-    console.log(x.sessionId, result, x.sessionId === result);
     return x.sessionId === result;
   });
   if (!session) {

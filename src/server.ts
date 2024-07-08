@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate } from './quiz';
+import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
 import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
@@ -202,6 +202,21 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
+});
+
+// adminQuizTransfer server route
+app.put('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
+  const { token, email } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const quizTransfer = adminQuizTransfer(authUserId, quizid, email);
+
+  if ('error' in quizTransfer) {
+    return res.status(400).json({ error: quizTransfer.error });
+  }
 });
 
 // ====================================================================

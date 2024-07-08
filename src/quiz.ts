@@ -415,7 +415,7 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
 */
 
 
-export function adminQuizTransfer(authUserId : number, quizId : number, userEmail : string) {
+export function adminQuizTransfer(authUserId: number | { error: string}, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -431,6 +431,8 @@ export function adminQuizTransfer(authUserId : number, quizId : number, userEmai
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   }
+
+  // Add all other 400 error checks
 
   const quiz = store.quizzes[findQuiz];
   const newOwner = store.users.find(user => user.email === userEmail);

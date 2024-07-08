@@ -31,7 +31,6 @@ import validator from 'validator';
   * Registers a user with an email, password, and name,
   * then returns their authUserId value.
   *
->>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
@@ -103,7 +102,6 @@ function createSessionId(): number {
   * Given a registered user's email and password returns
   * their authUserId value.
   *
->>>>>>> 0164e73ded7bc9df7f7196fc6921269de99601ff
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
@@ -191,54 +189,36 @@ export function adminUserDetails(authUserId: {authUserId: number}) {
   * ...
   * @returns {} - empty object
 */
-export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: string, nameFirst: string, nameLast: string) {
+export function adminUserDetailsUpdate(authUserId: number, email: string, nameFirst: string, nameLast: string) {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-
-  if (!Number.isInteger(authUserId)) {
-    return { error: 'invalid userId' };
-  }
-
-  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
-    return { error: 'email used by another user' };
-  }
-
-  if (!validator.isEmail(email)) {
-    return { error: 'invalid email address' };
-  }
-
-  if (specialChars.test(nameFirst)) {
-    return { error: 'first name contains invalid characters' };
-  }
-
-  if (nameFirst.length < 2) {
-    return { error: 'first name is too short' };
-  }
-
-  if (nameFirst.length > 20) {
-    return { error: 'first name is too long' };
-  }
-
-  if (specialChars.test(nameLast)) {
-    return { error: 'last name contains invalid characters' };
-  }
-
-  if (nameLast.length < 2) {
-    return { error: 'last name is too short' };
-  }
-
-  if (nameLast.length > 20) {
-    return { error: 'last name is too long' };
-  }
-
+  console.log(getData());
+  console.log(authUserId);
   const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
+  } else if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  } else if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+    return { error: 'email used by another user' };
+  } else if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters' };
+  } else if (nameFirst.length < 2) {
+    return { error: 'first name is too short' };
+  } else if (nameFirst.length > 20) {
+    return { error: 'first name is too long' };
+  } else if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters' };
+  } else if (nameLast.length < 2) {
+    return { error: 'last name is too short' };
+  } else if (nameLast.length > 20) {
+    return { error: 'last name is too long' };
+  } else {
+    data.users[userIndex].email = email;
+    data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+    return {};
   }
-
-  data.users[userIndex].email = email;
-  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
-  return {};
 }
 
 /** [5] adminUserPasswordUpdate
@@ -255,8 +235,13 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
 
 export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
+
   const user = data.users.find(user => user.authUserId === authUserId);
-  
+
+  if (!user) {
+    return { error: 'userId does not exist' };
+  }
+
   if (user.password !== oldPassword) {
     return { error: 'incorrect password' };
   }

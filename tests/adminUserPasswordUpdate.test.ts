@@ -17,7 +17,6 @@ describe('PUT /v1/admin/user/password', () => {
   // Old password is not correct
   test('Incorrect password', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'newabcd1234!@#$ABCD' } });
-    console.log('Response:', res.body.toString());
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'incorrect password' });
     expect(res.statusCode).toBe(400);
   });

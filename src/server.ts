@@ -10,9 +10,9 @@ import path from 'path';
 import process from 'process';
 import { adminQuizInfo } from './quiz';
 import { clear } from '../src/other.js';
-import { adminAuthRegister } from './auth';
 import { getUserIdFromToken } from './helper';
 import { adminQuizCreate } from './quiz';
+import { adminAuthRegister, adminAuthLogin } from './auth';
 
 // Set up web app
 const app = express();
@@ -73,12 +73,22 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const response = (adminAuthRegister(email, password, nameFirst, nameLast));
+  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
 
-  if ('error' in response) {
-    return res.status(400).json(response);
+  if ('error' in result) {
+    return res.status(400).json(result);
   }
-  res.json(response);
+  res.json(result);
+});
+
+app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
+  const { email, password } = req.body;
+  const result = adminAuthLogin(email, password);
+
+  if ('error' in result) {
+    return res.status(400).json(result);
+  }
+  res.json(result);
 });
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {

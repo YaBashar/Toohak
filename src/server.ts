@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
 
 // Set up web app
 const app = express();
@@ -98,7 +98,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
     } else if ('error' in result) {
-      console.log(result);
       return res.status(400).json(result);
     }
   }
@@ -120,6 +119,25 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
     }
   }
   return res.json(result);
+});
+
+app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const quizid = parseInt(req.params.quizid as string);
+  const token = req.query.token as string;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  const result = adminQuizRemove(authUserId, quizid);
+
+  if ('error' in result) {
+    if (result.error === 'Invalid user id') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Invalid quiz Id entered' || result.error === 'Quiz Id not owned by the user') {
+      return res.status(403).json(result);
+    }
+  }
+  return res.status(200).json(result);
 });
 
 // adminUserPasswordUpdate route
@@ -144,9 +162,6 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
   const authUserId = getUserIdFromToken(token);
-  console.log('here is token:', token);
-  console.log('here is authUserId:', authUserId);
-  console.log(adminQuizList);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }

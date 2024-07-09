@@ -36,79 +36,6 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     quizid2 = createQuiz(token2, 'quizName2', 'description').quizid;
 	});
 
-  // test to check quiz Id does not refer to a valid quiz
-  test.only('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid2 + 1}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: "Who is the Monarch of England?",
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: "Prince Charles",
-              correct: true,
-            },
-            {
-              answer: "Queen Elizabeth",
-              correct: false,
-            }
-          ]
-        }
-      }
-    });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(403);
-  });
-
-  // test to check if quiz ID does not refer to a quiz that this user owns
-  test('Quiz ID does not refer to a quiz that this user owns', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid2}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: "Who is the Monarch of England?",
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: "Prince Charles",
-              correct: true,
-            },
-            {
-              answer: "Queen Elizabeth",
-              correct: false,
-            }
-          ]
-        }
-      }
-    });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(403);
-  });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   // Token is empty or invalid (does not refer to valid logged in user session)
   test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
@@ -455,31 +382,59 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  // // test to check quiz Id does not refer to a valid quiz
-  // test('Quiz Id does not refer to a valid quiz', () => {
-  //   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId + 1}`, {
-  //     qs: {
-  //       token: token1,
-  //       quizid: qid.quizId + 1,
-  //     },
-  //     timeout: TIMEOUT_MS
-  //   });
-  //   expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-  //   expect(res.statusCode).toBe(403);
-  // });
+  // test to check quiz Id does not refer to a valid quiz
+  test('Quiz Id does not refer to a valid quiz', () => {
+    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid2 + 1}/question`, {
+      json: {
+        token: token1,
+        questionBody: {
+          question: "Who is the Monarch of England?",
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answer: "Prince Charles",
+              correct: true,
+            },
+            {
+              answer: "Queen Elizabeth",
+              correct: false,
+            }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(403);
+  });
 
-  // // test to check if quiz ID does not refer to a quiz that this user owns
-  // test('Quiz ID does not refer to a quiz that this user owns', () => {
-  //   const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
-  //     qs: {
-  //       token: token2,
-  //       quizid: qid.quizId,
-  //     },
-  //     timeout: TIMEOUT_MS
-  //   });
-  //   expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-  //   expect(res.statusCode).toBe(403);
-  // });
+  // test to check if quiz ID does not refer to a quiz that this user owns
+  test('Quiz ID does not refer to a quiz that this user owns', () => {
+    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid2}/question`, {
+      json: {
+        token: token1,
+        questionBody: {
+          question: "Who is the Monarch of England?",
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answer: "Prince Charles",
+              correct: true,
+            },
+            {
+              answer: "Queen Elizabeth",
+              correct: false,
+            }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(403);
+  });
+
+
 
   // quiz question created successfully
   test('Quiz question created successfully', () => {

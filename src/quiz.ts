@@ -405,7 +405,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
   // let authUserId = -1
   // for (const session of data.sessions) {
-  //   if (session.token === token) {
+  //   if (Number(session.token) === token) {
   //     authUserId = session.authUserId;
   //     break;
   //   }
@@ -466,6 +466,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
     return { error: 'Invalid quiz Id entered' };
   }
   // test to check if quiz ID does not refer to a quiz that this user owns
+
   // if (quiz.authUserId !== authUserId) {
   //   return { error: 'Quiz Id not owned by the user' };
   // }

@@ -157,9 +157,15 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
   const result = adminQuizQuestionCreate(token, quizid, questionBody);
   if ('error' in result) {
-    return res.status(400).json(result);
+    if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid quiz Id entered') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Invalid user id') {
+      return res.status(401).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   } 
-  return res.json(result);
+  return res.status(200).json(result);
 });
 
 // ====================================================================

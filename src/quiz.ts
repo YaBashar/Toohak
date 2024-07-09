@@ -383,7 +383,6 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   if (description.length === 0) {
     return { error: 'Quiz description cannot be empty' };
   }
-  
   // If the description length exceeds 100 characters, return an error
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     return { error: 'Quiz description is more than 100 characters in length' };

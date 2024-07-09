@@ -82,7 +82,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = Date.now();
+  const sID = Date.now() * 1000 + Math.round(Math.random() * 999);
 
   // creating token for sessions
   const session = {
@@ -277,7 +277,7 @@ export function adminUserDetailsUpdate(authUserId: number | { error: string }, e
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

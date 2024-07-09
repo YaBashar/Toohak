@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate } from './quiz';
+import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
@@ -162,6 +162,10 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
   const authUserId = getUserIdFromToken(token);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 23929cc7adddb4f74426a60ef9829ff05a08f7d1
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
@@ -243,6 +247,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   return res.status(200).json(quizNameUpdate);
 });
 
+<<<<<<< HEAD
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const { token } = req.body;
   const result = adminAuthLogout(token);
@@ -252,6 +257,31 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   }
 
   res.json(result);
+=======
+// adminQuizTransfer server route
+app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
+  const { token, email } = req.body;
+  const quizId = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+
+  const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
+  if (quizTransfer.error) {
+    if (quizTransfer.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Target user email is not a real user' ||
+      quizTransfer.error === 'Target user email is the same as currently logged in user' ||
+      quizTransfer.error === 'Quiz name already in use by target user'
+    ) {
+      return res.status(400).json({ error: quizTransfer.error });
+    }
+  }
+  return res.status(200).json(quizTransfer);
+>>>>>>> 23929cc7adddb4f74426a60ef9829ff05a08f7d1
 });
 
 // ====================================================================

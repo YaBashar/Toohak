@@ -82,7 +82,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = Date.now() * 1000 + Math.round(Math.random() * 999);
+  const sID = createSessionId();
 
   // creating token for sessions
   const session = {
@@ -159,7 +159,7 @@ export function adminAuthLogin(email: string, password: string) {
   *
 */
 
-export function adminUserDetails(authUserId: number) {
+export function adminUserDetails(authUserId: number | { error: string}) {
   const store = getData();
   const userArr = store.users;
 
@@ -167,7 +167,7 @@ export function adminUserDetails(authUserId: number) {
 
   // checking for error cases
   if (!user) {
-    return { error: 'Invalid AuthUserId' };
+    return { error: 'invalid token' };
 
   // returning object containing user details
   } else {
@@ -196,11 +196,9 @@ export function adminUserDetails(authUserId: number) {
   * @returns {} - empty object
 */
 
-export function adminUserDetailsUpdate(authUserId: number | { error: string }, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+export function adminUserDetailsUpdate(authUserId: number | { error: string}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-  console.log(getData());
-  console.log(authUserId);
 
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid userId' };
@@ -277,7 +275,7 @@ export function adminUserDetailsUpdate(authUserId: number | { error: string }, e
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: number | { error: string}, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

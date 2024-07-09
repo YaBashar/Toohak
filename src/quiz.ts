@@ -41,7 +41,8 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId: {authUserId: number}) {
+
+export function adminQuizList(authUserId: number | { error: string}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -398,4 +399,3 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
     return {};
   }
 }
-

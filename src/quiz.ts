@@ -305,7 +305,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number | { error: string }, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId: number | { error: string}, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -420,13 +420,20 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
   const quizArr = store.quizzes;
 
   const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  }
+
   const quiz = store.quizzes[findQuiz];
 
   const user = userArr.find(user => user.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
   const targetUser = store.users.find(user => user.email === userEmail);
-  const isQuizExists = store.quizzes.some(q => q.name === quiz.name && q.authUserId === targetUser.authUserId);
+  if (!targetUser) {
+    return { error: 'Target user email is not a real user' };
+  }
+  const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.authUserId === targetUser.authUserId)));
 
   if (!user) {
     return { error: 'Invalid User id' };
@@ -434,8 +441,6 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
     return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
-  } else if (!targetUser) {
-    return { error: 'Target user email is not a real user' };
   } else if (user.authUserId === targetUser.authUserId) {
     return { error: 'Target user email is the same as currently logged in user' };
   } else if (isQuizExists) {

@@ -481,3 +481,37 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   setData(data);
   return { questionId: id };
 }
+
+export function adminQuizQuestionUpdate(authUserId: number | { error: string }, newPosition: number) {
+  const data = getData();
+  const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
+  const question = data.questions.find(question => question[questionId] = questionBody.questionId);
+  if (!authUserId) {
+    return { error: 'invalid token' };
+  }
+
+  if (!quiz) {
+    return { error: 'quiz does not exist for this user' }
+  }
+  
+  if (!question) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  if (newPosition < 0) {
+    return { error: 'position value is less than zero' };
+  }  
+
+  if (newPosition === question.position) {
+    return { error: 'new position is current position' };
+  }
+
+  if (newPosition > quiz.numQuestions - 1) {
+    return { error: 'new position is too big' };
+  }
+  
+  question.position = newPosition;
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  setData(data);
+  return {};
+}

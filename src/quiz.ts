@@ -1,33 +1,34 @@
-/* /////////////////////////////////////////////////////////////////////////////
+/*/////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-COMP1531 24T2 --- Major Project: `Toohak',
+COMP1531 24T2 --- Major Project: `Toohak', 
 <https://nw-syd-gitlab.cseunsw.tech/COMP1531/24T2/groups/W11A_
 CRUNCHIE/project-backend/-/blob/master/README.md>
 
-This program was written by
+This program was written by 
 z5478214 | z5599894 | z5525050 | z5362173 | z5478980
 on 04/06/2024
 
 quiz.js contains the functions for the implementation of quiz mechanics
 in the Toohak project. This includes functions that create, remove, list
-and update information regarding quizzes.
+and update information regarding quizzes. 
 
-*//// //////////////////////////////////////////////////////////////////////////
+*//////////////////////////////////////////////////////////////////////////////
 
-// DEPENDENCIES
+// DEPENDENCIES 
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from "./dataStore.js";
 
-/// ////////////////////////////////////////////////////////////////////////////
+
+///////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminQuizList
-  *
-  * Provides a list of all quizzes that are owned by the currently
+  * 
+  * Provides a list of all quizzes that are owned by the currently 
   * logged in user.
-  *
-  * @param {number} authUserId - number representing a unique
+  * 
+  * @param {number} authUserId - number representing a unique 
   *                              identifier for the user
   * ...
   * @returns {
@@ -40,7 +41,7 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId: number) {
+export function adminQuizList(authUserId: {authUserId: number}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -130,7 +131,6 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   }
 
   const id = uniqueId(quizArr);
-
   const quiz = {
     quizId: id,
     name: name,
@@ -236,7 +236,6 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
@@ -310,7 +309,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
@@ -339,7 +337,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   quiz.name = name;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
-
   return {};
 }
 
@@ -355,7 +352,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   *                               description of the quiz
   * ...
   * @returns {} - empty object if successful
-  *
 */
 
 // My constant define for the 'Description is more than 100 characters' test case
@@ -402,4 +398,8 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
 
     return {};
   }
+}
+
+export function adminQuizQuestionUpdate (authUserId: number, quizid: number, questionid: number, duration: integer, points: integer, answer: string, correct: boolean) {
+
 }

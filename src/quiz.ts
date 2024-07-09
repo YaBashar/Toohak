@@ -446,6 +446,8 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.authUserId = targetUser.authUserId;
   return {};
+};
+
 export function adminQuizQuestionCreate(authUserId: number | { error: string }, quizid: number, question: Question): { error: string } | { questionId: number } {
   const data = getData();
   const quizArr = data.quizzes;

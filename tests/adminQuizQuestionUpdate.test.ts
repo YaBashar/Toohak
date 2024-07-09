@@ -29,6 +29,7 @@ beforeEach(() => {
   const quiz1 = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name: 'quiz 1', description: 'the first quiz' }
   });
+	quiz1Id = JSON.parse(quiz1.body.toString()).quizId;
 
   // add a question to the quiz
   const question1Quiz1 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question`, {
@@ -46,7 +47,7 @@ beforeEach(() => {
       }
     }
   });
-  question1Quiz1Id = JSON.parse(question1Quiz1.body.toString()).questionid;
+  question1Quiz1Id = JSON.parse(question1Quiz1.body.toString()).questionId;
 
   // create a second quiz
   const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', {

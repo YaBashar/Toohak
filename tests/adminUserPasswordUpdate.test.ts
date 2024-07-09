@@ -8,61 +8,55 @@ let token: string;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+  const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su' } });
+  token = JSON.parse(user.body.toString()).token;
 });
 
-describe('PUT /v1/admin/quiz/:quizId/question/:questionId', () => {
-  // Question Id does not refer to a valid question within this quiz
+describe('PUT /v1/admin/user/password', () => {
+  // Old password is not correct
   test('Incorrect password', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABC', newPassword: 'newabcd1234!@#$ABCD' } });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'incorrect password' });
+    expect(res.statusCode).toBe(400);
   });
 
   // Old password and new password are the same
   test('Old password is the same as the new password', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABCD' } });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new password is the same as old password' });
+    expect(res.statusCode).toBe(400);
   });
 
-  // Question string is less than 5 characters in length or greater than 50 characters in length
+  // New password has been used before
   test('New password has been used before', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABC' } });
+    expect(res.statusCode).toBe(200);
+    const res2 = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABC', newPassword: 'abcd1234!@#$ABCD' } });
+    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: 'password has already been used' });
+    expect(res2.statusCode).toBe(400);
   });
 
-  // The question has more than 6 answers or less than 2 answers
+  // New password is too short
   test('Invalid password length', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd123' } });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'password is too short' });
+    expect(res.statusCode).toBe(400);
   });
 
-  // The question duration is not a positive number
+  // New password doesn't contain at least on number and one letter
   test('Password does not contain at least one number and one letter', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcdefgh' } });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
+    expect(res.statusCode).toBe(400);
+    const res2 = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: '12345678' } });
+    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
+    expect(res2.statusCode).toBe(400);
   });
 
-  // If this question were to be updated, the sum of the question durations in the quiz exceeds 3 minutes
+  // Success case
   test('Success case', () => {
-
-  });
-
-  // The points awarded for the question are less than 1 or greater than 10
-  test('Old password is the same as the new password', () => {
-
-  });
-
-  // The length of any answer is shorter than 1 character long, or longer than 30 characters long
-  test('New password has been used before', () => {
-
-  });
-
-  // Any answer strings are duplicates of one another (within the same question)
-  test('Invalid password length', () => {
-
-  });
-
-  // There are no correct answers
-  test('Password does not contain at least one number and one letter', () => {
-
-  });
-
-  // success case
-  test('Success case', () => {
-
+    const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABC' } });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({});
+    expect(res.statusCode).toBe(200);
   });
 });

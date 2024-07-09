@@ -8,11 +8,15 @@ const TIMEOUT_MS = 5 * 1000;
 /// /////////////////////////////////////////////////////////////
 
 const createQuiz = (token : string, name : string, description : string) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description }, timeout: TIMEOUT_MS });
-  return JSON.parse(res.body.toString());
+  return (request('POST', SERVER_URL + '/v1/admin/quiz',
+    { json: { token, name, description }, timeout: TIMEOUT_MS })
+  );
+};
+
+const requestQuizTransfer = (quizId: number, token: string, email: string) => {
+  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, 
+    { json: { token, email }, timeout: TIMEOUT_MS }
+  ));
 };
 
 /// /////////////////////////////////////////////////////////////
@@ -34,19 +38,25 @@ describe('adminQuizTransfer Tests', () => {
       const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' }, timeout: TIMEOUT_MS });
       targetToken = JSON.parse(targetUser.body.toString()).token;
 
-      quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
-    });
+      const res = createQuiz(sourceToken, 'quizName', 'description');
+      quizId = JSON.parse(res.body.toString()).quizId;
 
-    test('Transferring Quiz which does not exist ', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(quizTransfer.statusCode).toStrictEqual(403);
     });
 
     test('Transfer of a Quiz with invalid Authuser id', () => {
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: 'Invalid_token', email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toStrictEqual(401);
+    });
+
+    test('Transferring Quiz which does not exist ', () => {
+      const res = requestQuizTransfer(123, sourceToken, 'targetuser@unsw.edu.au');
+      const data = JSON.parse(res.body.toString());
+
+      console.log(data);
+      
+      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(res.statusCode).toStrictEqual(403);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
@@ -71,8 +81,9 @@ describe('adminQuizTransfer Tests', () => {
 
     // Quiz ID refers to a quiz that has a name that is already used by the target user
     test('Quiz has name already used by target user', () => {
-      const quiz2 = createQuiz(targetToken, 'quizName', 'description').quizId;
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz2}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const res = createQuiz(targetToken, 'quizName', 'description');
+      const quizId2 = (JSON.parse(res.body.toString())).quizId;
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId2}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
@@ -90,7 +101,8 @@ describe('adminQuizTransfer Tests', () => {
       const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' }, timeout: TIMEOUT_MS });
       targetToken = JSON.parse(targetUser.body.toString()).token;
 
-      quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
+      const res = createQuiz(sourceToken, 'quizName', 'description');
+      quizId = (JSON.parse(res.body.toString())).quizId;
     });
 
     // check that function returns empty object

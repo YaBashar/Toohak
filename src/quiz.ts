@@ -421,13 +421,19 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
   const quizArr = store.quizzes;
 
   const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  }
+
   const quiz = store.quizzes[findQuiz];
 
   const user = userArr.find(user => user.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
   const targetUser = store.users.find(user => user.email === userEmail);
-  const isQuizExists = store.quizzes.some(q => q.name === quiz.name && q.authUserId === targetUser.authUserId);
+  
+
+  const isQuizExists = store.quizzes.some(q => ((q.name === q.name) && (q.authUserId === targetUser.authUserId)));
 
   if (!user) {
     return { error: 'Invalid User id' };

@@ -5,7 +5,10 @@ export function createSessionId(): number {
 }
 
 export function getUserIdFromToken(sessionId: string): number | { error: string } {
+  console.log('Received sessionId:', sessionId);
+
   const result = parseFloat(sessionId);
+  console.log('Parsed sessionId:', result);
 
   const store = getData();
   const sessArr = store.sessions;

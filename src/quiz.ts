@@ -414,29 +414,43 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   *
 */
 
-
 export function adminQuizTransfer(authUserId: number | { error: string}, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
 
   const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
-  const userIndex = userArr.findIndex(user => user.authUserId === authUserId);
+  const quiz = store.quizzes[findQuiz];
+
+  const user = userArr.find(user => user.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!userIndex) {
+  const targetUser = store.users.find(user => user.email === userEmail);
+
+  if (!user) {
     return { error: 'Invalid User id' };
-  } else if (!findQuiz) {
+  }
+  if (findQuiz === -1) {
     return { error: 'Invalid Quiz id' };
-  } else if (!quizUser) {
+  }
+  if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   }
+  if (!targetUser) {
+    return { error: 'Target user email is not a real user' };
+  }
+  if (user.authUserId === targetUser.authUserId) {
+    return { error: 'Target user email is same as currently logged in user' };
+  }
 
-  // Add all other 400 error checks
+  // Check if the quiz exists for the target user after validating targetUser
+  // const isQuizExists = store.quizzes.some(q => q.name === quiz.name && q.authUserId === targetUser.authUserId);
+  // if (isQuizExists) {
+  //   return { error: 'Quiz has name already used by target user' };
+  // }
 
-  const quiz = store.quizzes[findQuiz];
-  const newOwner = store.users.find(user => user.email === userEmail);
-  quiz.authUserId = newOwner.authUserId;
+  // Change the quiz authuser id so it has the authuser id of the new owner
+  quiz.authUserId = targetUser.authUserId;
 
   return {};
 }

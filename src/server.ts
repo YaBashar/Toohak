@@ -76,8 +76,8 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
 
   if (!authUserId) {
     return res.status(401).json(authUserId);
-  }  
-  
+  }
+
   const result = adminUserDetails(authUserId);
   if ('error' in result) {
     return res.status(401).json(result);

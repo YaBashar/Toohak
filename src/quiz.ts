@@ -1,4 +1,5 @@
-/* /////////////////////////////////////////////////////////////////////////////
+/*
+/////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@ quiz.js contains the functions for the implementation of quiz mechanics
 in the Toohak project. This includes functions that create, remove, list
 and update information regarding quizzes.
 
-*//// //////////////////////////////////////////////////////////////////////////
+*/// ///////////////////////////////////////////////////////////////////////////
 
 // DEPENDENCIES
 
@@ -40,6 +41,7 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
+
 export function adminQuizList(authUserId: number | { error: string}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
@@ -130,7 +132,6 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   }
 
   const id = uniqueId(quizArr);
-
   const quiz = {
     quizId: id,
     name: name,
@@ -236,7 +237,6 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
@@ -310,7 +310,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
@@ -339,7 +338,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   quiz.name = name;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
-
   return {};
 }
 
@@ -355,7 +353,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   *                               description of the quiz
   * ...
   * @returns {} - empty object if successful
-  *
 */
 
 // My constant define for the 'Description is more than 100 characters' test case
@@ -379,6 +376,10 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
     return { error: 'Quiz Id not owned by the user' };
   }
 
+  // Check if description is empty
+  if (description.length === 0) {
+    return { error: 'Quiz description cannot be empty' };
+  }
   // If the description length exceeds 100 characters, return an error
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     return { error: 'Quiz description is more than 100 characters in length' };

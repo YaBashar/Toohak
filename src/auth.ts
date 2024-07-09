@@ -313,3 +313,31 @@ export function adminUserPasswordUpdate(authUserId: number | { error: string}, o
 
   return {};
 }
+
+/** [6] adminAuthLogout
+  *
+  * Logs out an admin user who has an active user session.
+  *
+  * @param {number} authUserId - number representing a unique
+  *                              identifier for the user
+  * ...
+  * @returns {} - empty object
+*/
+
+export function adminAuthLogout(token: string) {
+
+  const result = parseFloat(token);
+
+  const store = getData();
+  const sessArr = store.sessions;
+  let session = sessArr.find((x) => {
+    return x.sessionId === result;
+  });
+
+  if (!session) {
+    return { error: 'invalid token' };
+  }
+  
+  session = [];
+  return {};
+}

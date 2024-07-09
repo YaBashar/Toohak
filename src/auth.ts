@@ -237,6 +237,7 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   if (nameLast.length > 20) {
     return { error: 'last name is too long' };
   }
+
   const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
 
   if (userIndex === -1) {
@@ -276,13 +277,13 @@ export function adminUserDetailsUpdate(authUserId: {authUserId: number}, email: 
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);
 
-  if (!Number.isInteger(authUserId)) {
-    return { error: 'invalid userId' };
+  if (!user) {
+    return { error: 'userId does not exist' };
   }
 
   if (user.password !== oldPassword) {
@@ -299,10 +300,6 @@ export function adminUserPasswordUpdate(authUserId: number, oldPassword: string,
 
   if (newPassword.length < 8) {
     return { error: 'password is too short' };
-  }
-
-  if (user.password !== oldPassword) {
-    return { error: 'incorrect password' };
   }
 
   const hasNumber = /\d/.test(newPassword);

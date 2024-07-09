@@ -8,33 +8,33 @@ const TIMEOUT_MS = 5 * 1000;
 
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description } 
+    json: { token, name, description }
   });
   return JSON.parse(res.body.toString());
 };
-///////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
 describe('POST /v1/admin/quiz/:quizid/question', () => {
-	// let token: string;
-	let quizid: number;	
+  // let token: string;
+  let quizid: number;
   let quizid2: number;
   let token1: string;
   let token2: string;
 
-	beforeEach(() => {
-		const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
+  beforeEach(() => {
+    const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
     token1 = JSON.parse(uid1.body.toString()).token;
-		quizid = createQuiz(token1, 'quizName', 'description').quizId;
+    quizid = createQuiz(token1, 'quizName', 'description').quizId;
 
-    const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
+    const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson' } });
     token2 = JSON.parse(uid2.body.toString()).token;
 
     quizid2 = createQuiz(token2, 'quizName2', 'description').quizid;
-	});
+  });
 
   // Token is empty or invalid (does not refer to valid logged in user session)
   test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
@@ -42,16 +42,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: 'invalid token',
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -68,12 +68,12 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who",
+          question: 'Who',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             }
           ]
@@ -90,12 +90,12 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England? Who is the Monarch of England? Who is the Monarch of England?",
+          question: 'Who is the Monarch of England? Who is the Monarch of England? Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             }
           ]
@@ -106,42 +106,42 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
- // The question has more than 6 answers
+  // The question has more than 6 answers
   test('The question has more than 6 answers', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             },
             {
-              answer: "Prince William",
+              answer: 'Prince William',
               correct: false,
             },
             {
-              answer: "Prince Harry",
+              answer: 'Prince Harry',
               correct: false,
             },
             {
-              answer: "Prince Philip",
+              answer: 'Prince Philip',
               correct: false,
             },
             {
-              answer: "Prince Andrew",
+              answer: 'Prince Andrew',
               correct: false,
             },
             {
-              answer: "Prince Edward",
+              answer: 'Prince Edward',
               correct: false,
             }
           ]
@@ -158,12 +158,12 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             }
           ]
@@ -180,16 +180,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: -4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -206,16 +206,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 190,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -232,16 +232,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 0,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -258,16 +258,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 11,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -284,16 +284,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "hello",
+              answer: 'hello',
               correct: false,
             },
             {
-              answer: "",
+              answer: '',
               correct: true,
             }
           ]
@@ -310,16 +310,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles Prince Charles Prince Charles",
+              answer: 'Prince Charles Prince Charles Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth Queen Elizabeth Queen Elizabeth",
+              answer: 'Queen Elizabeth Queen Elizabeth Queen Elizabeth',
               correct: false,
             }
           ]
@@ -336,16 +336,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: false,
             }
           ]
@@ -356,22 +356,22 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  // There are no correct answers 
+  // There are no correct answers
   test('There are no correct answers', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: false,
             },
             {
-              answer: "Prince",
+              answer: 'Prince',
               correct: false,
             }
           ]
@@ -388,16 +388,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -414,16 +414,16 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: true,
             },
             {
-              answer: "Queen Elizabeth",
+              answer: 'Queen Elizabeth',
               correct: false,
             }
           ]
@@ -434,28 +434,26 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(403);
   });
 
-
-
   // quiz question created successfully
   test('Quiz question created successfully', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
       json: {
         token: token1,
         questionBody: {
-          question: "Who is the Monarch of England?",
+          question: 'Who is the Monarch of England?',
           duration: 4,
           points: 5,
           answers: [
             {
-              answer: "Prince Charles",
+              answer: 'Prince Charles',
               correct: false,
             },
             {
-              answer: "Prince is not Charles",
+              answer: 'Prince is not Charles',
               correct: true,
             },
             {
-              answer: "Prince is Beckham",
+              answer: 'Prince is Beckham',
               correct: false,
             }
           ]
@@ -466,5 +464,3 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(200);
   });
 });
-
-  

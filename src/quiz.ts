@@ -1,4 +1,5 @@
-/* /////////////////////////////////////////////////////////////////////////////
+/*
+/////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@ quiz.js contains the functions for the implementation of quiz mechanics
 in the Toohak project. This includes functions that create, remove, list
 and update information regarding quizzes.
 
-*//// //////////////////////////////////////////////////////////////////////////
+*/// ///////////////////////////////////////////////////////////////////////////
 
 // DEPENDENCIES
 
@@ -40,10 +41,10 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId: number) {
+
+export function adminQuizList(authUserId: number | { error: string}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
-  // const allQuizzes = [];
 
   if (!Number.isInteger(authUserId) || !user) {
     return { error: 'invalid user id' };
@@ -132,7 +133,6 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   }
 
   const id = uniqueId(quizArr);
-
   const quiz = {
     quizId: id,
     name: name,
@@ -237,7 +237,6 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
@@ -307,11 +306,10 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId:number | { error: string }, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
@@ -340,7 +338,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   quiz.name = name;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
-
   return {};
 }
 
@@ -356,7 +353,6 @@ export function adminQuizNameUpdate(authUserId:number, quizId:number, name: stri
   *                               description of the quiz
   * ...
   * @returns {} - empty object if successful
-  *
 */
 
 // My constant define for the 'Description is more than 100 characters' test case
@@ -380,6 +376,10 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
     return { error: 'Quiz Id not owned by the user' };
   }
 
+  // Check if description is empty
+  if (description.length === 0) {
+    return { error: 'Quiz description cannot be empty' };
+  }
   // If the description length exceeds 100 characters, return an error
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     return { error: 'Quiz description is more than 100 characters in length' };
@@ -409,7 +409,7 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   const user = userArr.find((user) => user.authUserId === authUserId);
 
   if (!user) {
-    return { error: 'Invalid Token' }
+    return { error: 'Invalid Token' };
   }
   // Question string is less than 5 characters
   if (question.question.length < 5) {
@@ -456,7 +456,7 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
     return { error: 'Answers are duplicates' };
   }
-  // There are no correct answers 
+  // There are no correct answers
   if (!question.answers.some(answer => answer.correct)) {
     return { error: 'No correct answers' };
   }
@@ -468,16 +468,15 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   if (quiz.authUserId !== authUserId) {
     return { error: 'Quiz Id not owned by the user' };
   }
-  
+
   const id = uniqueId(quiz.questions);
-  console.log(id);
   const questionBody = {
     questionId: id,
     question: question.question,
     duration: question.duration,
     points: question.points,
     answers: question.answers
-  }
+  };
   quiz.questions.push(questionBody);
   setData(data);
   return { questionId: id };

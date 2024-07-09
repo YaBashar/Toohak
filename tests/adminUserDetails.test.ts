@@ -10,22 +10,60 @@ beforeEach(() => {
 
 
 describe('Testing error cases', () => {
+  let token: string;
+
+  beforeEach(() => {
+    const user = requestAuthRegister('zid@ad.unsw.edu.au','abcd1234','first','last');
+    token = JSON.parse(user.body.toString()).token;
+  });
 
   test('Invalid token', () => {
-    
+    const res = requestUserDetails(token);
+    const data = JSON.parse(res.body.toString());
+
+    expect(data).toStrictEqual({ error: 'invalid token' });
+    expect(res.statusCode).toStrictEqual(401);
   });
 
 })
 
 
-describe('Testing side effects', () => {
-  
+describe('Testing correct return', () => {
+  let token: string;
 
+  beforeEach(() => {
+    const user = requestAuthRegister('zid@ad.unsw.edu.au','abcd1234','first','last');
+    token = JSON.parse(user.body.toString()).token;
+  });
+  
+  test('Returns correct object', () => {
+    const res = requestUserDetails(token);
+    const data = JSON.parse(res.body.toString());
+
+    const exp = {
+      user: {
+        userId: expect.any(Number),
+        name: 'first last',
+        email: 'zid@unsw.edu.au',
+        numSuccessfulLogins: expect.any(Number),
+        numFailedPasswordsSinceLastLogin: expect.any(Number)
+      }
+    }
+
+    expect(data).toStrictEqual(exp);
+    expect(res.statusCode).toStrictEqual(200);
+  });
 })
 
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-    return (request('POST', SERVER_URL + '/v1/admin/auth/register', {
-      json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
-    }));
-  };
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register', {
+    json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
+  }));
+};
+
+const requestUserDetails = (token: string) => {
+  return (request('GET', SERVER_URL + '/v1/admin/user/details', {
+    json: { token }, timeout: TIMEOUT_MS
+  }));
+}

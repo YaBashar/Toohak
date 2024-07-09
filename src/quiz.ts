@@ -423,38 +423,46 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
   const userArr = store.users;
   const quizArr = store.quizzes;
 
+  console.log(authUserId);
+
+  console.log('line 428');
+
   const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
   const quiz = store.quizzes[findQuiz];
+
+  console.log('LIne 431');
 
   const user = userArr.find(user => user.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
+  console.log('line 436');
+
   const targetUser = store.users.find(user => user.email === userEmail);
+
+  console.log('line 442 before error checking');
 
   if (!user) {
     return { error: 'Invalid User id' };
-  }
-  if (findQuiz === -1) {
+  } else if (findQuiz === -1) {
     return { error: 'Invalid Quiz id' };
-  }
-  if (!quizUser) {
+  } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
-  }
-  if (!targetUser) {
+  } else if (!targetUser) {
     return { error: 'Target user email is not a real user' };
-  }
-  if (user.authUserId === targetUser.authUserId) {
-    return { error: 'Target user email is same as currently logged in user' };
+  } else if (user.authUserId === targetUser.authUserId) {
+    return { error: 'Target user email is the same as currently logged in user' };
   }
 
-  // Check if the quiz exists for the target user after validating targetUser
-  // const isQuizExists = store.quizzes.some(q => q.name === quiz.name && q.authUserId === targetUser.authUserId);
-  // if (isQuizExists) {
-  //   return { error: 'Quiz has name already used by target user' };
-  // }
+  console.log('line 460 after error checking');
+  const isQuizExists = store.quizzes.some(q => q.name === quiz.name && q.authUserId === targetUser.authUserId);
+  if (isQuizExists) {
+    return { error: 'Quiz name already in use by target user' };
+  }
 
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.authUserId = targetUser.authUserId;
+
+  console.log('line 470 end of function');
 
   return {};
 }

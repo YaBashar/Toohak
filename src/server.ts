@@ -215,29 +215,34 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
   const quizId = parseInt(req.params.quizid as string);
-  console.log('Quizid', quizId);
-  console.log('token', token);
+
+  console.log('line 219 server');
+
   const authUserId = getUserIdFromToken(token);
-  console.log('userid', authUserId);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
   const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
-
+  console.log('line 226 server');
+  console.log(quizTransfer.error)
   if (quizTransfer.error) {
+    console.log('is error')
     if (quizTransfer.error === 'Invalid User id') {
+      console.log('error 1');
       return res.status(401).json({ error: quizTransfer.error });
     } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
+      console.log('error 2');
       return res.status(403).json({ error: quizTransfer.error });
     } else if (quizTransfer.error === 'Target user email is not a real user' ||
-      quizTransfer.error === 'Target user email is same as currently logged in user' ||
+      quizTransfer.error === 'Target user email is the same as currently logged in user' ||
       quizTransfer.error === 'Quiz has name already used by target user'
     ) {
+      console.log('error 3');
       return res.status(400).json({ error: quizTransfer.error });
     }
-    res.json(quizTransfer);
-    return res.status(200).json(quizTransfer);
   }
+  console.log('line 240 server');
+  return res.status(200).json(quizTransfer);
 });
 
 // ====================================================================

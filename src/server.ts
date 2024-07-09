@@ -11,7 +11,7 @@ import process from 'process';
 import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
-import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
+import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
 
 // Set up web app
@@ -240,6 +240,17 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   }
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
+});
+
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const result = adminAuthLogout(token);
+
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+
+  res.json(result);
 });
 
 // adminQuizQuestionCreate

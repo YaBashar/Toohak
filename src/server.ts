@@ -151,9 +151,15 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   }
   const result = adminQuizDescriptionUpdate(authUserId, quizIdNum, description);
   if ('error' in result) {
-    return res.status(400).json(result);
+    if (result.error === 'Invalid User id') {
+      return res.status(401).json(result);
+    } else if (result.error === 'This Quiz Id does not refer to a quiz that this user owns' || result.error === 'Quiz Id not found') {
+      return res.status(403).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
   }
-  res.json(result);
+  return res.status(200).json(result);
 });
 
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {

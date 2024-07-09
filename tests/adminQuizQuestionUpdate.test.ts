@@ -91,7 +91,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
     expect(res.statusCode).toBe(400);
   });
 

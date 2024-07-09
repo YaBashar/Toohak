@@ -453,7 +453,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
   });
 
   test('invalid token', () => {
-    request('POST', SERVER_URL + '/v1/admin/auth/logout', { token });
+    request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { token } });
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token: token,
@@ -477,13 +477,13 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
   test('user is not an owner of this quiz', () => {
     const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC', nameFirst: 'ran', nameLast: 'dom' } });
     randomToken = JSON.parse(user.body.toString()).token;
-    request('POST', SERVER_URL + '/v1/admin/auth/login', { JSON: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC' } });
+    request('POST', SERVER_URL + '/v1/admin/auth/login', { json: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC' } });
 
-    randomQuiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { randomToken, name: 'random quiz', description: 'a random quiz' } });
-    randomQuizId = randomQuiz.quizid;
-    request('POST', SERVER_URL + '/v1/admin/auth/logout', { JSON: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC' } });
+    const randomQuiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { randomToken, name: 'random quiz', description: 'a random quiz' } });
+    randomQuizId = JSON.parse(randomQuiz.body.toString()).quizid;
+    request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC' } });
 
-    request('POST', SERVER_URL + '/v1/admin/auth/login', { JSON: { email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD' } });
+    request('POST', SERVER_URL + '/v1/admin/auth/login', { json: { email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD' } });
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${randomQuizId}/question/${question1Quiz1Id}`, {
       json: {
         token: token,

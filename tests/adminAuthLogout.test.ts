@@ -9,9 +9,8 @@ beforeEach(() => {
 });
 
 describe('Testing logout error cases', () => {
-
   test('Invalid token', () => {
-    requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234','first','last');
+    requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
 
     const res = requestAuthLogout('invalid token');
     const data = JSON.parse(res.body.toString());
@@ -19,16 +18,15 @@ describe('Testing logout error cases', () => {
     expect(data).toStrictEqual({ error: 'invalid token' });
     expect(res.statusCode).toStrictEqual(401);
   });
-  
 });
 
 describe('Testing logout success case', () => {
   let token: string;
 
   beforeEach(() => {
-    const user = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234','first','last');
+    const user = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
     token = JSON.parse(user.body.toString()).token;
-  })
+  });
 
   test('Correct return object', () => {
     const res = requestAuthLogout(token);
@@ -44,11 +42,10 @@ describe('Testing logout success case', () => {
     const res = requestUserDetails(token);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({error: 'invalid token'});
+    expect(data).toStrictEqual({ error: 'invalid token' });
     expect(res.statusCode).toStrictEqual(401);
-  })
-
-})
+  });
+});
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   return (request('POST', SERVER_URL + '/v1/admin/auth/register', {
@@ -60,7 +57,7 @@ const requestAuthLogout = (token: string) => {
   return (request('POST', SERVER_URL + '/v1/admin/auth/logout', {
     json: { token }, timeout: TIMEOUT_MS
   }));
-}
+};
 
 const requestUserDetails = (token: string) => {
   return (request('GET', SERVER_URL + '/v1/admin/user/details', {

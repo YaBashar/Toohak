@@ -325,19 +325,21 @@ export function adminUserPasswordUpdate(authUserId: number | { error: string}, o
 */
 
 export function adminAuthLogout(token: string) {
-
   const result = parseFloat(token);
 
   const store = getData();
   const sessArr = store.sessions;
-  let session = sessArr.find((x) => {
+
+  const session = sessArr.find((x) => {
     return x.sessionId === result;
   });
 
   if (!session) {
     return { error: 'invalid token' };
   }
-  
-  session = [];
+
+  const index = sessArr.indexOf(session);
+  sessArr.splice(index);
+
   return {};
 }

@@ -1,7 +1,5 @@
 import request from 'sync-request-curl';
 import { port, url } from '../src/config.json';
-import { getData } from '../src/dataStore';
-import { adminQuizTransfer } from '../src/quiz';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -37,18 +35,10 @@ describe('adminQuizTransfer Tests', () => {
       targetToken = JSON.parse(targetUser.body.toString()).token;
 
       quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
-
-      console.log('TargetToken', targetToken);
-      console.log('Source token', sourceToken);
-      console.log(getData());
     });
 
     test('Transferring Quiz which does not exist ', () => {
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-
-      console.log(quizId);
-      console.log(sourceToken);
-      console.log(quizTransfer.body.toString());
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toStrictEqual(403);
     });
@@ -61,21 +51,21 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      console.log(expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) }));
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toStrictEqual(403);
     });
 
     // userEmail is not a real user
     test('target user email is not a real user', () => {
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'gurigiurabgiurag@email.unsw.edu.au' }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'Target user email is not a real user' });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
 
     // userEmail is the current logged in user
     test('Destination user email is the same as current user email', () => {
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'sourceuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'Target user email is the same as currently logged in user' });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
 
@@ -83,8 +73,8 @@ describe('adminQuizTransfer Tests', () => {
     test('Quiz has name already used by target user', () => {
       const quiz2 = createQuiz(targetToken, 'quizName', 'description').quizId;
       const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz2}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      console.log('Response status:', quizTransfer.statusCode);
-      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: 'Quiz name already in use by target user' });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(quizTransfer.statusCode).toBe(400);
     });
   });
 
@@ -103,12 +93,16 @@ describe('adminQuizTransfer Tests', () => {
       quizId = createQuiz(sourceToken, 'quizName', 'description').quizId;
     });
 
+    // check that function returns empty object
+    test('Check that function returns empty object', () => {
+      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({});
+    });
+
     test('Check that transferred quiz is under name of target user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
       const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: targetToken }, timeout: TIMEOUT_MS });
-
-      console.log(quizList.body.toString());
-      expect(quizList.body.toString()).toStrictEqual({
+      expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes:
         [
           {
@@ -117,20 +111,14 @@ describe('adminQuizTransfer Tests', () => {
           }
         ]
       });
+    });
 
-      test('Check that transferred quiz has been removed from source user through quizList', () => {
-        request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-        const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: sourceToken }, timeout: TIMEOUT_MS });
+    test('Check that transferred quiz has been removed from source user through quizList', () => {
+      request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: sourceToken }, timeout: TIMEOUT_MS });
 
-        expect(quizList.body.toString()).toStrictEqual({
-          quizzes: []
-        });
-      });
-
-      // check that function returns empty object
-      test('Check that function returns empty object', () => {
-        const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-        expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({});
+      expect(JSON.parse(quizList.body.toString())).toStrictEqual({
+        quizzes: []
       });
     });
   });

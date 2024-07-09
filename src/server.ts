@@ -72,7 +72,6 @@ app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
 
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
-  console.log('token', token);
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json(authUserId);
@@ -83,7 +82,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
     if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
       return res.status(401).json(result);
     } else if ('error' in result) {
-      console.log(result);
       return res.status(400).json(result);
     }
   }
@@ -215,33 +213,24 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
   const quizId = parseInt(req.params.quizid as string);
-
-  console.log('line 219 server');
-
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json(authUserId);
   }
+
   const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
-  console.log('line 226 server');
-  console.log(quizTransfer.error)
   if (quizTransfer.error) {
-    console.log('is error')
     if (quizTransfer.error === 'Invalid User id') {
-      console.log('error 1');
       return res.status(401).json({ error: quizTransfer.error });
     } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
-      console.log('error 2');
       return res.status(403).json({ error: quizTransfer.error });
     } else if (quizTransfer.error === 'Target user email is not a real user' ||
       quizTransfer.error === 'Target user email is the same as currently logged in user' ||
-      quizTransfer.error === 'Quiz has name already used by target user'
+      quizTransfer.error === 'Quiz name already in use by target user'
     ) {
-      console.log('error 3');
       return res.status(400).json({ error: quizTransfer.error });
     }
   }
-  console.log('line 240 server');
   return res.status(200).json(quizTransfer);
 });
 

@@ -87,7 +87,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
-
+// quizCreate
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const authUserId = getUserIdFromToken(token);

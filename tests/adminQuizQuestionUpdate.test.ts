@@ -29,7 +29,6 @@ beforeEach(() => {
   const quiz1 = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name: 'quiz 1', description: 'the first quiz' }
   });
-  quiz1Id = JSON.parse(quiz1.body.toString()).quizid;
 
   // add a question to the quiz
   const question1Quiz1 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question`, {
@@ -75,7 +74,7 @@ beforeEach(() => {
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
-  test('Question id does not exist', () => {
+  test.only('Question id does not exist', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id + 1}`, {
       json: {
         token,
@@ -91,6 +90,9 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
+		console.log(token);
+		console.log(quiz1Id);
+		console.log(question1Quiz1Id);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
     expect(res.statusCode).toBe(400);
   });

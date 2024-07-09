@@ -332,6 +332,26 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
+	test('Points is a string', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
+      json: {
+        token,
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 15,
+          answers: [
+            { answer: 'Prince William', correct: false },
+            { answer: 'Prince Charles', correct: true },
+            { answer: 'Prince Beckham', correct: false }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'points awarded is too big' });
+    expect(res.statusCode).toBe(400);
+  });
+
   test('empty token', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {

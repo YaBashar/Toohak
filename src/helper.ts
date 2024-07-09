@@ -4,16 +4,17 @@ export function createSessionId(): number {
   return Math.random();
 }
 
-export function getUserIdFromToken( token: string ): { authUserId: number } | { error: string } {
-  const sessionId = parseInt(JSON.parse(token).token);
+export function getUserIdFromToken(sessionId: string): number | { error: string } {
+  const result = parseFloat(sessionId);
 
   const store = getData();
   const sessArr = store.sessions;
-
-  const session = sessArr.find((x) => x.sessionId === sessionId);
+  const session = sessArr.find((x) => {
+    return x.sessionId === result;
+  });
   if (!session) {
-    return { error: 'invalid token'};
+    return { error: 'invalid token' };
   }
 
-  return { authUserId: session.authUserId};
+  return session.authUserId;
 }

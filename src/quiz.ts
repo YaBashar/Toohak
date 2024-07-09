@@ -169,13 +169,12 @@ function uniqueId(quizArr: { quizId: number }[]): number {
   * @returns {} - empty object
   *
 */
-
-export function adminQuizRemove(authUserId: number, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizRemove(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
-  const user = userArray.find(user => user.authUserId === authUserId);
-  const quiz = quizArray.find(quiz => quiz.quizId === quizId);
+  const user = userArray.find((user) => { return user.authUserId === authUserId; });
+  const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
     return { error: 'Invalid user id' };
   }
@@ -306,7 +305,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId:number | { error: string }, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;

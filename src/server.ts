@@ -108,7 +108,7 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
 
 app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
   const { quizid, questionid } = req.params;
-  const { token, questionBody } = req.body;
+  const { token, questions } = req.body;
   const authUserId = getUserIdFromToken(token);
 
   if (!authUserId) {
@@ -120,11 +120,11 @@ app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
     return res.status(400).json({ quizId });
   }
 
-  if (!questionBody[questionid]) {
+  if (!questions[questionid]) {
     return res.status(400).json({ questionid });
   }
 
-  const result = adminQuizQuestionUpdate(authUserId, questionBody);
+  const result = adminQuizQuestionUpdate(authUserId, questions);
 
   if ('error' in result) {
     if (result.error === 'quiz does not exist for this user') {

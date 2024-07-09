@@ -466,12 +466,12 @@ export function adminQuizQuestionUpdate (authUserId: number, questionBody) {
     return { error: 'no correct answer for this question' };
   }
   
-  const questionBody = {
-    question: question.question,
-    duration: question.duration,
-    points: question.points,
-    answers: question.answers
-  }
+  // const questionBody = {
+  //   question: question.question,
+  //   duration: question.duration,
+  //   points: question.points,
+  //   answers: question.answers
+  // }
 
   quiz.questions.push(questionBody);
   setData(data);

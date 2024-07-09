@@ -1,4 +1,5 @@
-/* /////////////////////////////////////////////////////////////////////////////
+/*
+/////////////////////////////////////////////////////////////////////////////
 //////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -14,7 +15,7 @@ quiz.js contains the functions for the implementation of quiz mechanics
 in the Toohak project. This includes functions that create, remove, list
 and update information regarding quizzes.
 
-*//// //////////////////////////////////////////////////////////////////////////
+*/// ///////////////////////////////////////////////////////////////////////////
 
 // DEPENDENCIES
 
@@ -40,7 +41,7 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId: number | { error: string }) {
+export function adminQuizList(authUserId: {authUserId: number}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -130,7 +131,6 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
   }
 
   const id = uniqueId(quizArr);
-
   const quiz = {
     quizId: id,
     name: name,
@@ -235,7 +235,6 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.authUserId === authUserId);
   const userQuiz = quizArr.find((quiz) => quiz.authUserId === authUserId);
@@ -309,7 +308,6 @@ export function adminQuizNameUpdate(authUserId:number | { error: string }, quizI
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
   const user = userArr.find(user => user.authUserId === authUserId);
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
@@ -338,7 +336,6 @@ export function adminQuizNameUpdate(authUserId:number | { error: string }, quizI
   quiz.name = name;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);
-
   return {};
 }
 
@@ -354,7 +351,6 @@ export function adminQuizNameUpdate(authUserId:number | { error: string }, quizI
   *                               description of the quiz
   * ...
   * @returns {} - empty object if successful
-  *
 */
 
 // My constant define for the 'Description is more than 100 characters' test case

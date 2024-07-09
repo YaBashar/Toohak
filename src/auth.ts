@@ -277,7 +277,7 @@ export function adminUserDetailsUpdate(authUserId: number | { error: string }, e
   * @returns {} - empty object
 */
 
-export function adminUserPasswordUpdate(authUserId: number | { error: string }, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(authUserId: {authUserId: number}, oldPassword: string, newPassword: string) {
   const data = getData();
 
   const user = data.users.find(user => user.authUserId === authUserId);

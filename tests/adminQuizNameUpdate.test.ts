@@ -2,6 +2,7 @@ import request from 'sync-request-curl';
 import { port, url } from '../src/config.json';
 
 const SERVER_URL = `${url}:${port}`;
+const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions
 /// //////////////////////////////////////////////
@@ -10,7 +11,7 @@ const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
     SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description } }
+    { json: { token, name, description }, timeout: TIMEOUT_MS }
   );
   return JSON.parse(res.body.toString());
 };
@@ -19,7 +20,7 @@ const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
     SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
-    { json: { token, name } }
+    { json: { token, name }, timeout: TIMEOUT_MS }
   );
   return res;
 };
@@ -35,7 +36,7 @@ const quizInfo = (token: string, quizId: number) => {
 /// //////////////////////////////////////////////
 
 beforeEach(() => {
-  request('DELETE', SERVER_URL + '/v1/clear');
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
 describe('adminQuizNameUpdate Tests', () => {
@@ -44,7 +45,7 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
@@ -121,7 +122,7 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'name', 'description').quizId;
     });

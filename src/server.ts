@@ -9,10 +9,10 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate } from './quiz';
+import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -112,9 +112,9 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
-    if (result.error === 'Invalid user id') {
+    if (result.error === 'UserId doesn\'t exist') {
       return res.status(401).json(result);
-    } else {
+    } else if ('error' in result) {
       return res.status(400).json(result);
     }
   }
@@ -238,8 +238,45 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
       return res.status(400).json({ error: quizNameUpdate.error });
     }
   }
+
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
+});
+
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const result = adminAuthLogout(token);
+
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+
+  res.json(result);
+});
+
+// adminQuizTransfer server route
+app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
+  const { token, email } = req.body;
+  const quizId = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+
+  const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
+  if (quizTransfer.error) {
+    if (quizTransfer.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Target user email is not a real user' ||
+      quizTransfer.error === 'Target user email is the same as currently logged in user' ||
+      quizTransfer.error === 'Quiz name already in use by target user'
+    ) {
+      return res.status(400).json({ error: quizTransfer.error });
+    }
+  }
+  return res.status(200).json(quizTransfer);
 });
 
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {

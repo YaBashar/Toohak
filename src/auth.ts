@@ -167,7 +167,7 @@ export function adminUserDetails(authUserId: number) {
 
   // checking for error cases
   if (!user) {
-    return { error: 'Invalid AuthUserId' };
+    return { error: 'invalid token' };
 
   // returning object containing user details
   } else {

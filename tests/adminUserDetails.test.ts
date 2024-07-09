@@ -14,11 +14,10 @@ describe('Testing error cases', () => {
 
   beforeEach(() => {
     const user = requestAuthRegister('zid@ad.unsw.edu.au','abcd1234','first','last');
-    token = JSON.parse(user.body.toString()).token;
   });
 
   test('Invalid token', () => {
-    const res = requestUserDetails(token);
+    const res = requestUserDetails('invalid token');
     const data = JSON.parse(res.body.toString());
 
     expect(data).toStrictEqual({ error: 'invalid token' });
@@ -42,11 +41,11 @@ describe('Testing correct return', () => {
 
     const exp = {
       user: {
-        userId: expect.any(Number),
+        authUserId: expect.any(Number),
         name: 'first last',
-        email: 'zid@unsw.edu.au',
+        email: 'zid@ad.unsw.edu.au',
         numSuccessfulLogins: expect.any(Number),
-        numFailedPasswordsSinceLastLogin: expect.any(Number)
+        numFailedPasswordSinceLastLogin: expect.any(Number),
       }
     }
 

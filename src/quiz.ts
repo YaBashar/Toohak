@@ -400,6 +400,80 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   }
 }
 
-export function adminQuizQuestionUpdate (authUserId: number, quizid: number, questionid: number, duration: number, points: number, answer: string, correct: boolean) {
+export function adminQuizQuestionUpdate (authUserId: number, questionBody) {
+  const data = getData();
+  const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
+  const question = data.questions.find(question => question[questionId] = questionBody.questionId);
+  if (!authUserId) {
+    return { error: 'invalid token' };
+  }
 
+  if (!quiz) {
+    return { error: 'quiz does not exist for this user' }
+  }
+  
+  if (!question) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  // Question string is less than 5 characters
+  if (question.length < 5) {
+    return { error: 'question is too short' };
+  }
+  // Question string is greater than 50 characters in length
+  if (question.length > 50) {
+    return { error: 'question is too long' };
+  }
+  // The question has more than 6 answers
+  if (question.answers.length > 6) {
+    return { error: 'question has too many answers' };
+  }
+  // The question has less than 2 answers
+  if (question.answers.length < 2) {
+    return { error: 'question does not have enough answers' };
+  }
+  // The question duration is not a positive number
+  if (question.duration < 0 || typeof(question.duration) !== number) {
+    return { error: 'duration is not a positive number' };
+  }
+  // The sum of the question durations in the quiz exceeds 3 minutes
+  if (question.duration > 180) {
+    return { error: 'total duration of quiz is too long' };
+  }
+  // The points awarded for the question are less than 1
+  if (question.points < 1 || typeof(question.points) !== number) {
+    return { error: 'points is not a positive number' };
+  }
+  // The points awarded for the question are greater than 10
+  if (question.points > 10) {
+    return { error: 'points awarded is too big' };
+  }
+  // The length of any answer is shorter than 1 character long
+  // in answers array there are 2 answers, we need to check every answer and check its length if its less than 1 or not
+  if (question.answers.some((answer) => answer.answer.length < 1)) {
+    return { error: 'answer is too short' };
+  }
+  // The length of any answer is longer than 30 characters long
+  if (question.answers.some((answer) => answer.answer.length > 30)) {
+    return { error: 'answer is too long' };
+  }
+  // Any answer strings are duplicates of one another (within the same question)
+  if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
+    return { error: 'question contains a duplicate answer' };
+  }
+  // There are no correct answers 
+  if (!question.answers.some(answer => answer.correct)) {
+    return { error: 'no correct answer for this question' };
+  }
+  
+  const questionBody = {
+    question: question.question,
+    duration: question.duration,
+    points: question.points,
+    answers: question.answers
+  }
+
+  quiz.questions.push(questionBody);
+  setData(data);
+  return {};
 }

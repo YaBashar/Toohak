@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetailsUpdate, adminUserPasswordUpdate } from './auth';
-import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
+import { adminQuizCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -222,10 +222,10 @@ app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
     return res.status(401).json(authUserId);
   }
 
-  const quizId = parseInt(quizid);
-  if (isNaN(quizId)) {
-    return res.status(403).json({ error: 'quiz does not exist for this user' });
-  }
+  // const quizId = parseInt(quizid);
+  // if (!quizId) {
+  //   return res.status(403).json({quizId});
+  // }
 
   if (!questions[questionid]) {
     return res.status(400).json({ questionid });
@@ -242,7 +242,7 @@ app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Respo
       return res.status(400).json(result);
     }
   }
-  return res.json(result);
+  return res.status(200).json(result);
 });
 
 

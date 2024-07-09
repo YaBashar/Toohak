@@ -19,7 +19,6 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
-import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
 
@@ -82,7 +81,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = createSessionId();
+  const sID = uniqueId(store.sessions);
 
   // creating token for sessions
   const session = {
@@ -91,6 +90,15 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   };
   store.sessions.push(session);
   return { token: sID.toString() };
+}
+
+// function to create a unique id everytime
+function uniqueId(sessArr: { sessionId: number }[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (sessArr.find(session => (session.sessionId === uId)));
+  return uId;
 }
 
 /** [2] adminAuthLogin
@@ -127,7 +135,7 @@ export function adminAuthLogin(email: string, password: string) {
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
 
-    const sID = createSessionId();
+    const sID = uniqueId(store.sessions);
 
     // creating token for session
     const session = {

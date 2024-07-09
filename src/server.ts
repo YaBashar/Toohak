@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionMove } from './quiz';
 
 // Set up web app
 const app = express();
@@ -267,6 +267,37 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
     } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Quiz does not exist') {
+      return res.status(403).json(result);
+    } else {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
+app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const { token, newPosition } = req.body;
+  const { quizid, questionid } = req.params;
+  const authUserId = getUserIdFromToken(token);
+
+  if (!authUserId) {
+    return res.status(401).json({ error: 'invalid token' });
+  }
+
+  const quizId = parseInt(quizid as string);
+  if (!quizId) {
+    return res.status(403).json({ error: 'quiz does not exist for this user' });
+  }
+
+  if (!questionid) {
+    return res.status(400).json({ error: 'question id does not exist in this quiz' });
+  }
+
+  const result = adminQuizQuestionMove(authUserId, newPosition);
+  if ('error' in result) {
+    if (result.error === 'invalid token') {
+      return res.status(401).json(result);
+    } else if (result.error === 'question id does not exist in this quiz') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);

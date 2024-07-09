@@ -93,6 +93,7 @@ export interface Quiz {
   quizId: number;
   name: string;
   description: string;
+  duration: number;
   timeCreated: number;
   timeLastEdited: number;
   numQuestions: number;
@@ -139,7 +140,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
     timeCreated: Math.round(Date.now() / 1000),
     timeLastEdited: Math.round(Date.now() / 1000),
     numQuestions: 0,
-    questions: Array,
+    questions: [Array],
     duration: 0,
     authUserId: authUserId,
   };
@@ -394,24 +395,22 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   } else {
     quiz.description = description;
     quiz.timeLastEdited = Math.round(Date.now() / 1000);
-    setData(store);``
+    setData(store);
 
     return {};
   }
 }
 
-export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): { error: string } | { questionId: number } {
+export function adminQuizQuestionCreate(authUserId: number | { error: string }, quizid: number, question: Question): { error: string } | { questionId: number } {
   const data = getData();
-  const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
-  // let authUserId = -1
-  // for (const session of data.sessions) {
-  //   if (Number(session.token) === token) {
-  //     authUserId = session.authUserId;
-  //     break;
-  //   }
-  // }
-  // if (authUserId === -1) return { error: 'Invalid user id' }
+  const quizArr = data.quizzes;
+  const userArr = data.users;
+  const quiz = quizArr.find((q) => q.quizId === quizid);
+  const user = userArr.find((user) => user.authUserId === authUserId);
 
+  if (!user) {
+    return { error: 'Invalid Token' }
+  }
   // Question string is less than 5 characters
   if (question.question.length < 5) {
     return { error: 'Question is less than 5 characters' };
@@ -463,21 +462,22 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   }
   // test to check quiz Id does not refer to a valid quiz
   if (!quiz) {
-    return { error: 'Invalid quiz Id entered' };
+    return { error: 'Quiz does not exist' };
   }
   // test to check if quiz ID does not refer to a quiz that this user owns
-
-  // if (quiz.authUserId !== authUserId) {
-  //   return { error: 'Quiz Id not owned by the user' };
-  // }
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+  
+  const id = uniqueId(quiz.questions);
+  console.log(id);
   const questionBody = {
+    questionId: id,
     question: question.question,
     duration: question.duration,
     points: question.points,
     answers: question.answers
   }
-  const id = uniqueId(quiz.questions);
-  question.questionId = id;
   quiz.questions.push(questionBody);
   setData(data);
   return { questionId: id };

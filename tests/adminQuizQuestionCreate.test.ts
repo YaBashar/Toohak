@@ -28,7 +28,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
 	beforeEach(() => {
 		const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh'}});
     token1 = JSON.parse(uid1.body.toString()).token;
-		quizid = createQuiz(token1, 'quizName', 'description').quizid;
+		quizid = createQuiz(token1, 'quizName', 'description').quizId;
 
     const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson'}});  
     token2 = JSON.parse(uid2.body.toString()).token;

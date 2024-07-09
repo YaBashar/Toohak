@@ -145,22 +145,19 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
 });
 
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
-  // console.log(req.body);
-
   const { token, questionBody } = req.body;
   const quizid = parseInt(req.params.quizid as string);  
-  // console.log(quizid);
-
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'Invalid token' }); 
   }
-  const result = adminQuizQuestionCreate(token, quizid, questionBody);
+
+  const result = adminQuizQuestionCreate(authUserId, quizid, questionBody);
   if ('error' in result) {
-    if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid quiz Id entered') {
-      return res.status(403).json(result);
-    } else if (result.error === 'Invalid user id') {
+    if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Quiz does not exist') {
+      return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
     }

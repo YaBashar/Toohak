@@ -158,7 +158,7 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
 app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
   const { token, question, duration, } = req.body;
   const { quizId } = req.params;
-
+  
 });
 
 // ====================================================================

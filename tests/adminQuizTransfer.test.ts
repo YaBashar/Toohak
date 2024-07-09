@@ -1,6 +1,7 @@
 import request from 'sync-request-curl';
 import { port, url } from '../src/config.json';
 import { getData } from '../src/dataStore';
+import { adminQuizTransfer } from '../src/quiz';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -127,6 +128,10 @@ describe('adminQuizTransfer Tests', () => {
       });
 
       // check that function returns empty object
+      test('Check that function returns empty object', () => {
+        const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+        expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({});
+      });
     });
   });
 });

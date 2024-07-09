@@ -399,7 +399,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not belong to logged in user' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist for this user' });
     expect(res.statusCode).toBe(403);
   });
 
@@ -419,7 +419,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist for this user' });
     expect(res.statusCode).toBe(403);
   });
 

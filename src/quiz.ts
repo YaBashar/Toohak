@@ -399,3 +399,7 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
     return {};
   }
 }
+
+export function adminQuizQuestionUpdate (authUserId: number, quizid: number, questionid: number, duration: number, points: number, answer: string, correct: boolean) {
+
+}

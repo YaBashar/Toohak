@@ -332,7 +332,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-	test('Points is a string', () => {
+	test('Too many points', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -352,6 +352,86 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
+	test('Answer is too short', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
+      json: {
+        token,
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 3,
+          answers: [
+            { answer: 'Prince William', correct: false },
+            { answer: 'Prince Charles', correct: true },
+            { answer: '', correct: false }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'answer is too short' });
+    expect(res.statusCode).toBe(400);
+  });
+
+	test('Answer is too long', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
+      json: {
+        token,
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 3,
+          answers: [
+            { answer: 'Prince William', correct: false },
+            { answer: 'Prince Charles', correct: true },
+            { answer: 'Prince Beckham is the current reigning Monarch of England', correct: false }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'answer is too long' });
+    expect(res.statusCode).toBe(400);
+  });
+
+	test('duplicate answer', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
+      json: {
+        token,
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 3,
+          answers: [
+            { answer: 'Prince William', correct: false },
+            { answer: 'Prince Charles', correct: true },
+            { answer: 'Prince William', correct: false }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question contains a duplicate answer' });
+    expect(res.statusCode).toBe(400);
+  });
+
+	test('no correct answer', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
+      json: {
+        token,
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 3,
+          answers: [
+            { answer: 'Prince William', correct: false },
+            { answer: 'Prince Charles', correct: false },
+            { answer: 'Prince William', correct: false }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'no correct answer for this question' });
+    expect(res.statusCode).toBe(400);
+  });
+
   test('empty token', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
@@ -368,7 +448,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'empty token' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
     expect(res.statusCode).toBe(401);
   });
 

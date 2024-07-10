@@ -10,7 +10,7 @@ let data = {
   ],
 
   trash: [
-    
+
   ]
 };
 

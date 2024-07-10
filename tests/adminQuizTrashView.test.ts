@@ -9,26 +9,22 @@ beforeEach(() => {
 });
 
 describe('Testing error cases', () => {
-
   test('Token is empty', () => {
     const res = requestViewTrash('');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid'});
+    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
     expect(res.statusCode).toStrictEqual(401);
-
   });
 
   test('Token is invalid', () => {
     const res = requestViewTrash('invalid token');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid'});
+    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
     expect(res.statusCode).toStrictEqual(401);
   });
-
 });
-
 
 describe('Testing success cases', () => {
   let token: string, quizId: number;
@@ -36,15 +32,15 @@ describe('Testing success cases', () => {
   beforeEach(() => {
     token = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
     quizId = requestCreateQuiz(token, 'valid_name', 'valid_description');
-  })
+  });
 
   test('Views empty trash', () => {
     const res = requestViewTrash(token);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({quizzes: []});
+    expect(data).toStrictEqual({ quizzes: [] });
     expect(res.statusCode).toStrictEqual(200);
-  })
+  });
 
   test('Views non-empty trash', () => {
     requestQuizDelete(token, quizId);
@@ -52,24 +48,24 @@ describe('Testing success cases', () => {
     const res = requestViewTrash(token);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ quizzes: [
-      {
-        quizId: quizId,
-        name: 'valid_name'
-      }
-    ]});
+    expect(data).toStrictEqual({
+      quizzes: [
+        {
+          quizId: quizId,
+          name: 'valid_name'
+        }
+      ]
+    });
 
     expect(res.statusCode).toStrictEqual(200);
-  })
-
-})
-
+  });
+});
 
 const requestViewTrash = (token: string) => {
   return (request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
     qs: { token: token }, timeout: TIMEOUT_MS
   }));
-}
+};
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const user = (request('POST', SERVER_URL + '/v1/admin/auth/register', {

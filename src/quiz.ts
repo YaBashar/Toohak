@@ -536,7 +536,6 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   return { questionId: id };
 }
 
-
 /** [8] adminQuizTrashView.test.ts
   *
   * Returns list of quizzes in trash with basic info
@@ -544,12 +543,11 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
 */
 
 export function adminQuizTrashView(token: string) {
-
   const store = getData();
   const trash = store.trash;
   const result = [];
 
-  for (let item of trash){
+  for (const item of trash) {
     result.push({
       quizId: item.quizId,
       name: item.name,

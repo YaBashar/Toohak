@@ -75,8 +75,8 @@ beforeEach(() => {
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
-  test.only('Question id does not exist', () => {
-    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id + 1}`, {
+  test('Question id does not exist', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${55}`, {
       json: {
         token,
         questionBody: {
@@ -271,6 +271,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
+		console.log(res.body.toString());
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'total duration of quiz is too long' });
     expect(res.statusCode).toBe(400);
   });

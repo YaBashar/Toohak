@@ -41,7 +41,6 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-
 export function adminQuizList(authUserId: number | { error: string}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
@@ -306,7 +305,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId:number | { error: string }, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId: number | { error: string}, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -315,10 +314,10 @@ export function adminQuizNameUpdate(authUserId:number | { error: string }, quizI
   const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === authUserId);
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
 
-  if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!user) {
+  if (!user) {
     return { error: 'Invalid User id' };
+  } else if (!quiz) {
+    return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   } else if (findName) {
@@ -399,6 +398,58 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
 
     return {};
   }
+}
+
+/** [7] adminQuizTransfer
+  *
+  * Transfers ownership of quiz to a different user
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} userEmail - a string containing the emaill of user
+  * ...
+  * @returns {} - empty object if successful
+  *
+*/
+
+export function adminQuizTransfer(authUserId: number | { error: string}, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  }
+
+  const quiz = store.quizzes[findQuiz];
+
+  const user = userArr.find(user => user.authUserId === authUserId);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
+
+  const targetUser = store.users.find(user => user.email === userEmail);
+  if (!targetUser) {
+    return { error: 'Target user email is not a real user' };
+  }
+  const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.authUserId === targetUser.authUserId)));
+
+  if (!user) {
+    return { error: 'Invalid User id' };
+  } else if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  } else if (user.authUserId === targetUser.authUserId) {
+    return { error: 'Target user email is the same as currently logged in user' };
+  } else if (isQuizExists) {
+    return { error: 'Quiz name already in use by target user' };
+  }
+
+  // Change the quiz authuser id so it has the authuser id of the new owner
+  quiz.authUserId = targetUser.authUserId;
+  return {};
 }
 
 export function adminQuizQuestionCreate(authUserId: number | { error: string }, quizid: number, question: Question): { error: string } | { questionId: number } {
@@ -484,81 +535,184 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   return { questionId: id };
 }
 
-export function adminQuizQuestionUpdate (authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, questionBody) {
+export function adminQuizQuestionUpdate (authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, 
+  questionBody: 
+    { 
+      question: string,
+      duration: number,
+      points: number,
+      answers:  
+      [
+        answer: string,
+        correct: boolean
+      ]
+    }
+) {
+
   const data = getData();
-  const quiz = data.quizzes.find((quiz) => quiz.quizid === quizid);
-  const question = data.questions.find(question => question[questionId] = questionBody.questionId);
-  if (!authUserId) {
+  const user = data.users.find(user => user.authUserId === authUserId);
+
+  if (!user) {
     return { error: 'invalid token' };
   }
+
+  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+
+  if (quizIndex === -1) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  const quiz = data.quizzes[quizIndex];
 
   if (!quiz) {
     return { error: 'quiz does not exist for this user' };
   }
+
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  if (!doesQuestionExistInQuiz(quiz, questionId)) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  const question = quiz.questions.find(question => question.questionId === questionId);
 
   if (!question) {
     return { error: 'question id does not exist in this quiz' };
   }
 
   // Question string is less than 5 characters
-  if (question.length < 5) {
+  if (questionBody.question.length < 5) {
     return { error: 'question is too short' };
   }
   // Question string is greater than 50 characters in length
-  if (question.length > 50) {
+  if (questionBody.question.length > 50) {
     return { error: 'question is too long' };
   }
   // The question has more than 6 answers
-  if (question.answers.length > 6) {
+  if (questionBody.answers.length > 6) {
     return { error: 'question has too many answers' };
   }
   // The question has less than 2 answers
-  if (question.answers.length < 2) {
+  if (questionBody.answers.length < 2) {
     return { error: 'question does not have enough answers' };
   }
   // The question duration is not a positive number
-  if (question.duration < 0 || typeof (question.duration) !== 'number') {
+  if (questionBody.duration < 0 || typeof (questionBody.duration) !== 'number') {
     return { error: 'duration is not a positive number' };
   }
+
+  let duration = 0;
+
+  // Iterate over the questions array to sum up the durations
+  for (let i = 0; i < questions.length; i++) {
+    duration += questions[i].duration;
+  }
+
+  // Subtract the duration of the question being updated
+  duration -= question.duration;
+
+  // Add the new duration from the questionBody
+  duration += questionBody.duration;
+
   // The sum of the question durations in the quiz exceeds 3 minutes
-  if (question.duration > 180) {
+  if (duration > 180) {
     return { error: 'total duration of quiz is too long' };
   }
   // The points awarded for the question are less than 1
-  if (question.points < 1 || typeof (question.points) !== 'number') {
+  if (questionBody.points < 1 || typeof (questionBody.points) !== 'number') {
     return { error: 'points is not a positive number' };
   }
   // The points awarded for the question are greater than 10
-  if (question.points > 10) {
+  if (questionBody.points > 10) {
     return { error: 'points awarded is too big' };
   }
   // The length of any answer is shorter than 1 character long
   // in answers array there are 2 answers, we need to check every answer and check its length if its less than 1 or not
-  if (question.answers.some((answer) => answer.answer.length < 1)) {
+  if (questionBody.answers.some((answer) => answer.answer.length < 1)) {
     return { error: 'answer is too short' };
   }
   // The length of any answer is longer than 30 characters long
-  if (question.answers.some((answer) => answer.answer.length > 30)) {
+  if (questionBody.answers.some((answer) => answer.answer.length > 30)) {
     return { error: 'answer is too long' };
   }
   // Any answer strings are duplicates of one another (within the same question)
-  if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
+  if (questionBody.answers.some((answer) => questionBody.answers.filter((a) => a.answer === answer.answer).length > 1)) {
     return { error: 'question contains a duplicate answer' };
   }
   // There are no correct answers
-  if (!question.answers.some(answer => answer.correct)) {
+  if (!questionBody.answers.some(answer => answer.correct)) {
     return { error: 'no correct answer for this question' };
   }
 
   questionBody = {
-    question: question.question,
-    duration: question.duration,
-    points: question.points,
-    answers: question.answers
+    question: questionBody.question,
+    duration: questionBody.duration,
+    points: questionBody.points,
+    answers: questionBody.answers
   };
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
-  quiz.questions.push(questionBody);
+  quiz.questions[questionId] = questionBody;
   setData(data);
   return {};
+}
+
+export function adminQuizQuestionMove(authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, newPosition: number) {
+  const data = getData();
+  const user = data.users.find(user => user.authUserId === authUserId);
+
+  if (!user) {
+    return { error: 'invalid token' };
+  }
+
+  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+
+  if (quizIndex === -1) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  const quiz = data.quizzes[quizIndex];
+
+  if (!quiz) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  if (!doesQuestionExistInQuiz(quiz, questionId)) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  const question = quiz.questions.find(question => question.questionId === questionId);
+
+  if (!question) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  if (newPosition < 0) {
+    return { error: 'position value is less than zero' };
+  }
+
+  if (newPosition === quiz.questions.indexOf(question)) {
+    return { error: 'new position is current position' };
+  }
+
+  if (newPosition > quiz.questions.length - 1) {
+    return { error: 'new position is too big' };
+  }
+
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.questions.splice(quiz.questions.indexOf(question), 1);
+  quiz.questions.splice(newPosition, 0, question);
+  setData(data);
+  return {};
+}
+
+// Helper function to check if a question exists in the quiz
+function doesQuestionExistInQuiz(quiz, questionId) {
+  return quiz.questions.some(question => question.questionId === questionId);
 }

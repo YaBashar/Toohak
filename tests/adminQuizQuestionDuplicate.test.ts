@@ -65,34 +65,30 @@ describe('adminQuizQuestionDuplicate Tests', () => {
         }).questionId;
     });
 
-    test('Transfer of a Quiz with invalid Authuser id', () => {
+    test('Duplicating of a Quiz with invalid Authuser id', () => {
       const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token: 'Invalid_token' }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: 'Invalid user id' });
+      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: 'Invalid User id' });
       expect(duplicateQuiz.statusCode).toStrictEqual(401);
     });
 
-    test('Transferring Quiz which does not exist ', () => {
+    test('Duplicating Question when Quiz does not exist ', () => {
       const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
-      expect(duplicateQuiz).toStrictEqual({ error: expect.any(String) });
+      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(duplicateQuiz.statusCode).toStrictEqual(403);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const user2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
-      const token2 = JSON.parse(user2.body.toString()).token;
-      const quizId2 = createQuiz(token2, 'quizName', 'description').quizId;
-      const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId2}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
-
+      const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
       expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(duplicateQuiz.statusCode).toStrictEqual(403);
     });
 
     test('Question Id does not refer to a valid question within this quiz', () => {
-      const user2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
+      const user2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'mubashir@unsw.edu.au', password: '124ADCabc@#$', nameFirst: 'mubashir', nameLast: 'hussain' }, timeout: TIMEOUT_MS });
       const token2 = JSON.parse(user2.body.toString()).token;
       const quizId2 = createQuiz(token2, 'quizName', 'description').quizId;
 
-      const questionId2 = createQuizQuestion(token, quizId2, {
+      const questionId2 = createQuizQuestion(token2, quizId2, {
         question: 'Who is the Monarch of England?',
         duration: 4,
         points: 5,
@@ -111,8 +107,8 @@ describe('adminQuizQuestionDuplicate Tests', () => {
           }
         ]
       }).questionId;
-      const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId2}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
 
+      const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId2}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
       expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(duplicateQuiz.statusCode).toStrictEqual(400);
     });
@@ -150,7 +146,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
         }).questionId;
     });
 
-    test('success duplicating quiz question through QuizInfo', () => {
+    test.only('success duplicating quiz question through QuizInfo', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
@@ -161,11 +157,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
           timeLastEdited: expect.any(Number),
           description: 'description',
           numQuestions: expect.any(Number),
-          // Questions array
-          questions:
-          [
-            // Question to be duplicated
-            // Question 1
+          questions: [
             {
               questionId: questionId,
               question: 'Who is the Monarch of England?',
@@ -186,8 +178,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
                 }
               ]
             },
-            // Duplicated Question
-            // Question 2
             {
               questionId: expect.any(Number),
               question: 'Who is the Monarch of England?',
@@ -216,7 +206,8 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     test('successfully returns new Question id', () => {
       const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual(expect.any(Number));
+      console.log(duplicateQuiz.body.toString());
+      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ questionId: expect.any(Number) });
     });
   });
 });

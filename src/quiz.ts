@@ -532,3 +532,68 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   setData(data);
   return { questionId: id };
 }
+
+/** [9] adminQuizQuestion Duplicate
+  *
+  * Duplicates a question within the same Quiz
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} questionId - Id number representing a unique
+  *                              identifier for the quiz question
+  * ...
+  * @returns {number} newQuestionId - a new Question id for the duplicated question to differentiate it
+  *
+*/
+
+export function adminQuizQuestionDuplicate(authUserId : number | {error : string}, quizId: number, questionId: number) {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const user = userArr.find(user => user.authUserId === authUserId);
+  if (!user) {
+    return { error: 'Invalid User id' };
+  }
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
+  console.log('line 561', quizUser);
+  if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  }
+  const quiz = store.quizzes[findQuiz];
+
+  const findQuestion = store.quizzes[findQuiz].questions.findIndex(question => question.questionId === questionId);
+  if (findQuestion === -1) {
+    return { error: 'Question id does not refer to valid question in quiz' };
+  }
+  console.log('finding Question line 576', findQuestion);
+
+  const question = quizArr[findQuiz].questions[findQuestion];
+  console.log('Question object:', question);
+  const newQuestionId = uniqueId(quiz.questions);
+
+  const duplicatedQuestion = {
+    questionId: newQuestionId,
+    question: question.question,
+    duration: question.duration,
+    points: question.points,
+    answers: [
+      {
+        answerId: question.answerId,
+        answer: question.answer,
+        colour: question.colour,
+        correct: question.correct
+      }
+    ]
+  };
+  quiz.questions.push(duplicatedQuestion);
+  setData(store);
+  return { questionId: newQuestionId };
+}

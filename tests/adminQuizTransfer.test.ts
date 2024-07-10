@@ -51,9 +51,6 @@ describe('adminQuizTransfer Tests', () => {
     test('Transferring Quiz which does not exist ', () => {
       const res = requestQuizTransfer(123, sourceToken, 'targetuser@unsw.edu.au');
       const data = JSON.parse(res.body.toString());
-
-      console.log(data);
-
       expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(403);
     });

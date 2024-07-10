@@ -37,6 +37,8 @@ export function clear () {
 
   store.users = [];
   store.quizzes = [];
+  store.sessions = [];
+  store.trash = [];
 
   setData(store);
   return {};

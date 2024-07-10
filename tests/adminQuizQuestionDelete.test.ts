@@ -11,14 +11,22 @@ beforeEach(() => {
 describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 	let token1: string;
 	let token2: string;
-	let qid: { quizId: number, questionId: number};
-	let q2id: { quizId: number, questionId: number};
-
+	let qid: { questionId: number};
+	let q2id: { questionId: number};
+	let quizId: number
+	let quizId2: number
+	
+	
 	beforeEach(() => {
+		// logging in user 1
 		const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
 		token1 = JSON.parse(uid1.body.toString()).token;
 
-		let response = request('POST' ,SERVER_URL + '/v1/admin/quiz/:quizid/question', {  json: {
+		// getting the quiz id for 1st user
+		let quizResponse = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token1, name: 'quiz1', description: 'quiz1 description' } });
+		quizId = JSON.parse(quizResponse.body.toString()).quizId;
+		
+		let questionResponse = request('POST' ,`${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {  json: {
 			token: token1,
 			questionBody: {
 				question: 'Who is the Monarch of England?',
@@ -36,11 +44,17 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 				]
 			}
 		}});
-		qid = JSON.parse(response.body.toString());
-
+		qid = JSON.parse(questionResponse.body.toString());
+		
+		// logging in user 2
 		const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson' } });
     token2 = JSON.parse(uid2.body.toString()).token;
-		response = request('POST' ,SERVER_URL + '/v1/admin/quiz/:quizid/question', {  json: {
+		
+		// getting the quiz id for 2nd user
+		quizResponse = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token2, name: 'quiz2', description: 'quiz2 description' } });
+		quizId2 = JSON.parse(quizResponse.body.toString()).quizId2;
+		
+		questionResponse = request('POST' ,`${SERVER_URL}/v1/admin/quiz/${quizId2}/question`, {  json: {
 			token: token2,
 			questionBody: {
 				question: 'Who is the Monarch?',
@@ -58,15 +72,15 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 				]
 			}
 		}});
-		q2id = JSON.parse(response.body.toString());
+		q2id = JSON.parse(questionResponse.body.toString());
 	});
 
 	// test to check if token is invalid
 	test('Token is invalid', () => {
-		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}/question/${qid.questionId}`, {
+		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
 			qs: {
 				token: 'invalidAuthUserId',
-				quizid: qid.quizId,
+				quizid: quizId,
 				questionid: qid.questionId,
 			},
 			timeout: TIMEOUT_MS
@@ -77,10 +91,10 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 
 	// test to check if token is empty
 	test('Token is empty', () => {
-		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}/question/${qid.questionId}`, {
+		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
 			qs: {
 				token: '',
-				quizid: qid.quizId,
+				quizid: quizId,
 				questionid: qid.questionId,
 			},
 			timeout: TIMEOUT_MS
@@ -91,10 +105,10 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 
 	// test to check quiz Id does not refer to a valid quiz
 	test('Quiz Id does not refer to a valid quiz', () => {
-		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId + 1}/question/${qid.questionId}`, {
+		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId + 1902303920}/question/${qid.questionId}`, {
 			qs: {
 				token: token1,
-				quizid: qid.quizId + 1,
+				quizid: quizId + 1,
 				questionid: qid.questionId,
 			},
 			timeout: TIMEOUT_MS
@@ -105,10 +119,10 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 
 	// test to check if quiz ID does not refer to a quiz that this user owns
 	test('Quiz ID does not refer to a quiz that this user owns', () => {
-		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${q2id.quizId}/question/${q2id.questionId}`, {
+		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId2}/question/${q2id.questionId}`, {
 			qs: {
 				token: token1,
-				quizid: qid.quizId,
+				quizid: quizId,
 				questionid: qid.questionId,
 			},
 			timeout: TIMEOUT_MS
@@ -119,10 +133,10 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 
 	// Question Id does not refer to a valid question within this quiz
 	test('Question Id does not refer to a valid question within this quiz', () => {
-		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}/question/${qid.questionId + 1}`, {
+		const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId + 1}`, {
 			qs: {
 				token: token1,
-				quizid: qid.quizId,
+				quizid: quizId,
 				questionid: qid.questionId + 1,
 			},
 			timeout: TIMEOUT_MS
@@ -133,11 +147,10 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid' ,() => {
 
 	// test to check if the question is removed from the list of questions
 	test('Question is removed from the list of questions', () => {
-		// we cant check the list of quizes later to check if we've deleted the question or not so use other approach
-		let res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}/question/${qid.questionId}`, {
+		let res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
 			qs: {
 				token: token1,
-				quizid: qid.quizId,
+				quizid: quizId,
 				questionid: qid.questionId,
 			},
 			timeout: TIMEOUT_MS

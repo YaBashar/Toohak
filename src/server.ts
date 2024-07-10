@@ -174,6 +174,19 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
+// adminQuizTrashView
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const check = getUserIdFromToken(token);
+
+  if (typeof check !== 'number') {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+
+  const result = adminQuizTrashView(token);
+  return res.json(result);
+});
+
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
@@ -283,19 +296,6 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   }
 
   res.json(result);
-});
-
-// adminQuizTrashView
-app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const check = getUserIdFromToken(token);
-
-  if (typeof check !== 'number') {
-    return res.status(401).json({ error: 'Token is empty or invalid' });
-  }
-
-  const result = adminQuizTrashView(token);
-  return res.json(result);
 });
 
 // adminQuizQuestionCreate

@@ -12,8 +12,8 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizTrashView, adminQuizQuestionMove } from './quiz';
-import { adminQuizQuestionDelete } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate } from './quiz';
+
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -251,6 +251,38 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   res.json(quizNameUpdate);
 });
 
+app.put('/v1/admin/quiz/:quizId/question/:questionId', (req: Request, res: Response) => {
+  const { token, questionBody } = req.body;
+  const quizId = parseInt(req.params.quizId as string);
+  const questionId = parseInt(req.params.questionId as string);
+  const authUserId = getUserIdFromToken(token);
+
+  if (!authUserId) {
+    return res.status(401).json({ error: 'invalid token' });
+  }
+
+  if (!quizId) {
+    return res.status(403).json({ error: 'quiz does not exist for this user' });
+  }
+
+  if (!questionId) {
+    return res.status(400).json({ error: 'question id does not exist in this quiz' });
+  }
+
+  const result = adminQuizQuestionUpdate(authUserId, quizId, questionId, questionBody);
+
+  if ('error' in result) {
+    if (result.error === 'quiz does not exist for this user') {
+      return res.status(403).json(result);
+    } else if (result.error === 'invalid token' || result.error === 'empty token') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   const { token } = req.body;
   const result = adminAuthLogout(token);
@@ -305,7 +337,8 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json({ error: 'Invalid token' });
-  } 
+  }
+
   const result = adminQuizQuestionCreate(authUserId, quizid, questionBody);
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
@@ -376,7 +409,6 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.status(200).json(quizInfo);
 });
 
-
 // adminQuizQuestionDelete
 app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
   const token = req.query.token as string;
@@ -399,8 +431,6 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   }
   return res.status(200).json(result);
 });
-
-
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

@@ -536,6 +536,7 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   return { questionId: id };
 }
 
+
 /** [8] adminQuizTrashView.test.ts
   *
   * Returns list of quizzes in trash with basic info
@@ -555,4 +556,62 @@ export function adminQuizTrashView(token: string) {
   }
 
   return ({ quizzes: result });
+}
+
+export function adminQuizQuestionMove(authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, newPosition: number) {
+  const data = getData();
+  const user = data.users.find(user => user.authUserId === authUserId);
+
+  if (!user) {
+    return { error: 'invalid token' };
+  }
+
+  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+
+  if (quizIndex === -1) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  const quiz = data.quizzes[quizIndex];
+
+  if (!quiz) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  if (!doesQuestionExistInQuiz(quiz, questionId)) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  const question = quiz.questions.find(question => question.questionId === questionId);
+
+  if (!question) {
+    return { error: 'question id does not exist in this quiz' };
+  }
+
+  if (newPosition < 0) {
+    return { error: 'position value is less than zero' };
+  }
+
+  if (newPosition === quiz.questions.indexOf(question)) {
+    return { error: 'new position is current position' };
+  }
+
+  if (newPosition > quiz.questions.length - 1) {
+    return { error: 'new position is too big' };
+  }
+
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.questions.splice(quiz.questions.indexOf(question), 1);
+  quiz.questions.splice(newPosition, 0, question);
+  setData(data);
+  return {};
+}
+
+// Helper function to check if a question exists in the quiz
+function doesQuestionExistInQuiz(quiz, questionId) {
+  return quiz.questions.some(question => question.questionId === questionId);
 }

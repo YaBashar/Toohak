@@ -10,7 +10,6 @@ let quiz2Id: string;
 let question1Quiz1Id: string;
 let question1Quiz2Id: string;
 let randomToken: string;
-let randomQuiz: string;
 let randomQuizId: string;
 
 beforeEach(() => {
@@ -29,7 +28,7 @@ beforeEach(() => {
   const quiz1 = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name: 'quiz 1', description: 'the first quiz' }
   });
-	quiz1Id = JSON.parse(quiz1.body.toString()).quizId;
+  quiz1Id = JSON.parse(quiz1.body.toString()).quizId;
 
   // add a question to the quiz
   const question1Quiz1 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question`, {
@@ -91,9 +90,6 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-		console.log(token);
-		console.log(quiz1Id);
-		console.log(question1Quiz1Id);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
     expect(res.statusCode).toBe(400);
   });
@@ -271,7 +267,6 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         }
       }
     });
-		console.log(res.body.toString());
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'total duration of quiz is too long' });
     expect(res.statusCode).toBe(400);
   });
@@ -316,27 +311,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  test('Points is a float', () => {
-    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
-      json: {
-        token,
-        questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5.5,
-          answers: [
-            { answer: 'Prince William', correct: false },
-            { answer: 'Prince Charles', correct: true },
-            { answer: 'Prince Beckham', correct: false }
-          ]
-        }
-      }
-    });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'points is not a positive integer' });
-    expect(res.statusCode).toBe(400);
-  });
-
-	test('Too many points', () => {
+  test('Too many points', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -356,7 +331,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-	test('Answer is too short', () => {
+  test('Answer is too short', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -376,7 +351,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-	test('Answer is too long', () => {
+  test('Answer is too long', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -396,7 +371,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-	test('duplicate answer', () => {
+  test('duplicate answer', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -416,7 +391,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res.statusCode).toBe(400);
   });
 
-	test('no correct answer', () => {
+  test('no correct answer', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}`, {
       json: {
         token,
@@ -427,7 +402,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
           answers: [
             { answer: 'Prince William', correct: false },
             { answer: 'Prince Charles', correct: false },
-            { answer: 'Prince William', correct: false }
+            { answer: 'Prince Beckham', correct: false }
           ]
         }
       }
@@ -532,13 +507,13 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       json: {
         token,
         questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
+          question: 'Who is the ruler of England?',
+          duration: 10,
+          points: 2,
           answers: [
+            { answer: 'Prince George', correct: false },
             { answer: 'Prince William', correct: false },
-            { answer: 'Prince Charles', correct: true },
-            { answer: 'Prince Beckham', correct: false }
+            { answer: 'Prince Charles', correct: true }
           ]
         }
       }

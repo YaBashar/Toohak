@@ -559,20 +559,19 @@ export function adminQuizTrashView(token: string) {
   return ({ quizzes: result });
 }
 
-export function adminQuizQuestionUpdate (authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, 
-  questionBody: 
-    { 
+export function adminQuizQuestionUpdate (authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string },
+  questionBody:
+    {
       question: string,
       duration: number,
       points: number,
-      answers:  
+      answers:
       [
         answer: string,
         correct: boolean
       ]
     }
 ) {
-
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -601,6 +600,7 @@ export function adminQuizQuestionUpdate (authUserId: number | { error: string },
   }
 
   const question = quiz.questions.find(question => question.questionId === questionId);
+  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
 
   if (!question) {
     return { error: 'question id does not exist in this quiz' };
@@ -630,8 +630,8 @@ export function adminQuizQuestionUpdate (authUserId: number | { error: string },
   let duration = 0;
 
   // Iterate over the questions array to sum up the durations
-  for (let i = 0; i < questions.length; i++) {
-    duration += questions[i].duration;
+  for (let i = 1; i < quiz.questions.length; i++) {
+    duration += quiz.questions[i].duration;
   }
 
   // Subtract the duration of the question being updated
@@ -678,7 +678,7 @@ export function adminQuizQuestionUpdate (authUserId: number | { error: string },
   };
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
-  quiz.questions[questionId] = questionBody;
+  quiz.questions[questionIndex] = questionBody;
   setData(data);
   return {};
 }

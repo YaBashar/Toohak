@@ -543,11 +543,10 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   *
 */
 
-export function adminQuizTrashView() {
+export function adminQuizTrashView(token: string) {
 
   const store = getData();
   const trash = store.trash;
-
   const result = [];
 
   for (let item of trash){

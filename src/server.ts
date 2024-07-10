@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizTrashView } from './quiz';
 
 // Set up web app
 const app = express();
@@ -104,23 +104,6 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-app.post('/v1/admin/quiz', (req: Request, res: Response) => {
-  const { token, name, description } = req.body;
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json(authUserId);
-  }
-  const result = adminQuizCreate(authUserId, name, description);
-  if ('error' in result) {
-    if (result.error === 'UserId doesn\'t exist') {
-      return res.status(401).json(result);
-    } else if ('error' in result) {
-      return res.status(400).json(result);
-    }
-  }
-  return res.json(result);
-});
-
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizid = parseInt(req.params.quizid as string);
   const token = req.query.token as string;
@@ -194,25 +177,6 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizId = parseInt(req.params.quizid as string);
-
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
-  }
-  const quizInfo = adminQuizInfo(authUserId, quizId);
-
-  if ('error' in quizInfo) {
-    if (quizInfo.error === 'Invalid User id') {
-      return res.status(401).json(quizInfo);
-    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
-      return res.status(403).json(quizInfo);
-    }
-  }
-  res.status(200).json(quizInfo);
-});
 
 // adminQuizNameUpdate server route
 app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
@@ -311,6 +275,58 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
+
+// adminQuizTrashView
+
+app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const check = getUserIdFromToken(token);
+
+  if(typeof check !== 'number') {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+
+  const result = adminQuizTrashView(token);
+  return res.json(result);
+})
+
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
+  const quizInfo = adminQuizInfo(authUserId, quizId);
+
+  if ('error' in quizInfo) {
+    if (quizInfo.error === 'Invalid User id') {
+      return res.status(401).json(quizInfo);
+    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+      return res.status(403).json(quizInfo);
+    }
+  }
+  res.status(200).json(quizInfo);
+});
+
+app.post('/v1/admin/quiz', (req: Request, res: Response) => {
+  const { token, name, description } = req.body;
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+  const result = adminQuizCreate(authUserId, name, description);
+  if ('error' in result) {
+    if (result.error === 'UserId doesn\'t exist') {
+      return res.status(401).json(result);
+    } else if ('error' in result) {
+      return res.status(400).json(result);
+    }
+  }
+  return res.json(result);
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

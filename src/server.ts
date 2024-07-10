@@ -13,7 +13,7 @@ import { adminQuizNameUpdate } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo } from './quiz';
-
+import { adminQuizQuestionDelete } from './quiz';
 // Set up web app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -260,8 +260,7 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json({ error: 'Invalid token' });
-  }
-
+  } 
   const result = adminQuizQuestionCreate(authUserId, quizid, questionBody);
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
@@ -274,6 +273,34 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
+
+// adminQuizQuestionDelete
+app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  const result = adminQuizQuestionDelete(authUserId, quizId, questionId);
+  if ('error' in result) {
+    if (result.error === 'Invalid Token') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz Id entered') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Question Id does not refer to a valid question within this quiz') {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
+
+
+
+
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

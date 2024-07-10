@@ -481,3 +481,30 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   setData(data);
   return { questionId: id };
 }
+
+
+export function adminQuizQuestionDelete(authUserId: number | { error: string }, quizId: number, questionId: number): Record<string, never> | { error: string } {
+  const store = getData();
+  const quizArr = store.quizzes;
+  const userArr = store.users;
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  const user = userArr.find((user) => user.authUserId === authUserId);
+
+  if (!user) {
+    return { error: 'Invalid Token' };
+  }
+  if (!quiz) {
+    return { error: 'Invalid Quiz Id' };
+  }
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+  const question = quiz.questions.find((question: Question) => question.questionId === questionId);
+  if (!question) {
+    return { error: 'Invalid Question Id' };
+  }
+  const index = quiz.questions.indexOf(question);
+  quiz.questions.splice(index, 1);
+  setData(store);
+  return {};
+}

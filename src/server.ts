@@ -89,7 +89,6 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
@@ -103,7 +102,6 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
-
 
 // adminQuizTrashView
 app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
@@ -137,8 +135,6 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   }
   res.status(200).json(quizInfo);
 });
-
-
 
 app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
   const { token, newPosition } = req.body;
@@ -267,7 +263,6 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-
 // adminQuizTransfer server route
 app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
@@ -304,7 +299,6 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   res.json(result);
 });
 
-
 // adminQuizQuestionCreate
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { token, questionBody } = req.body;
@@ -326,7 +320,6 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
-
 
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
@@ -363,7 +356,6 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

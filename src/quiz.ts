@@ -536,7 +536,6 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   return { questionId: id };
 }
 
-
 /** [8] adminQuizTrashView.test.ts
   *
   * Returns list of quizzes in trash with basic info

@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizTrashView, adminQuizQuestionMove  } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizTrashView, adminQuizQuestionMove } from './quiz';
 
 // Set up web app
 const app = express();
@@ -188,7 +188,6 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-
 // My PUT route for updating quiz description
 app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const { token, description } = req.body;
@@ -358,8 +357,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   return res.json(result);
 });
-
-
 
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;

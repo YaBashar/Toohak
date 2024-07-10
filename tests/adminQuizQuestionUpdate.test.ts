@@ -483,7 +483,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
   });
 
   test('this quiz does not exist', () => {
-    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id + 1}/question/${question1Quiz1Id}`, {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${999}/question/${question1Quiz1Id}`, {
       json: {
         token: token,
         questionBody: {

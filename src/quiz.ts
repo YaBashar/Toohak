@@ -538,7 +538,6 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   return { questionId: id };
 }
 
-
 export function adminQuizQuestionDelete(authUserId: number | { error: string }, quizId: number, questionId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArr = store.quizzes;
@@ -564,7 +563,6 @@ export function adminQuizQuestionDelete(authUserId: number | { error: string }, 
   setData(store);
   return {};
 }
-
 
 /** [] adminQuizTrashView.test.ts
   *
@@ -768,4 +766,3 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
 function doesQuestionExistInQuiz(quiz, questionId) {
   return quiz.questions.some(question => question.questionId === questionId);
 }
-

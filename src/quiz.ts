@@ -184,6 +184,9 @@ export function adminQuizRemove(authUserId: number | { error: string }, quizId: 
   if (quiz.authUserId !== authUserId) {
     return { error: 'Quiz Id not owned by the user' };
   }
+
+  store.trash.push(quiz);
+
   const index = quizArray.indexOf(quiz);
   quizArray.splice(index, 1);
   store.quizzes = quizArray;
@@ -531,4 +534,28 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
   quiz.questions.push(questionBody);
   setData(data);
   return { questionId: id };
+}
+
+
+/** [8] adminQuizTrashView.test.ts
+  *
+  * Returns list of quizzes in trash with basic info
+  *
+*/
+
+export function adminQuizTrashView() {
+
+  const store = getData();
+  const trash = store.trash;
+
+  const result = [];
+
+  for (let item of trash){
+    result.push({
+      quizId: item.quizId,
+      name: item.name,
+    });
+  }
+
+  return ({ quizzes: result });
 }

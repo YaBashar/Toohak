@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate } from './quiz';
 
 // Set up web app
 const app = express();
@@ -409,6 +409,28 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   res.status(200).json(quizInfo);
 });
 
+// adminQuizQuestionDelete
+app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizid = parseInt(req.params.quizid as string);
+  const questionid = parseInt(req.params.questionid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  const result = adminQuizQuestionDelete(authUserId, quizid, questionid);
+  if ('error' in result) {
+    console.log(result);
+    if (result.error === 'Invalid Token') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz Id') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Invalid Question Id') {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

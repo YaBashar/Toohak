@@ -763,6 +763,6 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
 }
 
 // Helper function to check if a question exists in the quiz
-function doesQuestionExistInQuiz(quiz, questionId) {
+function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: string }) {
   return quiz.questions.some(question => question.questionId === questionId);
 }

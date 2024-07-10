@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate } from './quiz';
+import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizQuestionCreate, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionMove } from './quiz';
@@ -112,9 +112,9 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {
-    if (result.error === 'Invalid user id') {
+    if (result.error === 'UserId doesn\'t exist') {
       return res.status(401).json(result);
-    } else {
+    } else if ('error' in result) {
       return res.status(400).json(result);
     }
   }
@@ -172,6 +172,26 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
+app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
+  const quizInfo = adminQuizInfo(authUserId, quizId);
+
+  if ('error' in quizInfo) {
+    if (quizInfo.error === 'Invalid User id') {
+      return res.status(401).json(quizInfo);
+    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+      return res.status(403).json(quizInfo);
+    }
+  }
+  res.status(200).json(quizInfo);
+});
+
 // My PUT route for updating quiz description
 app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
   const { token, description } = req.body;
@@ -192,26 +212,6 @@ app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
     }
   }
   return res.status(200).json(result);
-});
-
-app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizId = parseInt(req.params.quizid as string);
-
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
-  }
-  const quizInfo = adminQuizInfo(authUserId, quizId);
-
-  if ('error' in quizInfo) {
-    if (quizInfo.error === 'Invalid User id') {
-      return res.status(401).json(quizInfo);
-    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
-      return res.status(403).json(quizInfo);
-    }
-  }
-  res.status(200).json(quizInfo);
 });
 
 // adminQuizNameUpdate server route
@@ -238,8 +238,45 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
       return res.status(400).json({ error: quizNameUpdate.error });
     }
   }
+
   res.json(quizNameUpdate);
   return res.status(200).json(quizNameUpdate);
+});
+
+app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const result = adminAuthLogout(token);
+
+  if ('error' in result) {
+    return res.status(401).json(result);
+  }
+
+  res.json(result);
+});
+
+// adminQuizTransfer server route
+app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
+  const { token, email } = req.body;
+  const quizId = parseInt(req.params.quizid as string);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json(authUserId);
+  }
+
+  const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
+  if (quizTransfer.error) {
+    if (quizTransfer.error === 'Invalid User id') {
+      return res.status(401).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
+      return res.status(403).json({ error: quizTransfer.error });
+    } else if (quizTransfer.error === 'Target user email is not a real user' ||
+      quizTransfer.error === 'Target user email is the same as currently logged in user' ||
+      quizTransfer.error === 'Quiz name already in use by target user'
+    ) {
+      return res.status(400).json({ error: quizTransfer.error });
+    }
+  }
+  return res.status(200).json(quizTransfer);
 });
 
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
@@ -277,32 +314,33 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 
 app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
   const { token, newPosition } = req.body;
-  const { quizid, questionid } = req.params;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
   const authUserId = getUserIdFromToken(token);
 
   if (!authUserId) {
     return res.status(401).json({ error: 'invalid token' });
   }
 
-  const quizId = parseInt(quizid as string);
   if (!quizId) {
     return res.status(403).json({ error: 'quiz does not exist for this user' });
   }
 
-  if (!questionid) {
+  if (!questionId) {
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
 
-  const result = adminQuizQuestionMove(authUserId, newPosition);
+  const result = adminQuizQuestionMove(authUserId, quizId, questionId, newPosition);
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'question id does not exist in this quiz') {
+    } else if (result.error === 'quiz does not exist for this user') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
     }
   }
+
   return res.status(200).json(result);
 });
 

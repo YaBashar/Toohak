@@ -11,6 +11,7 @@ let question1Quiz1Id: string;
 let question1Quiz2Id: string;
 let randomToken: string;
 let randomQuizId: string;
+let quiz1;
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -25,7 +26,7 @@ beforeEach(() => {
   });
 
   // create a quiz
-  const quiz1 = request('POST', SERVER_URL + '/v1/admin/quiz', {
+  quiz1 = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name: 'quiz 1', description: 'the first quiz' }
   });
   quiz1Id = JSON.parse(quiz1.body.toString()).quizId;
@@ -33,7 +34,7 @@ beforeEach(() => {
   // add a question to the quiz1
   const question1Quiz1 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question`, {
     json: {
-      token,
+      token: token,
       questionBody: {
         question: 'Who is the Monarch of England?',
         duration: 4,
@@ -46,12 +47,12 @@ beforeEach(() => {
       }
     }
   });
-  question1Quiz1Id = JSON.parse(question1Quiz1.body.toString()).questionid;
+  question1Quiz1Id = JSON.parse(question1Quiz1.body.toString()).questionId;
 
   // add another question to quiz1
   request('POST', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question`, {
     json: {
-      token,
+      token: token,
       questionBody: {
         question: 'What is 10 - 7?',
         duration: 4,
@@ -69,12 +70,12 @@ beforeEach(() => {
   const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name: 'quiz 2', description: 'the second quiz' }
   });
-  quiz2Id = JSON.parse(quiz2.body.toString()).quizid;
+  quiz2Id = JSON.parse(quiz2.body.toString()).quizId;
 
   // add a question to the second quiz
   const question1Quiz2 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz2Id}/question`, {
     json: {
-      token,
+      token: token,
       questionBody: {
         question: 'What is 1 + 1?',
         duration: 4,
@@ -87,18 +88,17 @@ beforeEach(() => {
       }
     }
   });
-  question1Quiz2Id = JSON.parse(question1Quiz2.body.toString()).questionid;
+  question1Quiz2Id = JSON.parse(question1Quiz2.body.toString()).questionId;
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
-  test.only('Question id does not exist', () => {
-    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id + 1}/move`, {
+  test('Question id does not exist', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${55}/move`, {
       json: {
         token,
         newPosition: 2
       }
     });
-
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
     expect(res.statusCode).toBe(400);
   });
@@ -209,7 +209,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body.toString())).toStrictEqual({});
+    expect(res.statusCode).toBe(200);
   });
 });

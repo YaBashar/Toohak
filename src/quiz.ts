@@ -806,5 +806,3 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
 
   return {};
 }
-
-

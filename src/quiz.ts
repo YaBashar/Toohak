@@ -788,8 +788,6 @@ export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): { er
 
   store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
 
-  console.log(store);
-
   setData(store);
   return {};
 }

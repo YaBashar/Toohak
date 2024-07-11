@@ -19,7 +19,6 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore.js';
-import { createSessionId } from './helper';
 import { isEmail } from 'validator';
 import validator from 'validator';
 
@@ -82,7 +81,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = createSessionId();
+  const sID = uniqueId(store.sessions);
 
   // creating token for sessions
   const session = {
@@ -91,6 +90,15 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   };
   store.sessions.push(session);
   return { token: sID.toString() };
+}
+
+// function to create a unique id everytime
+function uniqueId(sessArr: { sessionId: number }[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (sessArr.find(session => (session.sessionId === uId)));
+  return uId;
 }
 
 /** [2] adminAuthLogin
@@ -127,7 +135,7 @@ export function adminAuthLogin(email: string, password: string) {
     user.numFailedPasswordSinceLastLogin = 0;
     setData(store);
 
-    const sID = createSessionId();
+    const sID = uniqueId(store.sessions);
 
     // creating token for session
     const session = {
@@ -159,7 +167,7 @@ export function adminAuthLogin(email: string, password: string) {
   *
 */
 
-export function adminUserDetails(authUserId: number) {
+export function adminUserDetails(authUserId: number | { error: string}) {
   const store = getData();
   const userArr = store.users;
 
@@ -167,7 +175,7 @@ export function adminUserDetails(authUserId: number) {
 
   // checking for error cases
   if (!user) {
-    return { error: 'Invalid AuthUserId' };
+    return { error: 'invalid token' };
 
   // returning object containing user details
   } else {
@@ -199,8 +207,6 @@ export function adminUserDetails(authUserId: number) {
 export function adminUserDetailsUpdate(authUserId: number | { error: string}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-  console.log(getData());
-  console.log(authUserId);
 
   if (!Number.isInteger(authUserId)) {
     return { error: 'invalid userId' };
@@ -310,6 +316,36 @@ export function adminUserPasswordUpdate(authUserId: number | { error: string}, o
 
   user.passwordHistory.push(newPassword);
   user.password = newPassword;
+
+  return {};
+}
+
+/** [6] adminAuthLogout
+  *
+  * Logs out an admin user who has an active user session.
+  *
+  * @param {number} authUserId - number representing a unique
+  *                              identifier for the user
+  * ...
+  * @returns {} - empty object
+*/
+
+export function adminAuthLogout(token: string) {
+  const result = parseFloat(token);
+
+  const store = getData();
+  const sessArr = store.sessions;
+
+  const session = sessArr.find((x) => {
+    return x.sessionId === result;
+  });
+
+  if (!session) {
+    return { error: 'invalid token' };
+  }
+
+  const index = sessArr.indexOf(session);
+  sessArr.splice(index);
 
   return {};
 }

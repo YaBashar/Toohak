@@ -10,7 +10,8 @@
         "start": "ts-node -T src/server.ts",
         "start-dev": "ts-node-dev -T src/server.ts",
         "cleanup-sync-request": "pkill -f node_modules/sync-rpc/lib/worker.js > /dev/null 2>&1",
-        "posttest": "npm run cleanup-sync-request || true"
+        "posttest": "npm run cleanup-sync-request || true",
+        "jest": "jest --coverage"
     },
     "dependencies": {
         "cors": "^2.8.5",

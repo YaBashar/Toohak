@@ -8,6 +8,10 @@ let data = {
 
   sessions: [
   ],
+
+  trash: [
+
+  ]
 };
 
 // YOU SHOULD MODIFY THIS OBJECT ABOVE ONLY

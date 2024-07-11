@@ -9,7 +9,7 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate, adminQuizTransfer } from './quiz';
+import { adminQuizNameUpdate, adminQuizQuestionDuplicate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizTrashEmpty } from './quiz';
@@ -376,6 +376,30 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
+// adminQuizQuestiondDuplicate
+app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  const result = adminQuizQuestionDuplicate(authUserId, quizId, questionId);
+  if (result.error) {
+    if (result.error === 'Invalid User id') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz id') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Question id does not refer to valid question in quiz') {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizId = parseInt(req.params.quizid as string);
@@ -444,7 +468,6 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   }
   const result = adminQuizQuestionDelete(authUserId, quizid, questionid);
   if ('error' in result) {
-    console.log(result);
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
     } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz Id') {

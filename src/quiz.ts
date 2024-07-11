@@ -194,18 +194,7 @@ export interface QuizInfo {
   timeLastEdited: number, // Keeping as number for Unix timestamp
   description: string,
   numQuestions: number,
-  questions: {
-    questionId: number,
-    question: string,
-    duration: number,
-    points: number,
-    answers: {
-      answerId: number,
-      answer: string,
-      colour: string,
-      correct: boolean
-    }[]
-  }[]
+  questions: Question[];
   duration : number
 }
 
@@ -225,47 +214,22 @@ export function adminQuizInfo(authUserId: number, quizId: number): QuizInfo | { 
     return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
   }
 
-  return {
+  const filteredQuestions = quiz.questions.filter(q => q !== null); // Filtering out any null values
+  // Add debugging logs to inspect the questions array after filtering
+  const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
+
+  const quizInfo: QuizInfo = {
     quizId: quiz.quizId,
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
-    numQuestions: quiz.numQuestions || 0, // Ensure numQuestions has a default value
-    questions: Array.isArray(quiz.questions)
-      ? quiz.questions.map((question: {
-      questionId: number,
-      question: string,
-      duration: number,
-      points: number,
-      answers: {
-        answerId: number,
-        answer: string,
-        colour: string,
-        correct: boolean
-      }[]
-    }) => ({
-        questionId: question.questionId,
-        question: question.question,
-        duration: question.duration,
-        points: question.points,
-        answers: Array.isArray(question.answers)
-          ? question.answers.map((answer: {
-        answerId: number,
-        answer: string,
-        colour: string,
-        correct: boolean
-      }) => ({
-            answerId: answer.answerId,
-            answer: answer.answer,
-            colour: answer.colour,
-            correct: answer.correct
-          }))
-          : []
-      }))
-      : [],
-    duration: quiz.duration,
+    numQuestions: filteredQuestions.length - 1, // Update numQuestions based on filtered questions
+    questions: filteredQuestions,
+    duration: totalDuration
   };
+
+  return quizInfo;
 }
 
 /** [5] adminQuizNameUpdate
@@ -512,6 +476,65 @@ export function adminQuizQuestionCreate(authUserId: number, quizid: number, ques
   return { questionId: id };
 }
 
+/** [9] adminQuizQuestion Duplicate
+  *
+  * Duplicates a question within the same Quiz
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @param {string} questionId - Id number representing a unique
+  *                              identifier for the quiz question
+  * ...
+  * @returns {number} newQuestionId - a new Question id for the duplicated question to differentiate it
+  *
+*/
+
+export function adminQuizQuestionDuplicate(authUserId : number | {error : string}, quizId: number, questionId: number) {
+  const store = getData();
+
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const user = userArr.find(user => user.authUserId === authUserId);
+  if (!user) {
+    return { error: 'Invalid User id' };
+  }
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
+  if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  }
+  const quiz = store.quizzes[findQuiz];
+
+  const findQuestion = store.quizzes[findQuiz].questions.findIndex(question => question.questionId === questionId);
+  if (findQuestion === -1) {
+    return { error: 'Question id does not refer to valid question in quiz' };
+  }
+
+  const question = quizArr[findQuiz].questions[findQuestion];
+  const newQuestionId = uniqueQuestionId(quiz.questions);
+
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+
+  const duplicatedQuestion = {
+    questionId: newQuestionId,
+    question: question.question,
+    duration: question.duration,
+    points: question.points,
+    answers: question.answers
+  };
+
+  quiz.questions.push(duplicatedQuestion);
+  setData(store);
+  return { questionId: newQuestionId };
+}
+
 export function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArr = store.quizzes;
@@ -724,7 +747,7 @@ export function adminQuizQuestionMove(authUserId: number, quizId: number | { err
     return { error: 'position value is less than zero' };
   }
 
-  if (newPosition === quiz.questions.indexOf(question)) {
+  if (quiz.questions.indexOf(question) === newPosition) {
     return { error: 'new position is current position' };
   }
 

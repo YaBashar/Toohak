@@ -400,3 +400,38 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
     return {};
   }
 }
+
+/** [8] adminQuizTrashRestore
+  *
+  * Restores a quiz from the trash
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @returns {} - empty object if successful
+  *
+*/
+
+export function adminQuizTrashRestore(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  const userIndex = userArr.findIndex(user => user.authUserId === authUserId);
+  const quizUser = quizArr.find(quiz => quiz.authUserId === authUserId);
+
+  if (userIndex === -1) {
+    return { error: 'Invalid User id' };
+  } else if (findQuiz === -1) {
+    return { error: 'Invalid Quiz id' };
+  } else if (!quizUser) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  const quiz = store.quizzes[findQuiz];
+  quiz.isTrashed = false; 
+
+  return {};
+}

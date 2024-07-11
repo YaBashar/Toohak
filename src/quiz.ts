@@ -778,7 +778,6 @@ function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: str
   * @returns {} - empty object if successful
   *
 */
-
 export function adminQuizTrashRestore(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
@@ -786,18 +785,19 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
 
   const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
   const userIndex = userArr.findIndex(user => user.authUserId === authUserId);
-  const quizUser = quizArr.find(quiz => quiz.authUserId === authUserId);
 
   if (userIndex === -1) {
     return { error: 'invalid token' };
-  } else if (findQuiz === -1) {
+  } else if (findQuiz === -1 || quizArr[findQuiz].authUserId !== authUserId) {
     return { error: 'quiz does not exist for this user' };
-  } else if (!quizUser) {
+  }
+
+  const quiz = quizArr[findQuiz];
+  if (!quiz.isTrashed) {
     return { error: 'Quiz ID refers to a quiz that is not currently in the trash' };
   }
 
-  const quiz = store.quizzes[findQuiz];
-  quiz.isTrashed = false; 
+  quiz.isTrashed = false;
 
   return {};
 }

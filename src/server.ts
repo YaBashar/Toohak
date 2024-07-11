@@ -215,7 +215,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 // My POST route for restoring a quiz from trash
 app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   const { token } = req.body;
-  const quizId = parseInt(req.params.quizid as string);
+  const quizId = parseInt(req.params.quizId as string, 10);
   if (!token || typeof token !== 'string') {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }

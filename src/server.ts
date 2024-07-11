@@ -216,16 +216,13 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizId = parseInt(req.params.quizId as string);
-
   if (!token || typeof token !== 'string') {
     return res.status(401).json({ error: 'invalid token' });
   }
-
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json({ error: 'invalid token' });
   }
-
   const result = adminQuizTrashRestore(authUserId, quizId);
   if ('error' in result) {
     if (result.error === 'invalid token') {
@@ -236,7 +233,6 @@ app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
       return res.status(400).json(result);
     }
   }
-
   return res.status(200).json({});
 });
 

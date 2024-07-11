@@ -783,7 +783,6 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
   const quizArray = store.quizzes;
   const trashArray = store.trash;
   const userArray = store.users;
-
   const user = userArray.find((user) => user.authUserId === authUserId);
   const quiz = trashArray.find((quiz) => quiz.quizId === quizId);
 
@@ -799,8 +798,10 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
 
   // Move quiz from trash to quizzes
   const index = trashArray.indexOf(quiz);
-  trashArray.splice(index, 1);
-  quizArray.push(quiz);
+  if (index > -1) {
+    trashArray.splice(index, 1);
+    quizArray.push(quiz);
+  }
 
   store.quizzes = quizArray;
   store.trash = trashArray;

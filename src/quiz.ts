@@ -1,6 +1,6 @@
 /*
 /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 1 'QUIZ.JS'  ////////////////////////
+//////////////////////   TOOHAK ITERATION 2 'QUIZ.JS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -109,7 +109,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
     return user.authUserId === authUserId;
   });
 
-  if (!user) return { error: 'Invalid User id' };
+  if (!user) return { error: 'Invalid token' };
 
   const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
     ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
@@ -171,6 +171,7 @@ function uniqueId(quizArr: { quizId: number }[]): number {
 */
 export function adminQuizRemove(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
+  console.log(store);
   const quizArray = store.quizzes;
   const userArray = store.users;
   const user = userArray.find((user) => { return user.authUserId === authUserId; });

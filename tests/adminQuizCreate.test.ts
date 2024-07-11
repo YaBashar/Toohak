@@ -16,7 +16,7 @@ describe('POST /v1/admin/quiz', () => {
     token = JSON.parse(user.body.toString()).token;
   });
 
-  test('AuthUserId is invalid', () => {
+  test('Token is invalid', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
         token: 'invalidAuthUserId',
@@ -25,10 +25,22 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Invalid User id' });
-    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
   });
 
+  test('Token is empty', () => {
+    const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+      json: {
+        token: '',
+        name: 'Sidak',
+        description: 'valid description'
+      },
+      timeout: TIMEOUT_MS
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
+  });
   test('Name contains invalid characters', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {

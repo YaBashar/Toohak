@@ -27,10 +27,22 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
   });
 
   // test to check if the authUserId is invalid
-  test('AuthUserId is invalid', () => {
+  test('Token is invalid', () => {
     const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
       qs: {
         token: 'invalidAuthUserId',
+        quizid: qid.quizId,
+      },
+      timeout: TIMEOUT_MS
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
+  });
+
+  test('Token is empty', () => {
+    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
+      qs: {
+        token: '',
         quizid: qid.quizId,
       },
       timeout: TIMEOUT_MS

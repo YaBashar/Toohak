@@ -545,6 +545,8 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
   const question = quizArr[findQuiz].questions[findQuestion];
   const newQuestionId = uniqueId(quiz.questions);
 
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+
   const duplicatedQuestion = {
     questionId: newQuestionId,
     question: question.question,

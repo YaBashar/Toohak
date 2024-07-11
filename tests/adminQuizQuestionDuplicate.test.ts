@@ -149,7 +149,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     test('success duplicating quiz question through QuizInfo', () => {
       const quizDuplicateId = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
-      console.log(quizInfo.body.toString());
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,

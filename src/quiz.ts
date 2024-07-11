@@ -767,7 +767,7 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
     return { error: 'position value is less than zero' };
   }
 
-  if (newPosition === quiz.questions.indexOf(question)) {
+  if (quiz.questions.indexOf(question) === newPosition) {
     return { error: 'new position is current position' };
   }
 

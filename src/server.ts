@@ -335,7 +335,6 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { token, questionBody } = req.body;
   const quizid = parseInt(req.params.quizid as string);
   const authUserId = getUserIdFromToken(token);
-  console.log(authUserId);
   if (!authUserId) {
     return res.status(401).json({ error: 'Invalid token' });
   }
@@ -358,30 +357,23 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const { token } = req.body;
   const quizId = parseInt(req.params.quizid as string);
   const questionId = parseInt(req.params.questionid as string);
-  // console.log('quizid', quizId);
-  // console.log('question id', questionId);
 
   const authUserId = getUserIdFromToken(token);
-  // console.log('user', authUserId);
   if (!authUserId) {
     return res.status(401).json({ error: 'Invalid token' });
   }
 
-  // console.log('line 329');
   const result = adminQuizQuestionDuplicate(authUserId, quizId, questionId);
-  // console.log(result);
   if (result.error) {
-    // console.log('error in here line 332');
     if (result.error === 'Invalid User id') {
-      // console.log('error 1');
       return res.status(401).json(result);
     } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz id') {
-      // console.log('error2');
       return res.status(403).json(result);
     } else if (result.error === 'Question id does not refer to valid question in quiz') {
-      console.log('error 3');
+      return res.status(400).json(result);
     }
   }
+  return res.status(200).json(result);
 });
 
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
@@ -452,7 +444,6 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   }
   const result = adminQuizQuestionDelete(authUserId, quizid, questionid);
   if ('error' in result) {
-    console.log(result);
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
     } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz Id') {

@@ -146,9 +146,10 @@ describe('adminQuizQuestionDuplicate Tests', () => {
         }).questionId;
     });
 
-    test.only('success duplicating quiz question through QuizInfo', () => {
-      request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
+    test('success duplicating quiz question through QuizInfo', () => {
+      const quizDuplicateId = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
       const quizInfo = request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token } });
+      console.log(quizInfo.body.toString());
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,
@@ -179,7 +180,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
               ]
             },
             {
-              questionId: expect.any(Number),
+              questionId: JSON.parse(quizDuplicateId.body.toString()).questionId,
               question: 'Who is the Monarch of England?',
               duration: 4,
               points: 5,
@@ -198,6 +199,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
                 }
               ]
             }
+
           ],
           duration: expect.any(Number)
         }
@@ -206,7 +208,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     test('successfully returns new Question id', () => {
       const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token }, timeout: TIMEOUT_MS });
-      console.log(duplicateQuiz.body.toString());
       expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ questionId: expect.any(Number) });
     });
   });

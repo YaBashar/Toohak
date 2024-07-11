@@ -139,7 +139,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
     timeCreated: Math.round(Date.now() / 1000),
     timeLastEdited: Math.round(Date.now() / 1000),
     numQuestions: 0,
-    questions: [Array],
+    questions: [],
     duration: 0,
     authUserId: authUserId,
   };
@@ -220,18 +220,7 @@ export interface QuizInfo {
   timeLastEdited: number, // Keeping as number for Unix timestamp
   description: string,
   numQuestions: number,
-  questions: {
-    questionId: number,
-    question: string,
-    duration: number,
-    points: number,
-    answers: {
-      answerId: number,
-      answer: string,
-      colour: string,
-      correct: boolean
-    }[]
-  }[]
+  questions: Question[];
   duration : number
 }
 
@@ -251,47 +240,21 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
     return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
   }
 
-  return {
+  const filteredQuestions = quiz.questions.filter(q => q !== null); // Filtering out any null values
+  // Add debugging logs to inspect the questions array after filtering
+
+  const quizInfo: QuizInfo = {
     quizId: quiz.quizId,
     name: quiz.name,
     timeCreated: quiz.timeCreated,
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
-    numQuestions: quiz.numQuestions || 0, // Ensure numQuestions has a default value
-    questions: Array.isArray(quiz.questions)
-      ? quiz.questions.map((question: {
-      questionId: number,
-      question: string,
-      duration: number,
-      points: number,
-      answers: {
-        answerId: number,
-        answer: string,
-        colour: string,
-        correct: boolean
-      }[]
-    }) => ({
-        questionId: question.questionId,
-        question: question.question,
-        duration: question.duration,
-        points: question.points,
-        answers: Array.isArray(question.answers)
-          ? question.answers.map((answer: {
-        answerId: number,
-        answer: string,
-        colour: string,
-        correct: boolean
-      }) => ({
-            answerId: answer.answerId,
-            answer: answer.answer,
-            colour: answer.colour,
-            correct: answer.correct
-          }))
-          : []
-      }))
-      : [],
-    duration: quiz.duration,
+    numQuestions: filteredQuestions.length - 1, // Update numQuestions based on filtered questions
+    questions: filteredQuestions,
+    duration: quiz.duration
   };
+
+  return quizInfo;
 }
 
 /** [5] adminQuizNameUpdate
@@ -555,6 +518,7 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
 
 export function adminQuizQuestionDuplicate(authUserId : number | {error : string}, quizId: number, questionId: number) {
   const store = getData();
+
   const userArr = store.users;
   const quizArr = store.quizzes;
 
@@ -563,7 +527,6 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
     return { error: 'Invalid User id' };
   }
   const quizUser = quizArr.find((quiz) => quiz.authUserId === authUserId);
-  console.log('line 561', quizUser);
   if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   }
@@ -578,10 +541,8 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
   if (findQuestion === -1) {
     return { error: 'Question id does not refer to valid question in quiz' };
   }
-  console.log('finding Question line 576', findQuestion);
 
   const question = quizArr[findQuiz].questions[findQuestion];
-  console.log('Question object:', question);
   const newQuestionId = uniqueId(quiz.questions);
 
   const duplicatedQuestion = {
@@ -589,15 +550,9 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
     question: question.question,
     duration: question.duration,
     points: question.points,
-    answers: [
-      {
-        answerId: question.answerId,
-        answer: question.answer,
-        colour: question.colour,
-        correct: question.correct
-      }
-    ]
+    answers: question.answers
   };
+
   quiz.questions.push(duplicatedQuestion);
   setData(store);
   return { questionId: newQuestionId };

@@ -140,7 +140,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}/move`, {
       json: {
         token,
-        newPosition: 1
+        newPosition: 0
       }
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new position is current position' });
@@ -206,7 +206,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}/move`, {
       json: {
         token,
-        newPosition: 2
+        newPosition: 1
       }
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({});

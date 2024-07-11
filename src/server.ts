@@ -42,7 +42,6 @@ app.get('/echo', (req: Request, res: Response) => {
   return res.json(result);
 });
 
-
 app.delete('/v1/clear', (req: Request, res: Response) => {
   const result = clear();
   if ('error' in result) {
@@ -78,7 +77,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 
   console.log(check);
 
-  if (check == -1) {
+  if (check === -1) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }
 
@@ -91,7 +90,7 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const authUserId = getUserIdFromToken(token);
 
   if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token'});
+    return res.status(401).json({ error: 'invalid token' });
   }
 
   const result = adminUserDetails(authUserId);
@@ -106,7 +105,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token'});
+    return res.status(401).json({ error: 'invalid token' });
   }
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
 
@@ -157,13 +156,12 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const { token } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
-    return res.status(401).json({error: 'invalid user id'});
+    return res.status(401).json({ error: 'invalid user id' });
   }
   const result = adminQuizList(authUserId);
   if ('error' in result) {
@@ -171,7 +169,6 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   }
   return res.status(200).json(result);
 });
-
 
 // My PUT route for updating quiz description
 app.put('/v1/admin/quiz/:quizId/description', (req: Request, res: Response) => {
@@ -201,7 +198,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const quizid = parseInt(req.params.quizid as string);
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token'});
+    return res.status(401).json({ error: 'invalid token' });
   }
   const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
   // Check if the quizNameUpdate contains an error
@@ -305,7 +302,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token'});
+    return res.status(401).json({ error: 'invalid token' });
   }
 
   const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
@@ -381,7 +378,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
-    return res.status(400).json({ error: 'Invalid User id'});
+    return res.status(400).json({ error: 'Invalid User id' });
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {

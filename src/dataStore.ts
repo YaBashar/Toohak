@@ -1,4 +1,4 @@
-import { Store } from './interface'
+import { Store } from './interface';
 
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
 let data: Store = {

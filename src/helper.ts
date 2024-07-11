@@ -11,6 +11,6 @@ export function getUserIdFromToken(sessionId: string): number {
   if (!session) {
     return -1;
   }
-  
+
   return session.authUserId;
 }

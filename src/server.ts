@@ -215,24 +215,28 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
 // My POST route for restoring a quiz from trash
 app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   const { token } = req.body;
-  const quizId = parseInt(req.params.quizId as string, 10);
+  const quizId = parseInt(req.params.quizId as string);
+
   if (!token || typeof token !== 'string') {
-    return res.status(401).json({ error: 'Token is empty or invalid' });
+    return res.status(401).json({ error: 'invalid token' });
   }
+
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
     return res.status(401).json({ error: 'invalid token' });
   }
+
   const result = adminQuizTrashRestore(authUserId, quizId);
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz ID refers to a quiz that is not currently in the trash') {
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
     }
   }
+
   return res.status(200).json({});
 });
 
@@ -268,3 +272,4 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
+

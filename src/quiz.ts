@@ -242,6 +242,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
 
   const filteredQuestions = quiz.questions.filter(q => q !== null); // Filtering out any null values
   // Add debugging logs to inspect the questions array after filtering
+  const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
 
   const quizInfo: QuizInfo = {
     quizId: quiz.quizId,
@@ -251,7 +252,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
     description: quiz.description,
     numQuestions: filteredQuestions.length - 1, // Update numQuestions based on filtered questions
     questions: filteredQuestions,
-    duration: quiz.duration
+    duration: totalDuration
   };
 
   return quizInfo;

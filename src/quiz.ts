@@ -766,3 +766,28 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
 function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: string }) {
   return quiz.questions.some(question => question.questionId === questionId);
 }
+
+export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): { error: string } {
+  const store = getData();
+
+  // checking if all quizzes are in trash
+  for (const item of quizIds) {
+    const quiz = store.trash.find(x => x.quizId === item);
+    if (!quiz) {
+      return { error: 'Some quizzes are not in the trash' };
+    }
+  }
+
+  // checking if all quizzes are owned by user
+  for (const item of quizIds) {
+    const quiz = store.trash.find(x => x.quizId === item);
+    if (quiz.authUserId !== authUserId) {
+      return { error: 'Some quizzes are not owned by the user' };
+    }
+  }
+
+  store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
+
+  setData(store);
+  return {};
+}

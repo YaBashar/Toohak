@@ -53,7 +53,7 @@ describe('adminQuizTrashRestore Tests', () => {
     test('Token is empty', () => {
       const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, { json: { token: '' } });
       expect(res.statusCode).toBe(401);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Token is empty or invalid' });
     });
 
     test('Token is invalid', () => {

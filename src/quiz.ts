@@ -798,14 +798,13 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
 
   // Move quiz from trash to quizzes
   const index = trashArray.indexOf(quiz);
-  if (index > -1) {
-    trashArray.splice(index, 1);
-    quizArray.push(quiz);
-  }
-
+  trashArray.splice(index, 1);
+  quizArray.push(quiz);
   store.quizzes = quizArray;
   store.trash = trashArray;
   setData(store);
 
   return {};
 }
+
+

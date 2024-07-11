@@ -296,6 +296,28 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
   res.json(result);
 });
 
+// adminQuizTrashEmpty
+app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizids = JSON.parse(req.query.quizIds as string);
+  console.log(quizids);
+  const authUserId = getUserIdFromToken(token);
+  if (authUserId === -1) {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+  const result = adminQuizTrashEmpty(authUserId, quizids);
+  if ('error' in result) {
+    if (result.error === 'Some quizzes are not owned by the user') {
+      return res.status(403).json({ error: result.error });
+    } else if (result.error === 'Some quizzes are not in the trash') {
+      return res.status(400).json({ error: result.error });
+    } else {
+      return res.status(400).json({ error: result.error });
+    }
+  }
+  return res.status(200).json({});
+});
+
 // adminQuizTransfer server route
 app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
@@ -432,28 +454,6 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
     }
   }
   return res.status(200).json(result);
-});
-
-// adminQuizTrashEmpty
-app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizids = JSON.parse(req.query.quizIds as string);
-  console.log(quizids);
-  const authUserId = getUserIdFromToken(token);
-  if (typeof authUserId !== 'number') {
-    return res.status(401).json({ error: 'Token is empty or invalid' });
-  }
-  const result = adminQuizTrashEmpty(authUserId, quizids);
-  if ('error' in result) {
-    if (result.error === 'Some quizzes are not owned by the user') {
-      return res.status(403).json({ error: result.error });
-    } else if (result.error === 'Some quizzes are not in the trash') {
-      return res.status(400).json({ error: result.error });
-    } else {
-      return res.status(400).json({ error: result.error });
-    }
-  }
-  return res.status(200).json({});
 });
 
 // ====================================================================

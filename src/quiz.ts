@@ -740,11 +740,11 @@ export function adminQuizQuestionMove(authUserId: number, quizId: number | { err
 }
 
 // Helper function to check if a question exists in the quiz
-function doesQuestionExistInQuiz(quesArr: Question[], questionId: number | { error: string }) {
+function doesQuestionExistInQuiz(quesArr: Question[], questionId: number | {error: string}): boolean {
   return quesArr.some(question => question.questionId === questionId);
 }
 
-export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): { error: string } {
+export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): Record<string, never> | { error: string } {
   const store = getData();
 
   // checking if all quizzes are in trash
@@ -765,6 +765,5 @@ export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): { er
 
   store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
 
-  setData(store);
   return {};
 }

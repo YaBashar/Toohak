@@ -18,7 +18,7 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from './dataStore';
 import { isEmail } from 'validator';
 import validator from 'validator';
 

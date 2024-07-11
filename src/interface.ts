@@ -1,6 +1,6 @@
 
 // dataStore
-interface User {
+export interface User {
   authUserId: number,
   name: string, 
   email: string, 
@@ -10,14 +10,14 @@ interface User {
   passwordHistory: string[]
 }
 
-interface Answer {
+export interface Answer {
   answerId: number,
   answer: string,
   colour: string,
   correct: boolean
 }
 
-interface Question {
+export interface Question {
   questionId: number,
   question: string,
   duration: number,
@@ -25,7 +25,7 @@ interface Question {
   answers: Answer[]
 }
 
-interface Quiz {
+export interface Quiz {
   quizId: number,
   name: string,
   timeCreated: number, 
@@ -33,10 +33,11 @@ interface Quiz {
   description: string, 
   numQuestions: number, 
   questions: Question[],
+  duration: number,
   authUserId: number
 }
 
-interface Session {
+export interface Session {
   sessionId: number,
   authUserId: number
 }

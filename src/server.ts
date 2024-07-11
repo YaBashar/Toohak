@@ -14,7 +14,7 @@ import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
 import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate } from './quiz';
 
-// Set up web app
+// Set up app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
 app.use(json());
@@ -108,7 +108,7 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const authUserId = getUserIdFromToken(token);
 
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'invalid token'});
   }
 
   const result = adminUserDetails(authUserId);
@@ -123,7 +123,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'invalid token'});
   }
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
 
@@ -179,7 +179,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const check = getUserIdFromToken(token);
 
-  if (typeof check !== 'number') {
+  if (!check) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }
 
@@ -229,7 +229,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const quizid = parseInt(req.params.quizid as string);
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'invalid token'});
   }
   const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
   // Check if the quizNameUpdate contains an error
@@ -300,7 +300,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const quizId = parseInt(req.params.quizid as string);
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'invalid token'});
   }
 
   const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
@@ -376,7 +376,7 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (!authUserId) {
-    return res.status(401).json(authUserId);
+    return res.status(401).json({ error: 'invalid token'});
   }
   const result = adminQuizCreate(authUserId, name, description);
   if ('error' in result) {

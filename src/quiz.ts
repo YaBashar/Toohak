@@ -19,7 +19,8 @@ and update information regarding quizzes.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from './dataStore';
+import { Answer, Question, Quiz } from './interface';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -41,7 +42,7 @@ import { getData, setData } from './dataStore.js';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(authUserId: number | { error: string}) {
+export function adminQuizList(authUserId: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -74,34 +75,7 @@ export function adminQuizList(authUserId: number | { error: string}) {
   *
 */
 
-interface Answer {
-  answerId: number;
-  answer: string;
-  colour: string;
-  correct: boolean;
-}
-
-interface Question {
-  questionId: number;
-  question: string;
-  duration: number;
-  points: number;
-  answers: Answer[];
-}
-
-export interface Quiz {
-  quizId: number;
-  name: string;
-  description: string;
-  duration: number;
-  timeCreated: number;
-  timeLastEdited: number;
-  numQuestions: number;
-  questions: Question[];
-  authUserId: number;
-}
-
-export function adminQuizCreate(authUserId: number | { error: string}, name: string, description: string): { quizId: number } | { error: string } {
+export function adminQuizCreate(authUserId: number, name: string, description: string): { quizId: number } | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -131,8 +105,8 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
     return { error: 'Name is already used by current logged in user' };
   }
 
-  const id = uniqueId(quizArr);
-  const quiz = {
+  const id = uniqueQuizId(quizArr);
+  const quiz: Quiz = {
     quizId: id,
     name: name,
     description: description,
@@ -149,7 +123,7 @@ export function adminQuizCreate(authUserId: number | { error: string}, name: str
 }
 
 // function to create a random id everytime
-function uniqueId(quizArr: { quizId: number }[]): number {
+function uniqueQuizId(quizArr: Quiz[]): number {
   let uId: number;
   do {
     uId = Date.now();
@@ -169,7 +143,7 @@ function uniqueId(quizArr: { quizId: number }[]): number {
   * @returns {} - empty object
   *
 */
-export function adminQuizRemove(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizRemove(authUserId: number, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
@@ -224,7 +198,7 @@ export interface QuizInfo {
   duration : number
 }
 
-export function adminQuizInfo(authUserId: number | { error: string}, quizId: number): QuizInfo | { error: string} {
+export function adminQuizInfo(authUserId: number, quizId: number): QuizInfo | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -272,7 +246,7 @@ export function adminQuizInfo(authUserId: number | { error: string}, quizId: num
   *
 */
 
-export function adminQuizNameUpdate(authUserId: number | { error: string}, quizId:number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(authUserId: number, quizId:number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -324,7 +298,7 @@ export function adminQuizNameUpdate(authUserId: number | { error: string}, quizI
 // My constant define for the 'Description is more than 100 characters' test case
 const MAX_DESCRIPTION_LENGTH = 100;
 
-export function adminQuizDescriptionUpdate(authUserId: number | { error: string}, quizId: number, description: string): Record<string, never> | { error: string } {
+export function adminQuizDescriptionUpdate(authUserId: number, quizId: number, description: string): Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -381,7 +355,7 @@ export function adminQuizDescriptionUpdate(authUserId: number | { error: string}
   *
 */
 
-export function adminQuizTransfer(authUserId: number | { error: string}, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
+export function adminQuizTransfer(authUserId: number, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -419,7 +393,7 @@ export function adminQuizTransfer(authUserId: number | { error: string}, quizId 
   return {};
 }
 
-export function adminQuizQuestionCreate(authUserId: number | { error: string }, quizid: number, question: Question): { error: string } | { questionId: number } {
+export function adminQuizQuestionCreate(authUserId: number, quizid: number, question: Question): { error: string } | { questionId: number } {
   const data = getData();
   const quizArr = data.quizzes;
   const userArr = data.users;
@@ -489,7 +463,7 @@ export function adminQuizQuestionCreate(authUserId: number | { error: string }, 
     return { error: 'Quiz Id not owned by the user' };
   }
 
-  const id = uniqueId(quiz.questions);
+  const id = uniqueQuestionId(quiz.questions);
   const questionBody = {
     questionId: id,
     question: question.question,
@@ -544,7 +518,7 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
   }
 
   const question = quizArr[findQuiz].questions[findQuestion];
-  const newQuestionId = uniqueId(quiz.questions);
+  const newQuestionId = uniqueQuestionId(quiz.questions);
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
@@ -561,7 +535,7 @@ export function adminQuizQuestionDuplicate(authUserId : number | {error : string
   return { questionId: newQuestionId };
 }
 
-export function adminQuizQuestionDelete(authUserId: number | { error: string }, quizId: number, questionId: number): Record<string, never> | { error: string } {
+export function adminQuizQuestionDelete(authUserId: number, quizId: number, questionId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArr = store.quizzes;
   const userArr = store.users;
@@ -587,6 +561,15 @@ export function adminQuizQuestionDelete(authUserId: number | { error: string }, 
   return {};
 }
 
+// function to create a random id everytime
+function uniqueQuestionId(questArr: Question[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (questArr.find(quiz => (quiz.questionId === uId)));
+  return uId;
+}
+
 /** [] adminQuizTrashView.test.ts
   *
   * Returns list of quizzes in trash with basic info
@@ -608,17 +591,13 @@ export function adminQuizTrashView(token: string) {
   return ({ quizzes: result });
 }
 
-export function adminQuizQuestionUpdate (authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string },
+export function adminQuizQuestionUpdate (authUserId: number, quizId: number | { error: string }, questionId: number | { error: string },
   questionBody:
     {
       question: string,
       duration: number,
       points: number,
-      answers:
-      [
-        answer: string,
-        correct: boolean
-      ]
+      answers:Answer[]
     }
 ) {
   const data = getData();
@@ -644,7 +623,7 @@ export function adminQuizQuestionUpdate (authUserId: number | { error: string },
     return { error: 'quiz does not exist for this user' };
   }
 
-  if (!doesQuestionExistInQuiz(quiz, questionId)) {
+  if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
     return { error: 'question id does not exist in this quiz' };
   }
 
@@ -719,20 +698,18 @@ export function adminQuizQuestionUpdate (authUserId: number | { error: string },
     return { error: 'no correct answer for this question' };
   }
 
-  questionBody = {
-    question: questionBody.question,
-    duration: questionBody.duration,
-    points: questionBody.points,
-    answers: questionBody.answers
-  };
+  const quest: Question = quiz.questions[questionIndex];
+  quest.question = questionBody.question;
+  quest.duration = questionBody.duration;
+  quest.points = questionBody.points;
+  quest.answers = questionBody.answers;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
-  quiz.questions[questionIndex] = questionBody;
   setData(data);
   return {};
 }
 
-export function adminQuizQuestionMove(authUserId: number | { error: string }, quizId: number | { error: string }, questionId: number | { error: string }, newPosition: number) {
+export function adminQuizQuestionMove(authUserId: number, quizId: number | { error: string }, questionId: number | { error: string }, newPosition: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
@@ -756,7 +733,7 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
     return { error: 'quiz does not exist for this user' };
   }
 
-  if (!doesQuestionExistInQuiz(quiz, questionId)) {
+  if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
     return { error: 'question id does not exist in this quiz' };
   }
 
@@ -786,6 +763,30 @@ export function adminQuizQuestionMove(authUserId: number | { error: string }, qu
 }
 
 // Helper function to check if a question exists in the quiz
-function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: string }) {
-  return quiz.questions.some(question => question.questionId === questionId);
+function doesQuestionExistInQuiz(quesArr: Question[], questionId: number | {error: string}): boolean {
+  return quesArr.some(question => question.questionId === questionId);
+}
+
+export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): Record<string, never> | { error: string } {
+  const store = getData();
+
+  // checking if all quizzes are in trash
+  for (const item of quizIds) {
+    const quiz = store.trash.find(x => x.quizId === item);
+    if (!quiz) {
+      return { error: 'Some quizzes are not in the trash' };
+    }
+  }
+
+  // checking if all quizzes are owned by user
+  for (const item of quizIds) {
+    const quiz = store.trash.find(x => x.quizId === item);
+    if (quiz.authUserId !== authUserId) {
+      return { error: 'Some quizzes are not owned by the user' };
+    }
+  }
+
+  store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
+
+  return {};
 }

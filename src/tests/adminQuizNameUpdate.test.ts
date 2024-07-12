@@ -6,6 +6,11 @@ const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions
 /// //////////////////////////////////////////////
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
 
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
@@ -45,7 +50,7 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
+      const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
@@ -122,9 +127,9 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' }, timeout: TIMEOUT_MS });
+      const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
-      quizId = createQuiz(token, 'name', 'description').quizId;
+      quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
     test('Check that function returns empty object', () => {
@@ -145,6 +150,28 @@ describe('adminQuizNameUpdate Tests', () => {
         questions: expect.any(Array),
         duration: expect.any(Number)
       });
+    });
+
+    test('Testing timeLastEdited property is the same as timeCreated', () => {
+      const quiz = createQuiz(token, 'newQuiz', 'description');
+      const initialTimeCreated = quiz.timeCreated;
+      const initialTimeEdited = quiz.timeLastEdited;
+
+      expect(initialTimeCreated).toEqual(initialTimeEdited);
+    });
+
+    test('Testing timeLastEdited property has been changed', (done) => {
+      const createQuizResponse = createQuiz(token, 'newQuiz', 'description');
+      const quizId = createQuizResponse.quizId;
+      const initialTimeCreated = createQuizResponse.timeCreated;
+
+      setTimeout(() => {
+        quizNameUpdate(token, quizId, 'changeName');
+        const quizInfoResponse = quizInfo(token, quizId);
+        const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
+        expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
+        done();
+      }, 1000);
     });
   });
 });

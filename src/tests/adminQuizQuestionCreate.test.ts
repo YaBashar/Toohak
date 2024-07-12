@@ -4,14 +4,18 @@ import { port, url } from '../config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
-// wrapper function
+interface Answer {
+  answer: string, 
+  correct: boolean
+}
 
-const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
-  });
-  return JSON.parse(res.body.toString());
-};
+interface Question {
+  question: string, 
+  duration: number, 
+  points: number, 
+  answers: Answer[]
+}
+
 /// ////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
@@ -19,116 +23,75 @@ beforeEach(() => {
 });
 
 describe('POST /v1/admin/quiz/:quizid/question', () => {
-  // let token: string;
-  let quizid: number;
-  let quizid2: number;
-  let token1: string;
-  let token2: string;
+  let quizid: number, quizid2: number, token1: string, token2: string;
 
   beforeEach(() => {
-    const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-    token1 = JSON.parse(uid1.body.toString()).token;
+    token1 = requestAuthRegister('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
     quizid = createQuiz(token1, 'quizName', 'description').quizId;
 
-    const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson' } });
-    token2 = JSON.parse(uid2.body.toString()).token;
-
+    token2 = requestAuthRegister('z5555555@unsw.edu.au', 'abs@#$234', 'brim', 'johnson');
     quizid2 = createQuiz(token2, 'quizName2', 'description').quizid;
   });
 
   // Token is empty or invalid (does not refer to valid logged in user session)
   test('Token is invalid (does not refer to valid logged in user session)', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-      json: {
-        token: 'invalid token',
-        questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Queen Elizabeth',
-              correct: false,
-            }
-          ]
-        }
-      }
+
+    const res = createQuestion( quizid, 'invalid token', {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [ { answer: 'Prince Charles', correct: true } ]
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+
+    const data = (JSON.parse(res.body.toString()));
+
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
   // token is empty
   test('Token is empty', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-      json: {
-        token: '',
-        questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Queen Elizabeth',
-              correct: false,
-            }
-          ]
-        }
-      }
+    const res = createQuestion( quizid, '', {
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [ { answer: 'Prince Charles', correct: true } ]
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+
+    const data = (JSON.parse(res.body.toString()));
+
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
   // Question string is less than 5 characters
   test('Question string is less than 5 characters', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: 'Who',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            }
-          ]
-        }
-      }
+    const res = createQuestion( quizid, token1, {
+      question: 'Who',
+      duration: 4,
+      points: 5,
+      answers: [ { answer: 'Prince Charles', correct: true } ]
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+
+    const data = (JSON.parse(res.body.toString()));
+
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
+
   });
 
   // Question string is greater than 50 characters in length
   test('Question string is greater than 50 characters in length', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: 'Who is the Monarch of England? Who is the Monarch of England? Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            }
-          ]
-        }
-      }
+    const res = createQuestion( quizid, token1, {
+      question: 'Who is the Monarch of England? Who is the Monarch of England? Who is the Monarch of England?',
+      duration: 4,
+      points: 5,
+      answers: [ { answer: 'Prince Charles', correct: true } ]
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+
+    const data = (JSON.parse(res.body.toString()));
+
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -490,3 +453,29 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(200);
   });
 });
+
+
+
+//HELPER FUNCTIONS
+const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
+  const id = (request('POST', SERVER_URL + '/v1/admin/auth/register', {
+    json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
+  }));
+
+  return JSON.parse(id.body.toString()).token;
+};
+
+
+const createQuiz = (token : string, name : string, description : string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString()); 
+};
+
+
+const createQuestion = ( quizid: number, token: string, body: Question ) => {
+  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+    json: { token: token, questionBody: body }, timeout: TIMEOUT_MS
+  }));
+}

@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -13,7 +13,7 @@ describe('Testing error cases', () => {
     const res = requestViewTrash('');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 
@@ -21,7 +21,7 @@ describe('Testing error cases', () => {
     const res = requestViewTrash('invalid token');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 });

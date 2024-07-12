@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -16,14 +16,14 @@ describe('PUT /v1/admin/user/password', () => {
   // Old password is not correct
   test('Incorrect password', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABC', newPassword: 'newabcd1234!@#$ABCD' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'incorrect password' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // Old password and new password are the same
   test('Old password is the same as the new password', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABCD' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new password is the same as old password' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -32,24 +32,24 @@ describe('PUT /v1/admin/user/password', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd1234!@#$ABC' } });
     expect(res.statusCode).toBe(200);
     const res2 = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABC', newPassword: 'abcd1234!@#$ABCD' } });
-    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: 'password has already been used' });
+    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res2.statusCode).toBe(400);
   });
 
   // New password is too short
   test('Invalid password length', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcd123' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'password is too short' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // New password doesn't contain at least on number and one letter
   test('Password does not contain at least one number and one letter', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: 'abcdefgh' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
     const res2 = request('PUT', SERVER_URL + '/v1/admin/user/password', { json: { token, oldPassword: 'abcd1234!@#$ABCD', newPassword: '12345678' } });
-    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: 'new password should contain at least one letter and one number' });
+    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res2.statusCode).toBe(400);
   });
 

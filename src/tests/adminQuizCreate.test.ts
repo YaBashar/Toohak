@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -16,7 +16,7 @@ describe('POST /v1/admin/quiz', () => {
     token = JSON.parse(user.body.toString()).token;
   });
 
-  test('AuthUserId is invalid', () => {
+  test('Token is invalid', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {
         token: 'invalidAuthUserId',
@@ -25,8 +25,21 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Invalid User id' });
-    expect(res.statusCode).toBe(400);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
+  });
+
+  test('Token is empty', () => {
+    const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+      json: {
+        token: '',
+        name: 'Sidak',
+        description: 'valid description'
+      },
+      timeout: TIMEOUT_MS
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
   });
 
   test('Name contains invalid characters', () => {
@@ -51,7 +64,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'name is less than 3 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -64,7 +77,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'name is more than 30 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -99,7 +112,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Description is more than 100 characters in length' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 

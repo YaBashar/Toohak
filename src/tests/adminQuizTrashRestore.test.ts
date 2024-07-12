@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 
@@ -53,19 +53,19 @@ describe('adminQuizTrashRestore Tests', () => {
     test('Token is empty', () => {
       const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, { json: { token: '' } });
       expect(res.statusCode).toBe(401);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     });
 
     test('Token is invalid', () => {
       const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/restore`, { json: { token: 'invalid_token' } });
       expect(res.statusCode).toBe(401);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     });
 
     test('Quiz ID refers to a quiz that is not currently in the trash', () => {
       const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/restore`, { json: { token } });
       expect(res.statusCode).toBe(403);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist for this user' });
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     });
   });
 

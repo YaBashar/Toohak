@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 1 'OTHER.JS'  ///////////////////////
+//////////////////////   TOOHAK ITERATION 2 'OTHER.TS'  ///////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -31,8 +31,7 @@ import { getData, setData } from './dataStore';
   * @returns {} - empty object
   *
 */
-
-export function clear () {
+export function clear (): Record<string, never> {
   const store = getData();
 
   store.users = [];

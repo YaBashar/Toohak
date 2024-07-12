@@ -1,4 +1,3 @@
-
 // dataStore
 export interface User {
   authUserId: number,
@@ -8,6 +7,16 @@ export interface User {
   numSuccessfulLogins: number,
   numFailedPasswordSinceLastLogin: number,
   passwordHistory: string[]
+}
+
+export interface UserDetails {
+  user: {
+    authUserId: number,
+    name: string,
+    email: string,
+    numSuccessfulLogins: number,
+    numFailedPasswordSinceLastLogin: number,
+  }
 }
 
 export interface Answer {
@@ -25,6 +34,10 @@ export interface Question {
   answers: Answer[]
 }
 
+export interface QuestionId {
+  questionId: number
+}
+
 export interface Quiz {
   quizId: number,
   name: string,
@@ -35,6 +48,22 @@ export interface Quiz {
   questions: Question[],
   duration: number,
   authUserId: number
+}
+
+export interface QuizList {
+    quizId: number,
+    name: string,
+}
+
+export interface QuizInfo {
+  quizId: number,
+  name: string,
+  timeCreated: number, // Keeping as number for Unix timestamp
+  timeLastEdited: number, // Keeping as number for Unix timestamp
+  description: string,
+  numQuestions: number,
+  questions: Question[];
+  duration : number
 }
 
 export interface Session {

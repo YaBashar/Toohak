@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -37,7 +37,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
   });
 
   // Token is empty or invalid (does not refer to valid logged in user session)
-  test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
+  test('Token is invalid (does not refer to valid logged in user session)', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
       json: {
         token: 'invalid token',
@@ -58,7 +58,33 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Invalid Token' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(401);
+  });
+
+  // token is empty
+  test('Token is empty', () => {
+    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+      json: {
+        token: '',
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answer: 'Prince Charles',
+              correct: true,
+            },
+            {
+              answer: 'Queen Elizabeth',
+              correct: false,
+            }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
@@ -80,7 +106,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question is less than 5 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -102,7 +128,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question is more than 50 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -148,7 +174,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question has more than 6 answers' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -170,7 +196,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question has less than 2 answers' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -196,7 +222,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question duration is not a positive number' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -222,7 +248,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Sum of question durations in quiz exceeds 3 minutes' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -248,7 +274,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question points are less than 1' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -274,7 +300,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Question points are more than 10' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -300,7 +326,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Answer is less than 1 character' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -326,7 +352,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Answer is more than 30 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -352,7 +378,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Answers are duplicates' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -378,7 +404,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         }
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'No correct answers' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 

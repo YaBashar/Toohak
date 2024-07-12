@@ -1,5 +1,6 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
+import { Quiz } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -138,6 +139,82 @@ export function updatePasswordErrorChecking(token: number, oldPassword: string, 
 
   if (!hasNumber || !hasLetter) {
     return 'new password should contain at least one letter and one number';
+  } else {
+    return 'passed';
+  }
+}
+
+// QUIZ.TS HELPER FUNCTIONS
+
+// function to create a random id everytime
+export function uniqueQuizId(quizArr: Quiz[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (quizArr.find(quiz => (quiz.quizId === uId)));
+  return uId;
+}
+
+export function quizCreateErrorChecking(token: number, name: string, description: string): string {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+  const user = userArr.find((user) => {
+    return user.authUserId === token;
+  });
+
+  if (!user) {
+    return 'Invalid token';
+  }
+
+  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
+    ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
+  for (let i = 0; i < specialChars.length; i++) {
+    if (name.includes(specialChars[i])) {
+      return 'Name contains invalid characters';
+    }
+  }
+
+  if (name.length < 3) {
+    return 'name is less than 3 characters';
+  } else if (name.length > 30) {
+    return 'name is more than 30 characters';
+  } else if (description.length > 100) {
+    return 'Description is more than 100 characters in length';
+  } else if (quizArr.find((quiz) => quiz.name === name && quiz.authUserId === token)) {
+    return 'Name is already used by current logged in user';
+  } else {
+    return 'passed';
+  }
+}
+
+export function quizNameUpdateErrorChecking(token: number, quizId: number, name: string) {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
+  const user = userArr.find(user => user.authUserId === token);
+  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === token);
+  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+
+  if (!user) {
+    return 'Invalid User id';
+  } else if (!quiz) {
+    return 'Invalid Quiz id';
+  } else if (!quizUser) {
+    return 'Quiz Id not owned by the user';
+  } else if (findName) {
+    return 'Name is already used';
+  }
+
+  if (name === ' ') {
+    return 'Name cannot be empty';
+  } else if (name.length <= 3) {
+    return 'Name is too short';
+  } else if (name.length > 30) {
+    return 'Name is too long';
+  } else if (/[!-:-@[-`{-~]/.test(name)) {
+    return 'Quiz name cannot have symbols';
   } else {
     return 'passed';
   }

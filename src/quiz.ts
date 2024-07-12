@@ -21,6 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 import { Answer, Question, Quiz, QuizInfo, QuizList, QuestionId } from './interface';
+import { uniqueQuizId, quizCreateErrorChecking, quizNameUpdateErrorChecking } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -77,32 +78,11 @@ export function adminQuizList(token: number): {quizzes: QuizList[]} | {error: st
 */
 export function adminQuizCreate(token: number, name: string, description: string): { quizId: number } | { error: string } {
   const store = getData();
-  const userArr = store.users;
   const quizArr = store.quizzes;
-  const user = userArr.find((user) => {
-    return user.authUserId === token;
-  });
 
-  if (!user) return { error: 'Invalid token' };
-
-  const specialChars = ['!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '+', '=', '{', '}', '[', ']',
-    ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
-  for (let i = 0; i < specialChars.length; i++) {
-    if (name.includes(specialChars[i])) {
-      return { error: 'Name contains invalid characters' };
-    }
-  }
-  if (name.length < 3) {
-    return { error: 'name is less than 3 characters' };
-  }
-  if (name.length > 30) {
-    return { error: 'name is more than 30 characters' };
-  }
-  if (description.length > 100) {
-    return { error: 'Description is more than 100 characters in length' };
-  }
-  if (quizArr.find((quiz) => quiz.name === name && quiz.authUserId === token)) {
-    return { error: 'Name is already used by current logged in user' };
+  const check = quizCreateErrorChecking(token, name, description);
+  if (check !== 'passed') {
+    return { error: check };
   }
 
   const id = uniqueQuizId(quizArr);
@@ -117,18 +97,10 @@ export function adminQuizCreate(token: number, name: string, description: string
     duration: 0,
     authUserId: token,
   };
+
   store.quizzes.push(quiz);
   setData(store);
   return { quizId: id };
-}
-
-// function to create a random id everytime
-function uniqueQuizId(quizArr: Quiz[]): number {
-  let uId: number;
-  do {
-    uId = Date.now();
-  } while (quizArr.find(quiz => (quiz.quizId === uId)));
-  return uId;
 }
 
 /** [3] adminQuizRemove
@@ -151,11 +123,9 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
     return { error: 'Invalid user id' };
-  }
-  if (!quiz) {
+  } else if (!quiz) {
     return { error: 'Invalid quiz Id entered' };
-  }
-  if (quiz.authUserId !== token) {
+  } else if (quiz.authUserId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
 
@@ -234,31 +204,12 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
 */
 export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | { error: string} {
   const store = getData();
-  const userArr = store.users;
   const quizArr = store.quizzes;
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
-  const user = userArr.find(user => user.authUserId === token);
-  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === token);
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
 
-  if (!user) {
-    return { error: 'Invalid User id' };
-  } else if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
-  } else if (findName) {
-    return { error: 'Name is already used' };
-  }
-
-  if (name === ' ') {
-    return { error: 'Name cannot be empty' };
-  } else if (name.length <= 3) {
-    return { error: 'Name is too short' };
-  } else if (name.length > 30) {
-    return { error: 'Name is too long' };
-  } else if (/[!-:-@[-`{-~]/.test(name)) {
-    return { error: 'Quiz name cannot have symbols' };
+  const check = quizNameUpdateErrorChecking(token, quizId, name);
+  if (check !== 'passed') {
+    return { error: check };
   }
 
   quiz.name = name;

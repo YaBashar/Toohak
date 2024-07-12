@@ -75,8 +75,6 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const check = getUserIdFromToken(token);
 
-  console.log(check);
-
   if (check === -1) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }

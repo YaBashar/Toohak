@@ -126,10 +126,37 @@ describe('Testing that information has been correctly registered', () => {
     expect(data.token).toStrictEqual(expect.any(String));
     expect(res.statusCode).toStrictEqual(200);
   });
+
+  // checks that user was added to database
+  test('User information successfully added to database', () => {
+    const res1 = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const token = JSON.parse(res1.body.toString()).token;
+
+    const res2 = requestUserDetails(token);
+    const data = JSON.parse(res2.body.toString());
+
+    expect(data).toStrictEqual({
+      user: {
+        authUserId: expect.any(Number),
+        name: 'first last',
+        email: 'email@unsw.edu.au',
+        numSuccessfulLogins: 1,
+        numFailedPasswordSinceLastLogin: 0,
+      }
+    });
+
+    expect(res2.statusCode).toStrictEqual(200);
+  });
 });
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   return (request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
+  }));
+};
+
+const requestUserDetails = (token: string) => {
+  return (request('GET', SERVER_URL + '/v1/admin/user/details', {
+    json: { token }, timeout: TIMEOUT_MS
   }));
 };

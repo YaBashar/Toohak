@@ -1,5 +1,7 @@
+import { Store } from './interface';
+
 // YOU SHOULD MODIFY THIS OBJECT BELOW ONLY
-let data = {
+let data: Store = {
   users: [
   ],
 
@@ -10,7 +12,6 @@ let data = {
   ],
 
   trash: [
-
   ]
 };
 
@@ -33,12 +34,12 @@ Example usage
 */
 
 // Use get() to access the data
-function getData() {
+function getData(): Store {
   return data;
 }
 
 // Use set(newData) to pass in the entire data object, with modifications made
-function setData(newData) {
+function setData(newData: Store) {
   data = newData;
 }
 

@@ -94,7 +94,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 
 // adminAuthUserDetails
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const { token } = req.body;
+  const token = req.query.token as string;
   const authUserId = getUserIdFromToken(token);
 
   if (authUserId === -1) {

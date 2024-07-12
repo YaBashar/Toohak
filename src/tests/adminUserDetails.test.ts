@@ -24,7 +24,6 @@ describe('Testing error cases', () => {
 });
 
 describe('Testing correct return', () => {
-
   test('Returns correct object', () => {
     const res = requestUserDetails(token);
     const data = JSON.parse(res.body.toString());
@@ -43,7 +42,6 @@ describe('Testing correct return', () => {
     expect(res.statusCode).toStrictEqual(200);
   });
 });
-
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   return (request('POST', SERVER_URL + '/v1/admin/auth/register', {

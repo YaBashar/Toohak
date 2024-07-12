@@ -37,7 +37,7 @@ describe('Testing login success cases', () => {
     const res = requestAuthLogin('zid@unsw.edu.au', 'abcd1234');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ token: expect.any(String)});
+    expect(data).toStrictEqual({ token: expect.any(String) });
     expect(res.statusCode).toStrictEqual(200);
   });
 
@@ -45,7 +45,6 @@ describe('Testing login success cases', () => {
   test('Correctly updates login count', () => {
     requestAuthLogin('zid@unsw.edu.au', 'abcd1234');
     requestAuthLogin('zid@unsw.edu.au', 'abcd1234');
-
 
     expect(requestUserDetails(uid)).toStrictEqual({
       user: {
@@ -55,8 +54,7 @@ describe('Testing login success cases', () => {
         numSuccessfulLogins: 3,
         numFailedPasswordSinceLastLogin: 0,
       }
-    })
-
+    });
   });
 
   // updating the number of failed logins count
@@ -73,7 +71,7 @@ describe('Testing login success cases', () => {
         numSuccessfulLogins: 1,
         numFailedPasswordSinceLastLogin: 3,
       }
-    })
+    });
   });
 
   // resetting unsuccessful login count after successful login
@@ -90,12 +88,9 @@ describe('Testing login success cases', () => {
         numSuccessfulLogins: 2,
         numFailedPasswordSinceLastLogin: 0,
       }
-    })
-
-  })
-
+    });
+  });
 });
-
 
 // HELPER FUNCTIONS
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {

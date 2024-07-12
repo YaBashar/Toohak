@@ -4,13 +4,17 @@ import { port, url } from '../config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
+let token: string;
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+
+  const user = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
+  token = JSON.parse(user.body.toString()).token;
 });
 
 describe('Testing error cases', () => {
   test('Invalid token', () => {
-    requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
     const res = requestUserDetails('invalid token');
     const data = JSON.parse(res.body.toString());
 
@@ -20,13 +24,6 @@ describe('Testing error cases', () => {
 });
 
 describe('Testing correct return', () => {
-  let token: string;
-
-  beforeEach(() => {
-    const user = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
-    token = JSON.parse(user.body.toString()).token;
-  });
-
   test('Returns correct object', () => {
     const res = requestUserDetails(token);
     const data = JSON.parse(res.body.toString());
@@ -36,8 +33,8 @@ describe('Testing correct return', () => {
         authUserId: expect.any(Number),
         name: 'first last',
         email: 'zid@ad.unsw.edu.au',
-        numSuccessfulLogins: expect.any(Number),
-        numFailedPasswordSinceLastLogin: expect.any(Number),
+        numSuccessfulLogins: 1,
+        numFailedPasswordSinceLastLogin: 0,
       }
     };
 
@@ -54,6 +51,6 @@ const requestAuthRegister = (email: string, password: string, nameFirst: string,
 
 const requestUserDetails = (token: string) => {
   return (request('GET', SERVER_URL + '/v1/admin/user/details', {
-    json: { token }, timeout: TIMEOUT_MS
+    qs: { token }, timeout: TIMEOUT_MS
   }));
 };

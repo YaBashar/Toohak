@@ -158,7 +158,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const { token } = req.body;
+  const token = req.query.token as string;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
     return res.status(401).json({ error: 'invalid user id' });
@@ -498,7 +498,6 @@ app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   return res.status(200).json({});
 });
 
-
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================
@@ -531,4 +530,3 @@ process.on('SIGINT', () => {
     process.exit();
   });
 });
-

@@ -151,5 +151,27 @@ describe('adminQuizNameUpdate Tests', () => {
         duration: expect.any(Number)
       });
     });
+
+    test('Testing timeLastEdited property is the same as timeCreated', () => {
+      const quiz = createQuiz(token, 'newQuiz', 'description');
+      const initialTimeCreated = quiz.timeCreated;
+      const initialTimeEdited = quiz.timeLastEdited;
+
+      expect(initialTimeCreated).toEqual(initialTimeEdited);
+    });
+
+    test('Testing timeLastEdited property has been changed', (done) => {
+      const createQuizResponse = createQuiz(token, 'newQuiz', 'description');
+      const quizId = createQuizResponse.quizId;
+      const initialTimeCreated = createQuizResponse.timeCreated;
+
+      setTimeout(() => {
+        quizNameUpdate(token, quizId, 'changeName');
+        const quizInfoResponse = quizInfo(token, quizId);
+        const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
+        expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
+        done();
+      }, 1000);
+    });
   });
 });

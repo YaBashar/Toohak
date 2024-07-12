@@ -61,6 +61,6 @@ const requestAuthLogout = (token: string) => {
 
 const requestUserDetails = (token: string) => {
   return (request('GET', SERVER_URL + '/v1/admin/user/details', {
-    json: { token }, timeout: TIMEOUT_MS
+    qs: { token }, timeout: TIMEOUT_MS
   }));
 };

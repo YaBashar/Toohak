@@ -9,7 +9,7 @@ let data: Store = {
 };
 
 // Load data from file on startup
-if (fs.existsSync('data.json')) {
+if (fs.existsSync('../data.json')) {
   const rawData = fs.readFileSync('data.json', 'utf-8');
   data = JSON.parse(rawData);
 }

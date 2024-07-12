@@ -159,6 +159,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
     return { error: 'Quiz Id not owned by the user' };
   }
 
+  quiz.timeLastEdited = Math.round(Date.now() / 1000);
   store.trash.push(quiz);
   const index = quizArray.indexOf(quiz);
   quizArray.splice(index, 1);

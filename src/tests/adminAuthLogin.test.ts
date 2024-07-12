@@ -111,12 +111,6 @@ const requestAuthLogin = (email: string, password: string) => {
   }));
 };
 
-const requestAuthLogout = (token: string) => {
-  return (request('POST', SERVER_URL + '/v1/admin/auth/logout', {
-    json: { token }, timeout: TIMEOUT_MS
-  }));
-};
-
 const requestUserDetails = (token: string) => {
   const details = (request('GET', SERVER_URL + '/v1/admin/user/details', {
     qs: { token }, timeout: TIMEOUT_MS

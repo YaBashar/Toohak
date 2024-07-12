@@ -33,7 +33,8 @@ app.use(morgan('dev'));
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
-app.use('/docs', sui.serve, sui.setup(YAML.parse(file), { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
+app.use('/docs', sui.serve, sui.setup(YAML.parse(file),
+  { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
 
 const PORT: number = parseInt(process.env.PORT || config.port);
 const HOST: string = process.env.IP || '127.0.0.1';
@@ -94,7 +95,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 
 // adminAuthUserDetails
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
-  const { token } = req.body;
+  const token = req.query.token as string;
   const authUserId = getUserIdFromToken(token);
 
   if (authUserId === -1) {
@@ -119,7 +120,8 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
 
   if ('error' in result) {
-    if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+    if (result.error === 'invalid userId' ||
+      result.error === 'userId does not exist') {
       return res.status(401).json(result);
     } else if ('error' in result) {
       return res.status(400).json(result);
@@ -141,7 +143,8 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'Invalid user id') {
       return res.status(401).json(result);
-    } else if (result.error === 'Invalid quiz Id entered' || result.error === 'Quiz Id not owned by the user') {
+    } else if (result.error === 'Invalid quiz Id entered' ||
+      result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
     }
   }
@@ -193,7 +196,8 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'Invalid User id') {
       return res.status(401).json(result);
-    } else if (result.error === 'This Quiz Id does not refer to a quiz that this user owns' || result.error === 'Quiz Id not found') {
+    } else if (result.error === 'This Quiz Id does not refer to a quiz that this user owns' ||
+      result.error === 'Quiz Id not found') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
@@ -214,7 +218,8 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   if (quizNameUpdate.error) {
     if (quizNameUpdate.error === 'Invalid User id') {
       return res.status(401).json({ error: quizNameUpdate.error });
-    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' || quizNameUpdate.error === 'Invalid Quiz id') {
+    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' ||
+      quizNameUpdate.error === 'Invalid Quiz id') {
       return res.status(403).json({ error: quizNameUpdate.error });
     } else if (quizNameUpdate.error === 'Name is already used' ||
       quizNameUpdate.error === 'Name cannot be empty' ||
@@ -237,13 +242,9 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
 
   if (authUserId === -1) {
     return res.status(401).json({ error: 'invalid token' });
-  }
-
-  if (!quizId) {
+  } else if (!quizId) {
     return res.status(403).json({ error: 'quiz does not exist for this user' });
-  }
-
-  if (!questionId) {
+  } else if (!questionId) {
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
 
@@ -337,7 +338,8 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   if (quizTransfer.error) {
     if (quizTransfer.error === 'Invalid User id') {
       return res.status(401).json({ error: quizTransfer.error });
-    } else if (quizTransfer.error === 'Quiz Id not owned by the user' || quizTransfer.error === 'Invalid Quiz id') {
+    } else if (quizTransfer.error === 'Quiz Id not owned by the user' ||
+      quizTransfer.error === 'Invalid Quiz id') {
       return res.status(403).json({ error: quizTransfer.error });
     } else if (quizTransfer.error === 'Target user email is not a real user' ||
       quizTransfer.error === 'Target user email is the same as currently logged in user' ||
@@ -361,7 +363,8 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Quiz does not exist') {
+    } else if (result.error === 'Quiz Id not owned by the user' ||
+      result.error === 'Quiz does not exist') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
@@ -384,7 +387,8 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   if ('error' in result) {
     if (result.error === 'Invalid User id') {
       return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz id') {
+    } else if (result.error === 'Quiz Id not owned by the user' ||
+      result.error === 'Invalid Quiz id') {
       return res.status(403).json(result);
     } else if (result.error === 'Question id does not refer to valid question in quiz') {
       return res.status(400).json(result);
@@ -407,7 +411,8 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   if ('error' in quizInfo) {
     if (quizInfo.error === 'Invalid User id') {
       return res.status(401).json(quizInfo);
-    } else if (quizInfo.error === 'Invalid Quiz id' || quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
+    } else if (quizInfo.error === 'Invalid Quiz id' ||
+      quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
       return res.status(403).json(quizInfo);
     }
   }
@@ -445,7 +450,8 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' || result.error === 'Invalid Quiz Id') {
+    } else if (result.error === 'Quiz Id not owned by the user' ||
+      result.error === 'Invalid Quiz Id') {
       return res.status(403).json(result);
     } else if (result.error === 'Invalid Question Id') {
       return res.status(400).json(result);
@@ -466,7 +472,8 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
+    } else if (result.error === 'quiz does not exist for this user' ||
+      result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
     }
   }

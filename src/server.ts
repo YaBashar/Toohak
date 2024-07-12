@@ -212,7 +212,7 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   return res.status(200).json(quizNameUpdate);
 });
 
-// My POST route for restoring a quiz from trash
+// POST route for restoring a quiz from trash
 app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizId = parseInt(req.params.quizId as string, 10);
@@ -224,12 +224,13 @@ app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz ID refers to a quiz that is not currently in the trash') {
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
-    } 
+    }
   }
   return res.status(200).json({});
 });
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

@@ -783,26 +783,30 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
   const quizArray = store.quizzes;
   const trashArray = store.trash;
   const userArray = store.users;
-  const user = userArray.find((user) => user.authUserId === authUserId);
-  const quiz = trashArray.find((quiz) => quiz.quizId === quizId);
 
+  // Checking if the authUserId is valid
+  const user = userArray.find((user) => user.authUserId === authUserId);
   if (!user) {
     return { error: 'invalid token' };
   }
-  if (!quiz) {
+
+  // Finding the quiz in the quizzes array
+  const quizIndex = quizArray.findIndex((quiz) => quiz.quizId === quizId);
+  if (quizIndex === -1) {
     return { error: 'quiz does not exist for this user' };
   }
+
+  // Ensuring the quiz belongs to the authenticated user
+  const quiz = quizArray[quizIndex];
   if (quiz.authUserId !== authUserId) {
     return { error: 'Quiz Id not owned by the user' };
   }
 
-  // Move quiz from trash to quizzes
-  const index = trashArray.indexOf(quiz);
-  trashArray.splice(index, 1);
-  quizArray.push(quiz);
+  // Move quiz from quizzes to trash
+  trashArray.push(quiz);
+  quizArray.splice(quizIndex, 1);
   store.quizzes = quizArray;
   store.trash = trashArray;
   setData(store);
-
   return {};
 }

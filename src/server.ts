@@ -12,7 +12,7 @@ import { getUserIdFromToken } from './helper';
 import { adminQuizNameUpdate, adminQuizQuestionDuplicate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other.js';
 import { adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate, adminUserPasswordUpdate, adminAuthLogout } from './auth';
-import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizTrashEmpty } from './quiz';
+import { adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate, adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView, adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizTrashEmpty, adminQuizTrashRestore } from './quiz';
 
 // Set up app
 const app = express();
@@ -158,7 +158,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 
 // adminQuizList route
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
-  const { token } = req.body;
+  const token = req.query.token as string;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
     return res.status(401).json({ error: 'invalid user id' });
@@ -477,6 +477,25 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
     }
   }
   return res.status(200).json(result);
+});
+
+// adminQuizTrashRestore
+app.post('/v1/admin/quiz/:quizId/restore', (req: Request, res: Response) => {
+  const { token } = req.body;
+  const quizId = parseInt(req.params.quizId as string, 10);
+  const authUserId = getUserIdFromToken(token);
+  if (!authUserId) {
+    return res.status(401).json({ error: 'invalid token' });
+  }
+  const result = adminQuizTrashRestore(authUserId, quizId);
+  if ('error' in result) {
+    if (result.error === 'invalid token') {
+      return res.status(401).json(result);
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
+      return res.status(403).json(result);
+    }
+  }
+  return res.status(200).json({});
 });
 
 // ====================================================================

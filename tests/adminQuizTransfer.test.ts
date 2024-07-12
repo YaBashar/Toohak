@@ -109,7 +109,7 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Check that transferred quiz is under name of target user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: targetToken }, timeout: TIMEOUT_MS });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: targetToken }, timeout: TIMEOUT_MS });
 
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes:
@@ -124,7 +124,7 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Check that transferred quiz has been removed from source user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: sourceToken }, timeout: TIMEOUT_MS });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: sourceToken }, timeout: TIMEOUT_MS });
 
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes: []

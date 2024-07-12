@@ -46,7 +46,7 @@ export function adminQuizList(authUserId: number) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
-  if (!Number.isInteger(authUserId) || !user) {
+  if (!user) {
     return { error: 'invalid user id' };
   }
 
@@ -787,6 +787,51 @@ export function adminQuizTrashEmpty(authUserId: number, quizIds: number[]): Reco
   }
 
   store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
+
+  return {};
+}
+
+/** [8] adminQuizTrashRestore
+  *
+  * Restores a quiz from the trash
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @returns {} - empty object if successful
+  *
+*/
+export function adminQuizTrashRestore(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
+  const store = getData();
+  const quizArray = store.quizzes;
+  const trashArray = store.trash;
+  const userArray = store.users;
+
+  // Checking if the authUserId is valid
+  const user = userArray.find((user) => user.authUserId === authUserId);
+  if (!user) {
+    return { error: 'invalid token' };
+  }
+
+  // Finding the quiz in the quizzes array
+  const quizIndex = quizArray.findIndex((quiz) => quiz.quizId === quizId);
+  if (quizIndex === -1) {
+    return { error: 'quiz does not exist for this user' };
+  }
+
+  // Ensuring the quiz belongs to the authenticated user
+  const quiz = quizArray[quizIndex];
+  if (quiz.authUserId !== authUserId) {
+    return { error: 'Quiz Id not owned by the user' };
+  }
+
+  // Move quiz from quizzes to trash
+  quizArray.push(quiz);
+  quizArray.splice(quizIndex, 1);
+  store.quizzes = quizArray;
+  store.trash = trashArray;
+  setData(store);
 
   return {};
 }

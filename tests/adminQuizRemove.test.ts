@@ -74,7 +74,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-      json: {
+      qs: {
         token: token1,
       },
       timeout: TIMEOUT_MS

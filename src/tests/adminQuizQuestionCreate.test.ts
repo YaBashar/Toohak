@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -37,10 +37,36 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
   });
 
   // Token is empty or invalid (does not refer to valid logged in user session)
-  test('Token is empty or invalid (does not refer to valid logged in user session)', () => {
+  test('Token is invalid (does not refer to valid logged in user session)', () => {
     const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
       json: {
         token: 'invalid token',
+        questionBody: {
+          question: 'Who is the Monarch of England?',
+          duration: 4,
+          points: 5,
+          answers: [
+            {
+              answer: 'Prince Charles',
+              correct: true,
+            },
+            {
+              answer: 'Queen Elizabeth',
+              correct: false,
+            }
+          ]
+        }
+      }
+    });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Invalid Token' });
+    expect(res.statusCode).toBe(401);
+  });
+
+  // token is empty
+  test('Token is empty', () => {
+    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+      json: {
+        token: '',
         questionBody: {
           question: 'Who is the Monarch of England?',
           duration: 4,

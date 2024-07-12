@@ -1,14 +1,12 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 let token: string;
 let quiz1Id: string;
-let quiz2Id: string;
 let question1Quiz1Id: string;
-let question1Quiz2Id: string;
 let randomToken: string;
 let randomQuizId: string;
 let quiz1;
@@ -65,30 +63,6 @@ beforeEach(() => {
       }
     }
   });
-
-  // create a second quiz
-  const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name: 'quiz 2', description: 'the second quiz' }
-  });
-  quiz2Id = JSON.parse(quiz2.body.toString()).quizId;
-
-  // add a question to the second quiz
-  const question1Quiz2 = request('POST', SERVER_URL + `/v1/admin/quiz/${quiz2Id}/question`, {
-    json: {
-      token: token,
-      questionBody: {
-        question: 'What is 1 + 1?',
-        duration: 4,
-        points: 5,
-        answers: [
-          { answer: '4', correct: false },
-          { answer: '2', correct: true },
-          { answer: '11', correct: false }
-        ]
-      }
-    }
-  });
-  question1Quiz2Id = JSON.parse(question1Quiz2.body.toString()).questionId;
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
@@ -103,8 +77,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  test('Question id does not exist in this quiz', () => {
-    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz2Id}/move`, {
+  test('Question id does not exist', () => {
+    const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${55}/move`, {
       json: {
         token,
         newPosition: 2
@@ -140,7 +114,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}/move`, {
       json: {
         token,
-        newPosition: 1
+        newPosition: 0
       }
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new position is current position' });
@@ -206,7 +180,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${question1Quiz1Id}/move`, {
       json: {
         token,
-        newPosition: 2
+        newPosition: 1
       }
     });
     expect(JSON.parse(res.body.toString())).toStrictEqual({});

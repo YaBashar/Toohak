@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -28,7 +28,7 @@ describe('GET /v1/admin/quiz/list', () => {
     const quizId = JSON.parse(quiz.body.toString());
     const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token, name: 'quiz 2', description: 'the second quiz' } });
     const quiz2Id = JSON.parse(quiz2.body.toString());
-    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token } });
+    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token } });
     expect(JSON.parse(res.body.toString())).toStrictEqual(
       {
         quizzes:

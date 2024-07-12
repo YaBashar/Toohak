@@ -1,6 +1,6 @@
 import { getData } from './dataStore';
 
-export function getUserIdFromToken(sessionId: string): number | { error: string } {
+export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
   const store = getData();
 
@@ -9,7 +9,7 @@ export function getUserIdFromToken(sessionId: string): number | { error: string 
     return x.sessionId === result;
   });
   if (!session) {
-    return { error: 'invalid token' };
+    return -1;
   }
 
   return session.authUserId;

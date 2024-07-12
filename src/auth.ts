@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 2 'AUTH.JS'  ////////////////////////
+//////////////////////   TOOHAK ITERATION 2 'AUTH.TS'  ////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -18,9 +18,10 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from './dataStore';
 import { isEmail } from 'validator';
 import validator from 'validator';
+import { UserDetails } from './interface';
 
 // INTERFACES
 
@@ -41,7 +42,6 @@ import validator from 'validator';
   *                                 identifier for the user
   *
 */
-
 export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
   const store = getData();
   const userArr = store.users;
@@ -110,12 +110,12 @@ function uniqueId(sessArr: { sessionId: number }[]): number {
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
   * ...
-  * @returns {authUserId: number} - number representing a unique
+  * @returns {token: number} - number representing a unique
   *                                 identifier for the user
   *
 */
 
-export function adminAuthLogin(email: string, password: string) {
+export function adminAuthLogin(email: string, password: string): { token: string} | { error: string} {
   const store = getData();
   const userArr = store.users;
 
@@ -152,7 +152,7 @@ export function adminAuthLogin(email: string, password: string) {
   *
   * Given an admin user's authUserId, returns details about the user.
   *
-  * @param {number} authUserId - number representing a unique
+  * @param {number} token - number representing a unique
   *                              identifier for the user
   * ...
   * @returns {
@@ -167,11 +167,11 @@ export function adminAuthLogin(email: string, password: string) {
   *
 */
 
-export function adminUserDetails(authUserId: number | { error: string}) {
+export function adminUserDetails(token: number): UserDetails| { error: string} {
   const store = getData();
   const userArr = store.users;
 
-  const user = userArr.find((user) => user.authUserId === authUserId);
+  const user = userArr.find((user) => user.authUserId === token);
 
   // checking for error cases
   if (!user) {
@@ -195,7 +195,7 @@ export function adminUserDetails(authUserId: number | { error: string}) {
   *
   * Gets all of the relevant information about the current quiz.
   *
-  * @param {number} authUserId - number representing a unique
+  * @param {number} token - number representing a unique
   *                              identifier for the user
   * @param {string} email - user's email address
   * @param {string} nameFirst - user's first name
@@ -204,15 +204,15 @@ export function adminUserDetails(authUserId: number | { error: string}) {
   * @returns {} - empty object
 */
 
-export function adminUserDetailsUpdate(authUserId: number | { error: string}, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
-  if (!Number.isInteger(authUserId)) {
+  if (!Number.isInteger(token)) {
     return { error: 'invalid userId' };
   }
 
-  if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+  if (data.users.some(user => user.email === email && user.authUserId !== token)) {
     return { error: 'email used by another user' };
   }
 
@@ -244,13 +244,13 @@ export function adminUserDetailsUpdate(authUserId: number | { error: string}, em
     return { error: 'last name is too long' };
   }
 
-  const userIndex = data.users.findIndex(user => user.authUserId === authUserId);
+  const userIndex = data.users.findIndex(user => user.authUserId === token);
 
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
   } else if (!validator.isEmail(email)) {
     return { error: 'invalid email address' };
-  } else if (data.users.some(user => user.email === email && user.authUserId !== authUserId)) {
+  } else if (data.users.some(user => user.email === email && user.authUserId !== token)) {
     return { error: 'email used by another user' };
   } else if (specialChars.test(nameFirst)) {
     return { error: 'first name contains invalid characters' };
@@ -275,18 +275,16 @@ export function adminUserDetailsUpdate(authUserId: number | { error: string}, em
   *
   * Gets all of the relevant information about the current quiz.
   *
-  * @param {number} authUserId - number representing a unique
+  * @param {number} token - number representing a unique
   *                              identifier for the user
   * @param {string} oldPassword - user's old password
   * @param {string} newPassword - user's new password
   * ...
   * @returns {} - empty object
 */
-
-export function adminUserPasswordUpdate(authUserId: number | { error: string}, oldPassword: string, newPassword: string) {
+export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | { error : string} {
   const data = getData();
-
-  const user = data.users.find(user => user.authUserId === authUserId);
+  const user = data.users.find(user => user.authUserId === token);
 
   if (!user) {
     return { error: 'userId does not exist' };
@@ -324,13 +322,12 @@ export function adminUserPasswordUpdate(authUserId: number | { error: string}, o
   *
   * Logs out an admin user who has an active user session.
   *
-  * @param {number} authUserId - number representing a unique
+  * @param {number} token - number representing a unique
   *                              identifier for the user
   * ...
   * @returns {} - empty object
 */
-
-export function adminAuthLogout(token: string) {
+export function adminAuthLogout(token: string): Record<string, never> | { error : string} {
   const result = parseFloat(token);
 
   const store = getData();

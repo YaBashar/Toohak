@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -49,7 +49,7 @@ describe('adminQuizTransfer Tests', () => {
     });
 
     test('Transferring Quiz which does not exist ', () => {
-      const res = requestQuizTransfer(123, sourceToken, 'targetuser@unsw.edu.au');
+      const res = requestQuizTransfer(quizId + 1, sourceToken, 'targetuser@unsw.edu.au');
       const data = JSON.parse(res.body.toString());
       expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(403);
@@ -109,7 +109,7 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Check that transferred quiz is under name of target user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: targetToken }, timeout: TIMEOUT_MS });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: targetToken }, timeout: TIMEOUT_MS });
 
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes:
@@ -124,7 +124,7 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Check that transferred quiz has been removed from source user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { json: { token: sourceToken }, timeout: TIMEOUT_MS });
+      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: sourceToken }, timeout: TIMEOUT_MS });
 
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes: []

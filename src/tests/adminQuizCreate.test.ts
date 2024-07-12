@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -41,6 +41,7 @@ describe('POST /v1/admin/quiz', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
+
   test('Name contains invalid characters', () => {
     const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
       json: {

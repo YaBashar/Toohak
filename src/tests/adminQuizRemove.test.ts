@@ -1,5 +1,5 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -86,7 +86,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
       timeout: TIMEOUT_MS
     });
     res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-      json: {
+      qs: {
         token: token1,
       },
       timeout: TIMEOUT_MS

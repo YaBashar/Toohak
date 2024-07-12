@@ -7,6 +7,12 @@ const TIMEOUT_MS = 5 * 1000;
 // Helper Functions for requests
 /// /////////////////////////////////////////////////////////////
 
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
+
 const createQuiz = (token : string, name : string, description : string) => {
   return (request('POST', SERVER_URL + '/v1/admin/quiz',
     { json: { token, name, description }, timeout: TIMEOUT_MS })
@@ -17,6 +23,10 @@ const requestQuizTransfer = (quizId: number, token: string, email: string) => {
   return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`,
     { json: { token, email }, timeout: TIMEOUT_MS }
   ));
+};
+
+const requestQuizList = (token : string) => {
+  return (request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token }, timeout: TIMEOUT_MS }));
 };
 
 /// /////////////////////////////////////////////////////////////
@@ -32,10 +42,10 @@ describe('adminQuizTransfer Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const sourceUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'sourceuser@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'Mubashir', nameLast: 'Hussain' }, timeout: TIMEOUT_MS });
+      const sourceUser = createUser('sourceuser@unsw.edu.au', '123ABCabc@#$', 'Mubashir', 'Hussain');
       sourceToken = JSON.parse(sourceUser.body.toString()).token;
 
-      const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' }, timeout: TIMEOUT_MS });
+      const targetUser = createUser('targetuser@unsw.edu.au', '124ABCabc@#$', 'Muhammad', 'Chowdhury');
       targetToken = JSON.parse(targetUser.body.toString()).token;
 
       const res = createQuiz(sourceToken, 'quizName', 'description');
@@ -43,7 +53,7 @@ describe('adminQuizTransfer Tests', () => {
     });
 
     test('Transfer of a Quiz with invalid Authuser id', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: 'Invalid_token', email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId, 'Invalid_token', 'targetuser@unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toStrictEqual(401);
     });
@@ -56,21 +66,21 @@ describe('adminQuizTransfer Tests', () => {
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId + 1, sourceToken, 'targetuser@unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toStrictEqual(403);
     });
 
     // userEmail is not a real user
     test('target user email is not a real user', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'gurigiurabgiurag@email.unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId, sourceToken, 'gurigiurabgiurag@email.unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
 
     // userEmail is the current logged in user
     test('Destination user email is the same as current user email', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'sourceuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId, sourceToken, 'sourceuser@unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
@@ -79,7 +89,7 @@ describe('adminQuizTransfer Tests', () => {
     test('Quiz has name already used by target user', () => {
       const res = createQuiz(targetToken, 'quizName', 'description');
       const quizId2 = (JSON.parse(res.body.toString())).quizId;
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId2}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId2, sourceToken, 'targetuser@unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(quizTransfer.statusCode).toBe(400);
     });
@@ -91,19 +101,19 @@ describe('adminQuizTransfer Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const sourceUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'sourceuser@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'Mubashir', nameLast: 'Hussain' }, timeout: TIMEOUT_MS });
+      const sourceUser = createUser('sourceuser@unsw.edu.au', '123ABCabc@#$', 'Mubashir', 'Hussain');
       sourceToken = JSON.parse(sourceUser.body.toString()).token;
 
-      const targetUser = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'targetuser@unsw.edu.au', password: '124ABCabc@#$', nameFirst: 'Muhammad', nameLast: 'Chowdhury' }, timeout: TIMEOUT_MS });
+      const targetUser = createUser('targetuser@unsw.edu.au', '124ABCabc@#$', 'Muhammad', 'Chowdhury');
       targetToken = JSON.parse(targetUser.body.toString()).token;
 
       const res = createQuiz(sourceToken, 'quizName', 'description');
-      quizId = (JSON.parse(res.body.toString())).quizId;
+      quizId = JSON.parse(res.body.toString()).quizId;
     });
 
     // check that function returns empty object
     test('Check that function returns empty object', () => {
-      const quizTransfer = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      const quizTransfer = requestQuizTransfer(quizId, sourceToken, 'targetuser@unsw.edu.au');
       expect(JSON.parse(quizTransfer.body.toString())).toStrictEqual({});
     });
 
@@ -124,8 +134,7 @@ describe('adminQuizTransfer Tests', () => {
 
     test('Check that transferred quiz has been removed from source user through quizList', () => {
       request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
-      const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: sourceToken }, timeout: TIMEOUT_MS });
-
+      const quizList = requestQuizList(sourceToken);
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
         quizzes: []
       });

@@ -31,8 +31,13 @@ const createQuizQuestion = (token : string, quizId : number, questionBody : obje
   return JSON.parse(res.body.toString());
 };
 
-const requestQuizInfo = (token : string, quizId : number) => {
-  return (request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: token } }));
+const quizInfo = (token: string, quizId: number) => {
+  const res = request(
+    'GET',
+    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
+    { qs: { token } }
+  );
+  return JSON.parse(res.body.toString());
 };
 
 const requestDuplicateQuestion = (quizId : number, questionId : number, token : string) => {
@@ -160,8 +165,8 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     test('success duplicating quiz question through QuizInfo', () => {
       const quizDuplicateId = requestDuplicateQuestion(quizId, questionId, token);
-      const quizInfo = requestQuizInfo(token, quizId);
-      expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
+      const info = quizInfo(token, quizId);
+      expect(info).toStrictEqual(
         {
           quizId: quizId,
           name: 'quizName',
@@ -237,11 +242,11 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
       setTimeout(() => {
         requestDuplicateQuestion(quizId, questionId, token);
-        requestQuizInfo(token, quizId);
-        const updatedTimeLastEdited = createQuizResponse.timeLastEdited;
+        const quizInfoResponse = quizInfo(token, quizId);
+        const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
         expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
         done();
-      }, 500);
+      }, 1000);
     });
   });
 });

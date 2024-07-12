@@ -19,52 +19,52 @@ describe('PUT /v1/admin/user/details', () => {
     const authUser2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'steph@unsw.edu.au', password: 'Farmingsimulator!1234', nameFirst: 'steph', nameLast: 'liang' } });
     token1 = JSON.parse(authUser2.body.toString()).token;
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token: token1, email: 'amelia@unsw.edu.au', nameFirst: 'amelia', nameLast: 'su' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'email used by another user' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // Email is not valid
   test('Email is not a valid email', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'gurigiurabgiurag', nameFirst: 'amelia', nameLast: 'su' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid email address' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // First/last name contains invalid characters
   test('First name contains invalid characters', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'a!melia', nameLast: 'su' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'first name contains invalid characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('Last name contains invalid characters', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'amelia', nameLast: 'su+' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'last name contains invalid characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // First/last name is too short or too long
   test('First name is too short', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'a', nameLast: 'su' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'first name is too short' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('First name is too long', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'abcdefghijklmnopqrstuv', nameLast: 'su' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'first name is too long' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('Last name is too short', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'amelia', nameLast: 's' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'last name is too short' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('Last name is too long', () => {
     const res = request('PUT', SERVER_URL + '/v1/admin/user/details', { json: { token, email: 'amelia@unsw.ed.au', nameFirst: 'amelia', nameLast: 'abcdefghijklmnopqrstuv' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'last name is too long' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 

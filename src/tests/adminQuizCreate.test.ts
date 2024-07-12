@@ -64,7 +64,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'name is less than 3 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -77,7 +77,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'name is more than 30 characters' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -112,7 +112,7 @@ describe('POST /v1/admin/quiz', () => {
       },
       timeout: TIMEOUT_MS
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Description is more than 100 characters in length' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 

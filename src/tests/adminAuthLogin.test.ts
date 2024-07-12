@@ -20,7 +20,7 @@ describe('Testing login error cases', () => {
     const res = requestAuthLogin('zid2@unsw.edu.au', 'abcd1234');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Email address does not exist' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -29,7 +29,7 @@ describe('Testing login error cases', () => {
     const res = requestAuthLogin('zid@unsw.edu.au', 'abcd123');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Incorrect password' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });

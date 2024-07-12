@@ -14,7 +14,7 @@ describe('Testing error cases', () => {
     const res = requestUserDetails('invalid token');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'invalid token' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 });

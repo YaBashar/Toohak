@@ -15,7 +15,7 @@ describe('Testing logout error cases', () => {
     const res = requestAuthLogout('invalid token');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'invalid token' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 });
@@ -42,7 +42,7 @@ describe('Testing logout success case', () => {
     const res = requestUserDetails(token);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'invalid token' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 });

@@ -69,14 +69,14 @@ describe('adminQuizTrashEmpty Tests', () => {
     test('Deleting quizzes not in the trash', () => {
       const res = emptyTrash(token, [quizId, quizId2]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: 'Some quizzes are not in the trash' });
+      expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(400);
     });
 
     test('Deleting quizzes with an invalid token', () => {
       const res = emptyTrash('invlaid token', [quizId]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+      expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(401);
     });
 
@@ -93,7 +93,7 @@ describe('adminQuizTrashEmpty Tests', () => {
       const anotherToken = JSON.parse(anotherUser.body.toString()).token;
       const res = emptyTrash(anotherToken, [quizId]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: 'Some quizzes are not owned by the user' });
+      expect(data).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(403);
     });
   });

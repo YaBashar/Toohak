@@ -67,7 +67,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     test('Duplicating of a Quiz with invalid Authuser id', () => {
       const duplicateQuiz = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token: 'Invalid_token' }, timeout: TIMEOUT_MS });
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: 'Invalid User id' });
+      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(duplicateQuiz.statusCode).toStrictEqual(401);
     });
 

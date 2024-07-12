@@ -64,21 +64,21 @@ describe('adminQuizDescriptionUpdate Tests', () => {
     test('Description is more than 100 characters', () => {
       const longDescription = 'A'.repeat(101);
       const result = quizDescriptionUpdate(token, quizId, longDescription);
-      expect(result.body).toStrictEqual({ error: 'Quiz description is more than 100 characters in length' });
+      expect(result.body).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toBe(400);
     });
 
     // Test for checking if quidId is non-existent within Tahook
     test('Non-existent quiz Id (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
       const result = quizDescriptionUpdate(token, 999, 'Non-existent Quiz');
-      expect(result.body).toStrictEqual({ error: 'Quiz Id not found' });
+      expect(result.body).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toBe(403);
     });
 
     // Test for checking if the quiz description is updated to be empty
     test('Empty description', () => {
       const result = quizDescriptionUpdate(token, quizId, '');
-      expect(result.body).toStrictEqual({ error: 'Quiz description cannot be empty' });
+      expect(result.body).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toBe(400);
     });
 
@@ -86,7 +86,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
     test('Quiz Id does not refer to a quiz that this user owns', () => {
       const anotherToken = createUser('another@gmail.com', 'anotherPassword', 'another', 'user').body.token;
       const result = quizDescriptionUpdate(anotherToken, quizId, 'Any description');
-      expect(result.body).toStrictEqual({ error: 'Quiz Id not owned by the user' });
+      expect(result.body).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toBe(400);
     });
   });

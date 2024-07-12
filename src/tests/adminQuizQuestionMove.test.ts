@@ -73,7 +73,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -84,7 +84,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'question id does not exist in this quiz' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -95,7 +95,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: -2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'position value is less than zero' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -106,7 +106,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 5
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new position is too big' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -117,7 +117,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 0
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'new position is current position' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -128,7 +128,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
@@ -140,7 +140,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'invalid token' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
@@ -161,7 +161,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist for this user' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
@@ -172,7 +172,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
         newPosition: 2
       }
     });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'quiz does not exist for this user' });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 

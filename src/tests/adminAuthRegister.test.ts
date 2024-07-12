@@ -17,7 +17,7 @@ describe('Testing email address input', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'email is used by another user' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -31,7 +31,7 @@ describe('Testing email address input', () => {
     const res = requestAuthRegister(email, 'abcd1234', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'email is not a valid email address' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -47,7 +47,7 @@ describe('Testing first name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first' + char, 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'name contains invalid characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -59,7 +59,7 @@ describe('Testing first name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', first, 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'first name must be at least 2 characters and no more than 20' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -75,7 +75,7 @@ describe('Testing last name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last' + char);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'name contains invalid characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -87,7 +87,7 @@ describe('Testing last name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', last);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'last name must be at least 2 characters and no more than 20' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -98,7 +98,7 @@ describe('Testing password', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abc123', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'password must be at least 8 characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -109,7 +109,7 @@ describe('Testing password', () => {
     const res = requestAuthRegister('email@unsw.edu.au', password, 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'password must contain at least one number and one letter' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });

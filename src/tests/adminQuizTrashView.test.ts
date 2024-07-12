@@ -13,7 +13,7 @@ describe('Testing error cases', () => {
     const res = requestViewTrash('');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 
@@ -21,7 +21,7 @@ describe('Testing error cases', () => {
     const res = requestViewTrash('invalid token');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
 });

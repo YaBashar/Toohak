@@ -98,4 +98,5 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     });
     expect(res.statusCode).toBe(200);
   });
+  // write a test for timeLastEdited
 });

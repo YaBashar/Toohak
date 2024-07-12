@@ -45,7 +45,7 @@ export function adminQuizList(authUserId: number | { error: string}) {
   const data = getData();
   const user = data.users.find(user => user.authUserId === authUserId);
 
-  if (!Number.isInteger(authUserId) || !user) {
+  if (!user) {
     return { error: 'invalid user id' };
   }
 
@@ -778,6 +778,21 @@ function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: str
   * @returns {} - empty object if successful
   *
 */
+function doesQuestionExistInQuiz(quiz: number, questionId: number | { error: string }) {
+  return quiz.questions.some(question => question.questionId === questionId);
+}
+
+/** [8] adminQuizTrashRestore
+  *
+  * Restores a quiz from the trash
+  *
+  * @param {number} authUserId - Id number representing a unique
+  *                              identifier for the user
+  * @param {number} quizId     - Id number representing a unique
+  *                              identifier for the quiz
+  * @returns {} - empty object if successful
+  *
+*/
 export function adminQuizTrashRestore(authUserId: number | { error: string }, quizId: number): Record<string, never> | { error: string } {
   const store = getData();
   const quizArray = store.quizzes;
@@ -803,10 +818,11 @@ export function adminQuizTrashRestore(authUserId: number | { error: string }, qu
   }
 
   // Move quiz from quizzes to trash
-  trashArray.push(quiz);
+  quizArray.push(quiz);
   quizArray.splice(quizIndex, 1);
   store.quizzes = quizArray;
   store.trash = trashArray;
   setData(store);
+
   return {};
 }

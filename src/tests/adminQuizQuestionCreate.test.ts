@@ -345,25 +345,3 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(200);
   });
 });
-
-// HELPER FUNCTIONS
-const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-  const id = (request('POST', SERVER_URL + '/v1/admin/auth/register', {
-    json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
-  }));
-
-  return JSON.parse(id.body.toString()).token;
-};
-
-const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }, timeout: TIMEOUT_MS
-  });
-  return JSON.parse(res.body.toString());
-};
-
-const createQuestion = (quizid: number, token: string, body: Question) => {
-  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-    json: { token: token, questionBody: body }, timeout: TIMEOUT_MS
-  }));
-};

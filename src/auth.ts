@@ -18,12 +18,12 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
+import { isEmail } from 'validator';
+import validator from 'validator';
 import { UserDetails } from './interface';
-import {
-  uniqueId, registerErrorChecking, loginErrorChecking,
-  updateDetailsErrorChecking, updatePasswordErrorChecking
-} from './helper';
+
+// INTERFACES
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -45,12 +45,28 @@ import {
 export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
   const store = getData();
   const userArr = store.users;
+
   const name = nameFirst + ' ' + nameLast;
 
-  const check = registerErrorChecking(email, password, nameFirst, nameLast);
+  // checking for error cases
+  if (!isEmail(email)) {
+    return { error: 'email is not a valid email address' };
+  } else if (userArr.some(user => user.email === email)) {
+    return { error: 'email is used by another user' };
+  }
 
-  if (check !== 'passed') {
-    return { error: check };
+  if (/[^A-Za-z' -]/.test(name)) {
+    return { error: 'name contains invalid characters' };
+  } else if (nameFirst.length < 2 || nameFirst.length > 20) {
+    return { error: 'first name must be at least 2 characters and no more than 20' };
+  } else if (nameLast.length < 2 || nameLast.length > 20) {
+    return { error: 'last name must be at least 2 characters and no more than 20' };
+  }
+
+  if (password.length < 8) {
+    return { error: 'password must be at least 8 characters' };
+  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
+    return { error: 'password must contain at least one number and one letter' };
   }
 
   // registering the user to the database
@@ -76,6 +92,15 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   return { token: sID.toString() };
 }
 
+// function to create a unique id everytime
+function uniqueId(sessArr: { sessionId: number }[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (sessArr.find(session => (session.sessionId === uId)));
+  return uId;
+}
+
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
@@ -95,26 +120,32 @@ export function adminAuthLogin(email: string, password: string): { token: string
   const userArr = store.users;
 
   const user = userArr.find((user) => user.email === email);
-  const check = loginErrorChecking(email, password);
 
-  if (check !== 'passed') {
-    return { error: check };
-  }
+  // checking for error cases
+  if (!user) {
+    return { error: 'Email address does not exist' };
+  } else if (user.password !== password) {
+    user.numFailedPasswordSinceLastLogin++;
+    setData(store);
+    return { error: 'Incorrect password' };
 
   // logging in the user
-  user.numSuccessfulLogins++;
-  user.numFailedPasswordSinceLastLogin = 0;
+  } else {
+    user.numSuccessfulLogins++;
+    user.numFailedPasswordSinceLastLogin = 0;
+    setData(store);
 
-  const sID = uniqueId(store.sessions);
+    const sID = uniqueId(store.sessions);
 
-  // creating token for session
-  const session = {
-    sessionId: sID,
-    authUserId: user.authUserId,
-  };
+    // creating token for session
+    const session = {
+      sessionId: sID,
+      authUserId: user.authUserId,
+    };
 
-  store.sessions.push(session);
-  return { token: sID.toString() };
+    store.sessions.push(session);
+    return { token: sID.toString() };
+  }
 }
 
 /** [3] adminUserDetails
@@ -139,11 +170,13 @@ export function adminAuthLogin(email: string, password: string): { token: string
 export function adminUserDetails(token: number): UserDetails| { error: string} {
   const store = getData();
   const userArr = store.users;
+
   const user = userArr.find((user) => user.authUserId === token);
 
   // checking for error cases
   if (!user) {
     return { error: 'invalid token' };
+
   // returning object containing user details
   } else {
     return {
@@ -172,17 +205,70 @@ export function adminUserDetails(token: number): UserDetails| { error: string} {
 */
 
 export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+  const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
-  const check = updateDetailsErrorChecking(token, email, nameFirst, nameLast);
-  if (check !== 'passed') {
-    return { error: check };
+  if (!Number.isInteger(token)) {
+    return { error: 'invalid userId' };
+  }
+
+  if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+    return { error: 'email used by another user' };
+  }
+
+  if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  }
+
+  if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters' };
+  }
+
+  if (nameFirst.length < 2) {
+    return { error: 'first name is too short' };
+  }
+
+  if (nameFirst.length > 20) {
+    return { error: 'first name is too long' };
+  }
+
+  if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters' };
+  }
+
+  if (nameLast.length < 2) {
+    return { error: 'last name is too short' };
+  }
+
+  if (nameLast.length > 20) {
+    return { error: 'last name is too long' };
   }
 
   const userIndex = data.users.findIndex(user => user.authUserId === token);
-  data.users[userIndex].email = email;
-  data.users[userIndex].name = `${nameFirst} ${nameLast}`;
-  return {};
+
+  if (userIndex === -1) {
+    return { error: 'userId does not exist' };
+  } else if (!validator.isEmail(email)) {
+    return { error: 'invalid email address' };
+  } else if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+    return { error: 'email used by another user' };
+  } else if (specialChars.test(nameFirst)) {
+    return { error: 'first name contains invalid characters' };
+  } else if (nameFirst.length < 2) {
+    return { error: 'first name is too short' };
+  } else if (nameFirst.length > 20) {
+    return { error: 'first name is too long' };
+  } else if (specialChars.test(nameLast)) {
+    return { error: 'last name contains invalid characters' };
+  } else if (nameLast.length < 2) {
+    return { error: 'last name is too short' };
+  } else if (nameLast.length > 20) {
+    return { error: 'last name is too long' };
+  } else {
+    data.users[userIndex].email = email;
+    data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+    return {};
+  }
 }
 
 /** [5] adminUserPasswordUpdate
@@ -200,9 +286,30 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   const data = getData();
   const user = data.users.find(user => user.authUserId === token);
 
-  const check = updatePasswordErrorChecking(token, oldPassword, newPassword);
-  if (check !== 'passed') {
-    return { error: check };
+  if (!user) {
+    return { error: 'userId does not exist' };
+  }
+
+  if (user.password !== oldPassword) {
+    return { error: 'incorrect password' };
+  }
+
+  if (oldPassword === newPassword) {
+    return { error: 'new password is the same as old password' };
+  }
+
+  if (user.passwordHistory.includes(newPassword)) {
+    return { error: 'password has already been used' };
+  }
+
+  if (newPassword.length < 8) {
+    return { error: 'password is too short' };
+  }
+
+  const hasNumber = /\d/.test(newPassword);
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  if (!hasNumber || !hasLetter) {
+    return { error: 'new password should contain at least one letter and one number' };
   }
 
   user.passwordHistory.push(newPassword);
@@ -222,10 +329,13 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
 */
 export function adminAuthLogout(token: string): Record<string, never> | { error : string} {
   const result = parseFloat(token);
+
   const store = getData();
   const sessArr = store.sessions;
 
-  const session = sessArr.find((x) => x.sessionId === result);
+  const session = sessArr.find((x) => {
+    return x.sessionId === result;
+  });
 
   if (!session) {
     return { error: 'invalid token' };

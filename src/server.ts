@@ -210,13 +210,10 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
 app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const { token, name } = req.body;
   const quizid = parseInt(req.params.quizid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
-  const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
+
+  const quizNameUpdate = adminQuizNameUpdate(token, quizid, name);
   if (quizNameUpdate.error) {
-    if (quizNameUpdate.error === 'Invalid User id') {
+    if (quizNameUpdate.error === 'Invalid User id' || quizNameUpdate.error === 'Invalid token') {
       return res.status(401).json({ error: quizNameUpdate.error });
     } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' ||
       quizNameUpdate.error === 'Invalid Quiz id') {

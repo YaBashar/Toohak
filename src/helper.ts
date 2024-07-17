@@ -2,7 +2,7 @@ import { getData } from './dataStore';
 import { User, Quiz } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
-  const result = parseFloat(sessionId);
+  const result = parseInt(sessionId);
   const store = getData();
 
   const sessArr = store.sessions;

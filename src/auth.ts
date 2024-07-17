@@ -30,7 +30,7 @@ import { UserDetails, ErrorResponse } from './interface';
 /** [1] adminAuthRegister
   *
   * Registers a user with an email, password, and name,
-  * then returns their authUserId value.
+  * then returns their userId value.
   *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
@@ -38,7 +38,7 @@ import { UserDetails, ErrorResponse } from './interface';
   * @param {string} nameFirst - user's first name
   * @param {string} nameLast - user's last name
   * ...
-  * @returns {authUserId: number} - number representing a unique
+  * @returns {userId: number} - number representing a unique
   *                                 identifier for the user
   *
 */
@@ -72,7 +72,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   // registering the user to the database
   const newUserId = userArr.length + 1;
   const newUser = {
-    authUserId: newUserId,
+    userId: newUserId,
     name: name,
     email: email,
     password: password,
@@ -86,7 +86,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   // creating token for sessions
   const session = {
     sessionId: sID,
-    authUserId: newUserId,
+    userId: newUserId,
   };
   store.sessions.push(session);
   return { token: sID.toString() };
@@ -104,7 +104,7 @@ function uniqueId(sessArr: { sessionId: number }[]): number {
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
-  * their authUserId value.
+  * their userId value.
   *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
@@ -140,7 +140,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
     // creating token for session
     const session = {
       sessionId: sID,
-      authUserId: user.authUserId,
+      userId: user.userId,
     };
 
     store.sessions.push(session);
@@ -150,7 +150,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
 
 /** [3] adminUserDetails
   *
-  * Given an admin user's authUserId, returns details about the user.
+  * Given an admin user's userId, returns details about the user.
   *
   * @param {number} token - number representing a unique
   *                              identifier for the user
@@ -163,7 +163,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
   *     numSuccessfulLogins: number,
   *     numFailedPasswordsSinceLastLogin: number,
   *   }
-  * } - an object with information about the user based on their authUserId
+  * } - an object with information about the user based on their userId
   *
 */
 
@@ -171,7 +171,7 @@ export function adminUserDetails(token: number): UserDetails| ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
-  const user = userArr.find((user) => user.authUserId === token);
+  const user = userArr.find((user) => user.userId === token);
 
   // checking for error cases
   if (!user) {
@@ -181,7 +181,7 @@ export function adminUserDetails(token: number): UserDetails| ErrorResponse {
   } else {
     return {
       user: {
-        authUserId: user.authUserId,
+        userId: user.userId,
         name: user.name,
         email: user.email,
         numSuccessfulLogins: user.numSuccessfulLogins,
@@ -212,7 +212,7 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
     return { error: 'invalid userId' };
   }
 
-  if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+  if (data.users.some(user => user.email === email && user.userId !== token)) {
     return { error: 'email used by another user' };
   }
 
@@ -244,13 +244,13 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
     return { error: 'last name is too long' };
   }
 
-  const userIndex = data.users.findIndex(user => user.authUserId === token);
+  const userIndex = data.users.findIndex(user => user.userId === token);
 
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
   } else if (!validator.isEmail(email)) {
     return { error: 'invalid email address' };
-  } else if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+  } else if (data.users.some(user => user.email === email && user.userId !== token)) {
     return { error: 'email used by another user' };
   } else if (specialChars.test(nameFirst)) {
     return { error: 'first name contains invalid characters' };
@@ -284,7 +284,7 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
 */
 export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === token);
+  const user = data.users.find(user => user.userId === token);
 
   if (!user) {
     return { error: 'userId does not exist' };

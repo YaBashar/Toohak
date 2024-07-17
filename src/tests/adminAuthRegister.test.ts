@@ -137,7 +137,7 @@ describe('Testing that information has been correctly registered', () => {
 
     expect(data).toStrictEqual({
       user: {
-        authUserId: expect.any(Number),
+        userId: expect.any(Number),
         name: 'first last',
         email: 'email@unsw.edu.au',
         numSuccessfulLogins: 1,

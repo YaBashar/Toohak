@@ -21,6 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 import { Answer, Question, Quiz, QuizInfo, QuizList, QuestionId } from './interface';
+import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -232,33 +233,33 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   * @returns {} - empty object
   *
 */
+
 export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  const quiz = quizArr.find(quiz => quiz.quizId === quizId);
-  const user = userArr.find(user => user.authUserId === token);
-  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === token);
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+  const isNameAvailable = isQuizNameAvailable(name, token, quizArr);
 
   if (!user) {
     return { error: 'Invalid User id' };
-  } else if (!quiz) {
+  }
+  if (!quiz) {
     return { error: 'Invalid Quiz id' };
-  } else if (!quizUser) {
+  }
+  if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
-  } else if (findName) {
+  }
+  if (!isNameAvailable) {
     return { error: 'Name is already used' };
   }
 
-  if (name === ' ') {
-    return { error: 'Name cannot be empty' };
-  } else if (name.length <= 3) {
-    return { error: 'Name is too short' };
-  } else if (name.length > 30) {
-    return { error: 'Name is too long' };
-  } else if (/[!-:-@[-`{-~]/.test(name)) {
-    return { error: 'Quiz name cannot have symbols' };
+  const nameError = validateQuizName(name);
+  if (nameError) {
+    return { error: nameError };
   }
 
   quiz.name = name;

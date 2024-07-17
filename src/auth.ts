@@ -21,7 +21,7 @@ login mechanics, and updating passwords and usernames.
 import { getData, setData } from './dataStore';
 import { isEmail } from 'validator';
 import validator from 'validator';
-import { UserDetails } from './interface';
+import { UserDetails, ErrorResponse } from './interface';
 
 // INTERFACES
 
@@ -42,7 +42,7 @@ import { UserDetails } from './interface';
   *                                 identifier for the user
   *
 */
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
@@ -115,7 +115,7 @@ function uniqueId(sessArr: { sessionId: number }[]): number {
   *
 */
 
-export function adminAuthLogin(email: string, password: string): { token: string} | { error: string} {
+export function adminAuthLogin(email: string, password: string): { token: string} | ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
@@ -167,7 +167,7 @@ export function adminAuthLogin(email: string, password: string): { token: string
   *
 */
 
-export function adminUserDetails(token: number): UserDetails| { error: string} {
+export function adminUserDetails(token: number): UserDetails| ErrorResponse {
   const store = getData();
   const userArr = store.users;
 
@@ -204,7 +204,7 @@ export function adminUserDetails(token: number): UserDetails| { error: string} {
   * @returns {} - empty object
 */
 
-export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | ErrorResponse {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
@@ -282,7 +282,7 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
   * ...
   * @returns {} - empty object
 */
-export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | { error : string} {
+export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | ErrorResponse {
   const data = getData();
   const user = data.users.find(user => user.authUserId === token);
 
@@ -327,7 +327,7 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   * ...
   * @returns {} - empty object
 */
-export function adminAuthLogout(token: string): Record<string, never> | { error : string} {
+export function adminAuthLogout(token: string): Record<string, never> | ErrorResponse {
   const result = parseFloat(token);
 
   const store = getData();

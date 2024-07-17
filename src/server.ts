@@ -9,7 +9,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate, adminQuizQuestionDuplicate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other';
 import {
   adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate,
@@ -18,9 +17,14 @@ import {
 
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
-  adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView,
-  adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizTrashEmpty, adminQuizTrashRestore
+  adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
+  adminQuizTransfer
 } from './quiz';
+
+import {
+  adminQuizQuestionCreate, adminQuizQuestionDelete,
+  adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
+} from './question';
 
 // Set up app
 const app = express();
@@ -87,8 +91,9 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const check = getUserIdFromToken(token);
 
   if (check === -1) {
-    return res.status(401).json({ error: 'Token is empty or invalid' });
+    return { error: 'Token is empty or invalid' };
   }
+
   const result = adminQuizTrashView(token);
   return res.json(result);
 });
@@ -97,7 +102,6 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const authUserId = getUserIdFromToken(token);
-
   if (authUserId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   }

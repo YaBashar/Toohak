@@ -20,7 +20,7 @@ and update information regarding quizzes.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { Quiz, QuizInfo, QuizList } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -42,7 +42,7 @@ import { Quiz, QuizInfo, QuizList } from './interface';
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(token: number): {quizzes: QuizList[]} | {error: string} {
+export function adminQuizList(token: number): {quizzes: QuizList[]} | ErrorResponse {
   const data = getData();
   const user = data.users.find(user => user.authUserId === token);
 
@@ -75,7 +75,7 @@ export function adminQuizList(token: number): {quizzes: QuizList[]} | {error: st
   *                             identifier for the quiz
   *
 */
-export function adminQuizCreate(token: number, name: string, description: string): { quizId: number } | { error: string } {
+export function adminQuizCreate(token: number, name: string, description: string): { quizId: number } | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -143,7 +143,7 @@ function uniqueQuizId(quizArr: Quiz[]): number {
   * @returns {} - empty object
   *
 */
-export function adminQuizRemove(token: number, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
@@ -186,7 +186,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error: string} {
+export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -232,7 +232,7 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   * @returns {} - empty object
   *
 */
-export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -284,7 +284,7 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
 // My constant define for the 'Description is more than 100 characters' test case
 const MAX_DESCRIPTION_LENGTH = 100;
 
-export function adminQuizDescriptionUpdate(token: number, quizId: number, description: string): Record<string, never> | { error: string } {
+export function adminQuizDescriptionUpdate(token: number, quizId: number, description: string): Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -336,7 +336,7 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   * @returns {} - empty object if successful
   *
 */
-export function adminQuizTransfer(token: number, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
+export function adminQuizTransfer(token: number, quizId : number, userEmail : string) : Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -382,7 +382,7 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   * @returns {array} quizzes
   *
 */
-export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
+export function adminQuizTrashView(token: string): {quizzes: QuizList[] } | ErrorResponse {
   const store = getData();
   const trash = store.trash;
   const result = [];
@@ -408,7 +408,7 @@ export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
   * @returns {} - empty object
   *
 */
-export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | { error: string } {
+export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | ErrorResponse {
   const store = getData();
 
   // checking if all quizzes are in trash
@@ -442,7 +442,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   * @returns {} - empty object if successful
   *
 */
-export function adminQuizTrashRestore(token: number, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizTrashRestore(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const trashArray = store.trash;

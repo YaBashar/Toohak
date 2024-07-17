@@ -20,7 +20,7 @@ and update information regarding questions within a quiz.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { Answer, Question, QuestionId } from './interface';
+import { Answer, Question, QuestionId, ErrorResponse } from './interface';
 
 /** [1] adminQuizQuestionCreate
   *
@@ -35,7 +35,7 @@ import { Answer, Question, QuestionId } from './interface';
   * @returns {number} questionId
   *
 */
-export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): { error: string } | { questionId: number } {
+export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): ErrorResponse | { questionId: number } {
   const data = getData();
   const quizArr = data.quizzes;
   const userArr = data.users;
@@ -120,7 +120,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   *
 */
 
-export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | { error: string } {
+export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | ErrorResponse {
   const store = getData();
 
   const userArr = store.users;
@@ -178,7 +178,7 @@ export function adminQuizQuestionDuplicate(token : number, quizId: number, quest
   * @returns {} - empty object
   *
 */
-export function adminQuizQuestionDelete(token: number, quizId: number, questionId: number): Record<string, never> | { error: string } {
+export function adminQuizQuestionDelete(token: number, quizId: number, questionId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArr = store.quizzes;
   const userArr = store.users;
@@ -336,7 +336,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   * @returns {} - empty object
   *
 */
-export function adminQuizQuestionMove(token: number, quizId: number, questionId: number, newPosition: number): Record<string, never> | { error: string } {
+export function adminQuizQuestionMove(token: number, quizId: number, questionId: number, newPosition: number): Record<string, never> | ErrorResponse {
   const data = getData();
   const user = data.users.find(user => user.authUserId === token);
 

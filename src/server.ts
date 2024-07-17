@@ -91,9 +91,8 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
   const check = getUserIdFromToken(token);
 
   if (check === -1) {
-    return { error: 'Token is empty or invalid' };
+    return res.status(401).json({ error: 'Token is empty or invalid' });
   }
-
   const result = adminQuizTrashView(token);
   return res.json(result);
 });

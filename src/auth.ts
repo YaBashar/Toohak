@@ -342,7 +342,7 @@ export function adminAuthLogout(token: string): Record<string, never> | ErrorRes
   }
 
   const index = sessArr.indexOf(session);
-  sessArr.splice(index);
+  sessArr.splice(index, 1);
 
   return {};
 }

@@ -6,30 +6,62 @@ const TIMEOUT_MS = 5 * 1000;
 
 let token: string;
 
+// wrapper functions
+const quizList = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
+    qs: { token }
+  });
+  return JSON.parse(res.body.toString());
+}
+
+const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
+    json: { email, password, nameFirst, nameLast }
+  });
+  return JSON.parse(res.body.toString());
+}
+
+const createQuiz = (token: string, name: string, description: string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }
+  });
+  return JSON.parse(res.body.toString());
+}
+
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+  const user = createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su')
+  token = user.token;
 });
 
 describe('GET /v1/admin/quiz/list', () => {
   // AuthUserId isn't valid
   test('Invalid AuthUserId', () => {
-    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { authUserId: 'randomstring' } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    const res = quizList('randomstring');
+    expect(res).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
-    const res2 = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { authUserId: '1' } });
-    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: expect.any(String) });
-    expect(res.statusCode).toBe(401);
+    const res2 = quizList('1');
+    expect(res2).toStrictEqual({ error: expect.any(String) });
+    expect(res2.statusCode).toBe(401);
   });
 
+  test('Logged in user has no quizzes', () => {
+    const res = quizList(token);
+    expect(res).toStrictEqual(
+      {
+        quizzes:
+        [
+        ]
+      });
+    expect(res.statusCode).toBe(200);
+  })
+
   test('Expected results', () => {
-    const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'amelia@unsw.edu.au', password: 'abcd1234!@#$ABCD', nameFirst: 'amelia', nameLast: 'su' } });
-    token = JSON.parse(user.body.toString()).token;
-    const quiz = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token, name: 'quiz 1', description: 'the first quiz' } });
-    const quizId = JSON.parse(quiz.body.toString());
-    const quiz2 = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token, name: 'quiz 2', description: 'the second quiz' } });
-    const quiz2Id = JSON.parse(quiz2.body.toString());
-    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token } });
-    expect(JSON.parse(res.body.toString())).toStrictEqual(
+    const quizId = createQuiz(token, 'quiz 1', 'the first quiz')
+    const quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz')
+    const res = quizList(token);
+    expect(res).toStrictEqual(
       {
         quizzes:
         [

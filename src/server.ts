@@ -99,7 +99,7 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const authUserId = getUserIdFromToken(token);
 
   if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
+    return res.status(401).json({ error: 'invalid token1' });
   }
 
   const result = adminUserDetails(authUserId);
@@ -115,6 +115,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const authUserId = getUserIdFromToken(token);
   if (authUserId === -1) {
+    console.log(401);
     return res.status(401).json({ error: 'invalid token' });
   }
   const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
@@ -122,11 +123,14 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid userId' ||
       result.error === 'userId does not exist') {
+      console.log(401);
       return res.status(401).json(result);
     } else if ('error' in result) {
+      console.log(400);
       return res.status(400).json(result);
     }
   }
+  console.log(200);
   return res.status(200).json(result);
 });
 

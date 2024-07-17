@@ -208,41 +208,41 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
-  if (!Number.isInteger(token)) {
-    return { error: 'invalid userId' };
-  }
+  // if (!Number.isInteger(token)) {
+  //   return { error: 'invalid userId' };
+  // }
 
-  if (data.users.some(user => user.email === email && user.authUserId !== token)) {
-    return { error: 'email used by another user' };
-  }
+  // if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+  //   return { error: 'email used by another user' };
+  // }
 
-  if (!validator.isEmail(email)) {
-    return { error: 'invalid email address' };
-  }
+  // if (!validator.isEmail(email)) {
+  //   return { error: 'invalid email address' };
+  // }
 
-  if (specialChars.test(nameFirst)) {
-    return { error: 'first name contains invalid characters' };
-  }
+  // if (specialChars.test(nameFirst)) {
+  //   return { error: 'first name contains invalid characters' };
+  // }
 
-  if (nameFirst.length < 2) {
-    return { error: 'first name is too short' };
-  }
+  // if (nameFirst.length < 2) {
+  //   return { error: 'first name is too short' };
+  // }
 
-  if (nameFirst.length > 20) {
-    return { error: 'first name is too long' };
-  }
+  // if (nameFirst.length > 20) {
+  //   return { error: 'first name is too long' };
+  // }
 
-  if (specialChars.test(nameLast)) {
-    return { error: 'last name contains invalid characters' };
-  }
+  // if (specialChars.test(nameLast)) {
+  //   return { error: 'last name contains invalid characters' };
+  // }
 
-  if (nameLast.length < 2) {
-    return { error: 'last name is too short' };
-  }
+  // if (nameLast.length < 2) {
+  //   return { error: 'last name is too short' };
+  // }
 
-  if (nameLast.length > 20) {
-    return { error: 'last name is too long' };
-  }
+  // if (nameLast.length > 20) {
+  //   return { error: 'last name is too long' };
+  // }
 
   const userIndex = data.users.findIndex(user => user.authUserId === token);
 

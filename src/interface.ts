@@ -71,6 +71,10 @@ export interface Session {
   authUserId: number
 }
 
+export interface ErrorResponse {
+  error : string
+}
+
 export interface Store {
   users: User[],
   quizzes: Quiz[],

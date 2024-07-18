@@ -48,7 +48,7 @@ describe('Testing login success cases', () => {
 
     expect(requestUserDetails(uid)).toStrictEqual({
       user: {
-        authUserId: expect.any(Number),
+        userId: expect.any(Number),
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 3,
@@ -65,7 +65,7 @@ describe('Testing login success cases', () => {
 
     expect(requestUserDetails(uid)).toStrictEqual({
       user: {
-        authUserId: expect.any(Number),
+        userId: expect.any(Number),
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 1,
@@ -82,7 +82,7 @@ describe('Testing login success cases', () => {
 
     expect(requestUserDetails(uid)).toStrictEqual({
       user: {
-        authUserId: expect.any(Number),
+        userId: expect.any(Number),
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 2,

@@ -25,7 +25,7 @@ describe('POST /v1/admin/quiz', () => {
   });
 
   test('Token is invalid', () => {
-    const res = createQuiz('invalidAuthUserId', 'Sidak', 'valid description');
+    const res = createQuiz('invaliduserId', 'Sidak', 'valid description');
     expect(res).toStrictEqual({ error: expect.any(String) });
   });
 

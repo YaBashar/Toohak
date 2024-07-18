@@ -30,7 +30,7 @@ describe('Testing correct return', () => {
 
     const exp = {
       user: {
-        authUserId: expect.any(Number),
+        userId: expect.any(Number),
         name: 'first last',
         email: 'zid@ad.unsw.edu.au',
         numSuccessfulLogins: 1,

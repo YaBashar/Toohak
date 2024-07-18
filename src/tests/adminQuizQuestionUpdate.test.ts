@@ -17,21 +17,21 @@ const createUser = (email: string, password: string, nameFirst: string, nameLast
   const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst, nameLast }
   });
-  return JSON.parse(res.body.toString());
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 const userLogin = (email: string, password: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
     json: { email, password }
   });
-  return JSON.parse(res.body.toString());
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 const createQuiz = (token: string, name: string, description: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name, description }
   });
-  return JSON.parse(res.body.toString());
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 const addQuestion = (token: string, quizid: string, question: string, duration: number, points: number, answers: object) => {
@@ -46,7 +46,7 @@ const addQuestion = (token: string, quizid: string, question: string, duration: 
       }
     }
   });
-  return JSON.parse(res.body.toString());
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 const updateQuestion = (token: string, quizid: string, questionid: string, question: string, duration: number, points: number, answers: object) => {
@@ -61,7 +61,7 @@ const updateQuestion = (token: string, quizid: string, questionid: string, quest
       }
     }
   })
-  return JSON.parse(res.body.toString());
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 beforeEach(() => {
@@ -69,11 +69,11 @@ beforeEach(() => {
 
   // create account and log in
   const user = createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su')
-  token = user.token;
+  token = user.body.token;
   userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD')
 
   // create a quiz
-  const quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').quizId
+  const quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').body.quizId
 
   // add a question to the quiz
   const question1Quiz1Id = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5, 
@@ -84,7 +84,7 @@ beforeEach(() => {
   ])
 
   // create a second quiz
-  const quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').quizId
+  const quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').body.quizId
 
   // add a question to the second quiz
   const question1Quiz2Id = addQuestion(token, quiz2Id, 'What is 1 + 1?', 4, 5,
@@ -103,7 +103,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -114,7 +115,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -125,7 +127,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -136,7 +139,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -151,7 +155,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: "Queen Elizabeth's corgi", correct: false },
       { answer: 'Prince George', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -160,7 +165,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     [
       { answer: 'Prince Charles', correct: true }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -171,7 +176,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -188,7 +194,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -199,7 +206,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ] )
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -210,7 +218,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -221,7 +230,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: '', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -232,7 +242,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham is the current reigning Monarch of England', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -243,7 +254,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince William', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -254,7 +266,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: false },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(400);
   });
 
@@ -265,7 +278,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(401);
   });
 
@@ -277,17 +291,18 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(401);
   });
 
   // Valid token is provided, but user is not an owner of this quiz or quiz doesn't exist
   test('user is not an owner of this quiz', () => {
     const random = createUser('random@unsw.edu.au', 'abcd1234!@#$ABC', 'ran', 'dom')
-    randomToken = random.token;
+    randomToken = random.body.token;
     userLogin('random@unsw.edu.au', 'abcd1234!@#$ABC')
     const randomQuiz = createQuiz(randomToken, 'random quiz', 'a random quiz')
-    randomQuizId = randomQuiz.quizid;
+    randomQuizId = randomQuiz.body.quizid;
     request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { email: 'random@unsw.edu.au', password: 'abcd1234!@#$ABC' } });
     userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD')
     const res = updateQuestion(token, randomQuizId, question1Quiz1Id, 'Who is the Monarch of England?', 4, 5,
@@ -296,7 +311,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Charles', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(403);
   });
 
@@ -307,7 +323,8 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ])
-    expect(res).toStrictEqual({ error: expect.any(String) });
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    console.log(res.body);
     expect(res.statusCode).toBe(403);
   });
 
@@ -319,6 +336,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       { answer: 'Prince Charles', correct: true }
     ])
     expect(res.statusCode).toBe(200);
-    expect(res).toStrictEqual({});
+    console.log(res.body);
+    expect(res.body).toStrictEqual({});
   });
 });

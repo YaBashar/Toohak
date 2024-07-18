@@ -128,6 +128,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
       console.log(401);
       return res.status(401).json(result);
     } else if ('error' in result) {
+      console.log(result.error);
       console.log(400);
       return res.status(400).json(result);
     }

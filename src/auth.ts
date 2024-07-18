@@ -22,6 +22,8 @@ import { getData, setData } from './dataStore';
 import { isEmail } from 'validator';
 import validator from 'validator';
 import { UserDetails, ErrorResponse } from './interface';
+import { findUserIdFromSessionId, findUserIndexFromUserId, findUserIndexFromEmail,
+  findSessionIndexFromSessionId } from './helper';
 
 // INTERFACES
 
@@ -51,7 +53,7 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
   // checking for error cases
   if (!isEmail(email)) {
     return { error: 'email is not a valid email address' };
-  } else if (userArr.some(user => user.email === email)) {
+  } else if (!findUserIndexFromEmail) {
     return { error: 'email is used by another user' };
   }
 
@@ -118,8 +120,7 @@ function uniqueId(sessArr: { sessionId: number }[]): number {
 export function adminAuthLogin(email: string, password: string): { token: string} | ErrorResponse {
   const store = getData();
   const userArr = store.users;
-
-  const user = userArr.find((user) => user.email === email);
+  const user = userArr[findUserIndexFromEmail(email)];
 
   // checking for error cases
   if (!user) {
@@ -167,11 +168,10 @@ export function adminAuthLogin(email: string, password: string): { token: string
   *
 */
 
-export function adminUserDetails(token: number): UserDetails| ErrorResponse {
+export function adminUserDetails(userId: number): UserDetails| ErrorResponse {
   const store = getData();
   const userArr = store.users;
-
-  const user = userArr.find((user) => user.userId === token);
+  const user = userArr[findUserIndexFromUserId(userId)];
 
   // checking for error cases
   if (!user) {

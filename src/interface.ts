@@ -1,6 +1,6 @@
 // dataStore
 export interface User {
-  authUserId: number,
+  userId: number,
   name: string,
   email: string,
   password: string,
@@ -11,7 +11,7 @@ export interface User {
 
 export interface UserDetails {
   user: {
-    authUserId: number,
+    userId: number,
     name: string,
     email: string,
     numSuccessfulLogins: number,
@@ -47,7 +47,7 @@ export interface Quiz {
   numQuestions: number,
   questions: Question[],
   duration: number,
-  authUserId: number
+  userId: number
 }
 
 export interface QuizList {
@@ -68,7 +68,7 @@ export interface QuizInfo {
 
 export interface Session {
   sessionId: number,
-  authUserId: number
+  userId: number
 }
 
 export interface ErrorResponse {

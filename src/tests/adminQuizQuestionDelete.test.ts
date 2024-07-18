@@ -82,7 +82,7 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid', () => {
   test('Token is invalid', () => {
     const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
       qs: {
-        token: 'invalidAuthUserId',
+        token: 'invaliduserId',
         quizid: quizId,
         questionid: qid.questionId,
       },

@@ -244,17 +244,17 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   }
   
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
-  // if (quizIndex === -1) {
-  //   return { error: 'quiz does not exist for this user1' };
-  // }
-  // const quiz = data.quizzes[quizIndex];
-  // if (!quiz) {
-  //   return { error: 'quiz does not exist for this user2' };
-  // }
+  if (quizIndex === -1) {
+    return { error: 'quiz does not exist for this user' };
+  }
+  const quiz = data.quizzes[quizIndex];
+  if (!quiz) {
+    return { error: 'quiz does not exist for this user' };
+  }
 
-  // if (quiz.userId !== token) {
-  //   return { error: 'quiz does not exist for this user3' };
-  // }
+  if (quiz.userId !== token) {
+    return { error: 'quiz does not exist for this user' };
+  }
 
   if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
     return { error: 'question id does not exist in this quiz' };

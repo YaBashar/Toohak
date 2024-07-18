@@ -275,7 +275,12 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   if (userId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   }
-
+  if (!quizid) {
+    return res.status(403).json({ error: 'quiz does not exist for this user' });
+  }
+  if (!questionid) {
+    return res.status(400).json({ error: 'question id does not exist in this quiz' });
+  }
   const result = adminQuizQuestionUpdate(userId, quizid, questionid, questionBody);
 
   if ('error' in result) {
@@ -289,6 +294,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   }
   return res.status(200).json(result);
 });
+
 
 // adminAuthLogout
 app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {

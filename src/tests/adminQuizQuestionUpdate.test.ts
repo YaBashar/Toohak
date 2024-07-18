@@ -64,35 +64,52 @@ const updateQuestion = (token: string, quizid: string, questionid: string, quest
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
+const quizInfo = (token: string, quizid: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/${quizid}', {
+    qs: { token, quizid }
+  });
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+}
+
+const quizList = (token: string) => {
+  const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
+    qs: { token }
+  });
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+}
+
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 
   // create account and log in
-  const user = createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su')
+  createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su')
+  const user = userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD')
   token = user.body.token;
-  userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD')
 
   // create a quiz
-  const quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').body.quizId
+  quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').body.quizId
 
   // add a question to the quiz
-  const question1Quiz1Id = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5, 
+  question1Quiz1Id = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5, 
   [
     { answer: 'Prince William', correct: false },
     { answer: 'Prince Charles', correct: true },
     { answer: 'Prince Beckham', correct: false }
-  ])
+  ]).body.questionId;
 
   // create a second quiz
-  const quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').body.quizId
+  quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').body.quizId
 
   // add a question to the second quiz
-  const question1Quiz2Id = addQuestion(token, quiz2Id, 'What is 1 + 1?', 4, 5,
+  question1Quiz2Id = addQuestion(token, quiz2Id, 'What is 1 + 1?', 4, 5,
   [
     { answer: '4', correct: false },
     { answer: '2', correct: true },
     { answer: '11', correct: false }
-  ])
+  ]).body.questionId;
+  const quiz1 = quizInfo(token, quiz1Id)
+    //console.log(quiz1.body);
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
@@ -105,6 +122,9 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
     ])
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     console.log(res.body);
+    const quizzes = quizList(token);
+    console.log(quiz1Id);
+    console.log(quizzes.body);
     expect(res.statusCode).toBe(400);
   });
 

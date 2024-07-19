@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 1 'OTHER.JS'  ///////////////////////
+//////////////////////   TOOHAK ITERATION 2 'OTHER.TS'  ///////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -18,7 +18,7 @@ application.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from './dataStore';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -31,12 +31,13 @@ import { getData, setData } from './dataStore.js';
   * @returns {} - empty object
   *
 */
-
-export function clear () {
+export function clear (): Record<string, never> {
   const store = getData();
 
   store.users = [];
   store.quizzes = [];
+  store.sessions = [];
+  store.trash = [];
 
   setData(store);
   return {};

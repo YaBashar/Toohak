@@ -3,7 +3,7 @@
 const data = {
   users: [
     {
-      authUserId: 1,
+      userId: 1,
       name: 'Rani Jiang',
       email: 'ranivorous@gmail.com',
       password: '1234',
@@ -17,12 +17,39 @@ const data = {
     {
       quizId: 1,
       name: 'quiz 1',
-      description: 'the first quiz',
       timeCreated: 1683125870,
       timeLastEdited: 1683125871,
-      authUserId: 1,
+      description: 'the first quiz',
+      numQuestions: 1,
+  
+      questions: [
+      {
+        questionId: 5546,
+        question: "Who is the Monarch of England?",
+        duration: 4,
+        points: 5,
+        answers: [
+          {
+            answerId: 2384,
+            answer: "Prince Charles",
+            colour: "red",
+            correct: true
+          }
+        ]
+      }   
+    ],
+    
+    userId: 1,
+      
     },
   ],
+
+  sessions: [
+    {
+      sessionId: 467894,
+      userId: 1,
+    }
+  ]
 };
 
 ```

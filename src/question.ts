@@ -337,53 +337,59 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   *
 */
 export function adminQuizQuestionMove(token: number, quizId: number, questionId: number, newPosition: number): Record<string, never> | ErrorResponse {
-  const data = getData();
-  const user = data.users.find(user => user.userId === token);
+  try {
+    const data = getData();
+    const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    return { error: 'invalid token' };
-  }
-  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
-  if (quizIndex === -1) {
-    return { error: 'quiz does not exist for this user' };
-  }
+    if (!user) {
+      throw new Error('invalid token');
+    }
 
-  const quiz = data.quizzes[quizIndex];
-  if (!quiz) {
-    return { error: 'quiz does not exist for this user' };
-  }
+    const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (quizIndex === -1) {
+      throw new Error('quiz does not exist for this user');
+    }
 
-  if (quiz.userId !== token) {
-    return { error: 'quiz does not exist for this user' };
-  }
+    const quiz = data.quizzes[quizIndex];
+    if (!quiz) {
+      throw new Error('quiz does not exist for this user');
+    }
 
-  if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
-    return { error: 'question id does not exist in this quiz' };
-  }
+    if (quiz.userId !== token) {
+      throw new Error('quiz does not exist for this user');
+    }
 
-  const question = quiz.questions.find(question => question.questionId === questionId);
-  if (!question) {
-    return { error: 'question id does not exist in this quiz' };
-  }
+    if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
+      throw new Error('question id does not exist in this quiz');
+    }
 
-  if (newPosition < 0) {
-    return { error: 'position value is less than zero' };
-  }
+    const question = quiz.questions.find(question => question.questionId === questionId);
+    if (!question) {
+      throw new Error('question id does not exist in this quiz');
+    }
 
-  if (quiz.questions.indexOf(question) === newPosition) {
-    return { error: 'new position is current position' };
-  }
+    if (newPosition < 0) {
+      throw new Error('position value is less than zero');
+    }
 
-  if (newPosition > quiz.questions.length - 1) {
-    return { error: 'new position is too big' };
-  }
+    if (quiz.questions.indexOf(question) === newPosition) {
+      throw new Error('new position is current position');
+    }
 
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
-  quiz.questions.splice(quiz.questions.indexOf(question), 1);
-  quiz.questions.splice(newPosition, 0, question);
-  setData(data);
-  return {};
+    if (newPosition > quiz.questions.length - 1) {
+      throw new Error('new position is too big');
+    }
+
+    quiz.timeLastEdited = Math.round(Date.now() / 1000);
+    quiz.questions.splice(quiz.questions.indexOf(question), 1);
+    quiz.questions.splice(newPosition, 0, question);
+    setData(data);
+    return {};
+  } catch (error) {
+    return { error: (error as Error).message };
+  }
 }
+
 
 // Helper function to check if a question exists in the quiz
 function doesQuestionExistInQuiz(quesArr: Question[], questionId: number | {error: string}): boolean {

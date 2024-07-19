@@ -34,8 +34,8 @@ const createQuiz = (token: string, name: string, description: string) => {
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
-const addQuestion = (token: string, quizid: string, question: string, duration: number, points: number, answers: object) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz/${quizid}/question', {
+const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object) => {
+  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
     json: {
       token,
       questionBody: {
@@ -47,10 +47,10 @@ const addQuestion = (token: string, quizid: string, question: string, duration: 
     }
   });
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-}
+};
 
 const updateQuestion = (token: string, quizid: string, questionid: string, question: string, duration: number, points: number, answers: object) => {
-  const res = request('PUT', SERVER_URL + '/v1/admin/quiz/${quizid}/question/${questionid}', {
+  const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/question/${questionid}`, {
     json: {
       token,
       questionBody: {
@@ -113,7 +113,7 @@ beforeEach(() => {
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
-  test.only('Question id does not exist', () => {
+  test('Question id does not exist', () => {
     const res = updateQuestion(token, quiz1Id, '55', 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },

@@ -227,101 +227,108 @@ function uniqueQuestionId(questArr: Question[]): number {
   * @returns {} - empty object
   *
 */
-export function adminQuizQuestionUpdate (token: number, quizId: number, questionId: number,
-  questionBody:
-    {
-      question: string,
-      duration: number,
-      points: number,
-      answers:Answer[]
+export function adminQuizQuestionUpdate(
+  token: number, 
+  quizId: number, 
+  questionId: number,
+  questionBody: {
+    question: string,
+    duration: number,
+    points: number,
+    answers: Answer[]
+  }
+): Record<string, never> | { error: string } {
+  try {
+    const data = getData();
+    const user = data.users.find(user => user.userId === token);
+
+    if (!user) {
+      throw new Error('invalid token');
     }
-) : Record<string, never> | { error: string } {
-  const data = getData();
-  const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    return { error: 'invalid token' };
-  }
-  
-  const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
-  if (quizIndex === -1) {
-    return { error: 'quiz does not exist for this user' };
-  }
-  const quiz = data.quizzes[quizIndex];
-  if (!quiz) {
-    return { error: 'quiz does not exist for this user' };
-  }
+    const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
+    if (quizIndex === -1) {
+      throw new Error('quiz does not exist for this user');
+    }
+    const quiz = data.quizzes[quizIndex];
+    if (!quiz) {
+      throw new Error('quiz does not exist for this user');
+    }
 
-  if (quiz.userId !== token) {
-    return { error: 'quiz does not exist for this user' };
-  }
+    if (quiz.userId !== token) {
+      throw new Error('quiz does not exist for this user');
+    }
 
-  if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
-    return { error: 'question id does not exist in this quiz' };
-  }
+    if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
+      throw new Error('question id does not exist in this quiz');
+    }
 
-  const question = quiz.questions.find(question => question.questionId === questionId);
-  const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
-  if (!question) {
-    return { error: 'question id does not exist in this quiz' };
-  }
+    const question = quiz.questions.find(question => question.questionId === questionId);
+    const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
+    if (!question) {
+      throw new Error('question id does not exist in this quiz');
+    }
 
-  if (questionBody.question.length < 5) {
-    return { error: 'question is too short' };
-  }
-  if (questionBody.question.length > 50) {
-    return { error: 'question is too long' };
-  }
-  if (questionBody.answers.length > 6) {
-    return { error: 'question has too many answers' };
-  }
-  if (questionBody.answers.length < 2) {
-    return { error: 'question does not have enough answers' };
-  }
-  if (questionBody.duration < 0 || typeof (questionBody.duration) !== 'number') {
-    return { error: 'duration is not a positive number' };
-  }
-  let duration = 0;
+    if (questionBody.question.length < 5) {
+      throw new Error('question is too short');
+    }
+    if (questionBody.question.length > 50) {
+      throw new Error('question is too long');
+    }
+    if (questionBody.answers.length > 6) {
+      throw new Error('question has too many answers');
+    }
+    if (questionBody.answers.length < 2) {
+      throw new Error('question does not have enough answers');
+    }
+    if (questionBody.duration < 0 || typeof (questionBody.duration) !== 'number') {
+      throw new Error('duration is not a positive number');
+    }
 
-  // Iterate over the questions array to sum up the durations
-  for (let i = 1; i < quiz.questions.length; i++) {
-    duration += quiz.questions[i].duration;
-  }
-  duration -= question.duration;
-  duration += questionBody.duration;
+    let duration = 0;
+    // Iterate over the questions array to sum up the durations
+    for (let i = 1; i < quiz.questions.length; i++) {
+      duration += quiz.questions[i].duration;
+    }
+    duration -= question.duration;
+    duration += questionBody.duration;
 
-  if (duration > 180) {
-    return { error: 'total duration of quiz is too long' };
-  }
-  if (questionBody.points < 1 || typeof (questionBody.points) !== 'number') {
-    return { error: 'points is not a positive number' };
-  }
-  if (questionBody.points > 10) {
-    return { error: 'points awarded is too big' };
-  }
-  if (questionBody.answers.some((answer) => answer.answer.length < 1)) {
-    return { error: 'answer is too short' };
-  }
-  if (questionBody.answers.some((answer) => answer.answer.length > 30)) {
-    return { error: 'answer is too long' };
-  }
-  if (questionBody.answers.some((answer) => questionBody.answers.filter((a) => a.answer === answer.answer).length > 1)) {
-    return { error: 'question contains a duplicate answer' };
-  }
-  if (!questionBody.answers.some(answer => answer.correct)) {
-    return { error: 'no correct answer for this question' };
-  }
+    if (duration > 180) {
+      throw new Error('total duration of quiz is too long');
+    }
+    if (questionBody.points < 1 || typeof (questionBody.points) !== 'number') {
+      throw new Error('points is not a positive number');
+    }
+    if (questionBody.points > 10) {
+      throw new Error('points awarded is too big');
+    }
+    if (questionBody.answers.some((answer) => answer.answer.length < 1)) {
+      throw new Error('answer is too short');
+    }
+    if (questionBody.answers.some((answer) => answer.answer.length > 30)) {
+      throw new Error('answer is too long');
+    }
+    if (questionBody.answers.some((answer) => questionBody.answers.filter((a) => a.answer === answer.answer).length > 1)) {
+      throw new Error('question contains a duplicate answer');
+    }
+    if (!questionBody.answers.some(answer => answer.correct)) {
+      throw new Error('no correct answer for this question');
+    }
 
-  const quest: Question = quiz.questions[questionIndex];
-  quest.question = questionBody.question;
-  quest.duration = questionBody.duration;
-  quest.points = questionBody.points;
-  quest.answers = questionBody.answers;
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+    const quest: Question = quiz.questions[questionIndex];
+    quest.question = questionBody.question;
+    quest.duration = questionBody.duration;
+    quest.points = questionBody.points;
+    quest.answers = questionBody.answers;
+    quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
-  setData(data);
-  return {};
+    setData(data);
+    return {};
+  } catch (error) {
+    return { error: (error as Error).message };
+  }
 }
+
 
 /** [5] adminQuizQuestionMove
   *

@@ -65,7 +65,7 @@ const updateQuestion = (token: string, quizid: string, questionid: string, quest
 }
 
 const quizInfo = (token: string, quizid: string) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/quiz/${quizid}', {
+  const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}`, {
     qs: { token, quizid }
   });
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };

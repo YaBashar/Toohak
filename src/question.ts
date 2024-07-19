@@ -40,7 +40,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   const quizArr = data.quizzes;
   const userArr = data.users;
   const quiz = quizArr.find((q) => q.quizId === quizid);
-  const user = userArr.find((user) => user.authUserId === token);
+  const user = userArr.find((user) => user.userId === token);
 
   if (!user) {
     return { error: 'Invalid Token' };
@@ -87,7 +87,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (!quiz) {
     return { error: 'Quiz does not exist' };
   }
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
 
@@ -126,11 +126,11 @@ export function adminQuizQuestionDuplicate(token : number, quizId: number, quest
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const user = userArr.find(user => user.authUserId === token);
+  const user = userArr.find(user => user.userId === token);
   if (!user) {
     return { error: 'Invalid User id' };
   }
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+  const quizUser = quizArr.find((quiz) => quiz.userId === token);
   if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
   }
@@ -183,7 +183,7 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   const quizArr = store.quizzes;
   const userArr = store.users;
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
-  const user = userArr.find((user) => user.authUserId === token);
+  const user = userArr.find((user) => user.userId === token);
 
   if (!user) {
     return { error: 'Invalid Token' };
@@ -191,7 +191,7 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   if (!quiz) {
     return { error: 'Invalid Quiz Id' };
   }
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
   const question = quiz.questions.find((question: Question) => question.questionId === questionId);
@@ -237,7 +237,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
     }
 ) : Record<string, never> | { error: string } {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === token);
+  const user = data.users.find(user => user.userId === token);
 
   if (!user) {
     return { error: 'invalid token' };
@@ -251,7 +251,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
     return { error: 'quiz does not exist for this user' };
   }
 
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'quiz does not exist for this user' };
   }
 
@@ -338,7 +338,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
 */
 export function adminQuizQuestionMove(token: number, quizId: number, questionId: number, newPosition: number): Record<string, never> | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === token);
+  const user = data.users.find(user => user.userId === token);
 
   if (!user) {
     return { error: 'invalid token' };
@@ -353,7 +353,7 @@ export function adminQuizQuestionMove(token: number, quizId: number, questionId:
     return { error: 'quiz does not exist for this user' };
   }
 
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'quiz does not exist for this user' };
   }
 

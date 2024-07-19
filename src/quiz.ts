@@ -44,14 +44,14 @@ import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
 */
 export function adminQuizList(token: number): {quizzes: QuizList[]} | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === token);
+  const user = data.users.find(user => user.userId === token);
 
   if (!user) {
     return { error: 'invalid user id' };
   }
   const result: QuizList[] = [];
 
-  const userQuizzes = data.quizzes.filter(quiz => quiz.authUserId === token);
+  const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
   for (const item of userQuizzes) {
     result.push({
       quizId: item.quizId,
@@ -80,7 +80,7 @@ export function adminQuizCreate(token: number, name: string, description: string
   const userArr = store.users;
   const quizArr = store.quizzes;
   const user = userArr.find((user) => {
-    return user.authUserId === token;
+    return user.userId === token;
   });
 
   if (!user) return { error: 'Invalid token' };
@@ -101,7 +101,7 @@ export function adminQuizCreate(token: number, name: string, description: string
   if (description.length > 100) {
     return { error: 'Description is more than 100 characters in length' };
   }
-  if (quizArr.find((quiz) => quiz.name === name && quiz.authUserId === token)) {
+  if (quizArr.find((quiz) => quiz.name === name && quiz.userId === token)) {
     return { error: 'Name is already used by current logged in user' };
   }
 
@@ -115,7 +115,7 @@ export function adminQuizCreate(token: number, name: string, description: string
     numQuestions: 0,
     questions: [],
     duration: 0,
-    authUserId: token,
+    userId: token,
   };
   store.quizzes.push(quiz);
   setData(store);
@@ -147,7 +147,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
-  const user = userArray.find((user) => { return user.authUserId === token; });
+  const user = userArray.find((user) => { return user.userId === token; });
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
     return { error: 'Invalid user id' };
@@ -155,7 +155,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   if (!quiz) {
     return { error: 'Invalid quiz Id entered' };
   }
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
 
@@ -191,8 +191,8 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
   const userArr = store.users;
   const quizArr = store.quizzes;
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
-  const user = userArr.find((user) => user.authUserId === token);
-  const userQuiz = quizArr.find((quiz) => quiz.authUserId === token);
+  const user = userArr.find((user) => user.userId === token);
+  const userQuiz = quizArr.find((quiz) => quiz.userId === token);
 
   if (!user) {
     return { error: 'Invalid User id' };
@@ -237,9 +237,9 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
   const userArr = store.users;
   const quizArr = store.quizzes;
   const quiz = quizArr.find(quiz => quiz.quizId === quizId);
-  const user = userArr.find(user => user.authUserId === token);
-  const findName = quizArr.find(quiz => quiz.name === name && quiz.authUserId === token);
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+  const user = userArr.find(user => user.userId === token);
+  const findName = quizArr.find(quiz => quiz.name === name && quiz.userId === token);
+  const quizUser = quizArr.find((quiz) => quiz.userId === token);
 
   if (!user) {
     return { error: 'Invalid User id' };
@@ -290,11 +290,11 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   const quizArr = store.quizzes;
 
   // These two lines finds the Tahook user with both a valid userId and quidId
-  const user = userArr.find((user) => user.authUserId === token);
+  const user = userArr.find((user) => user.userId === token);
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
 
   // Check if the quiz is owned by the user with the given UserId
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+  const quizUser = quizArr.find((quiz) => quiz.userId === token);
 
   // Error messages returned if the error tests cases are activated within the program
   // If a person's Tahook quiz does not match the userId, an error will then be returned
@@ -312,7 +312,7 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   }
 
   if (!user) {
-    return { error: 'authUserId does not exist' };
+    return { error: 'userId does not exist' };
   } else if (!quiz) {
     return { error: 'Quiz Id not found' };
   } else {
@@ -347,14 +347,14 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   }
 
   const quiz = store.quizzes[findQuiz];
-  const user = userArr.find(user => user.authUserId === token);
-  const quizUser = quizArr.find((quiz) => quiz.authUserId === token);
+  const user = userArr.find(user => user.userId === token);
+  const quizUser = quizArr.find((quiz) => quiz.userId === token);
 
   const targetUser = store.users.find(user => user.email === userEmail);
   if (!targetUser) {
     return { error: 'Target user email is not a real user' };
   }
-  const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.authUserId === targetUser.authUserId)));
+  const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
 
   if (!user) {
     return { error: 'Invalid User id' };
@@ -362,13 +362,13 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
     return { error: 'Invalid Quiz id' };
   } else if (!quizUser) {
     return { error: 'Quiz Id not owned by the user' };
-  } else if (user.authUserId === targetUser.authUserId) {
+  } else if (user.userId === targetUser.userId) {
     return { error: 'Target user email is the same as currently logged in user' };
   } else if (isQuizExists) {
     return { error: 'Quiz name already in use by target user' };
   }
   // Change the quiz authuser id so it has the authuser id of the new owner
-  quiz.authUserId = targetUser.authUserId;
+  quiz.userId = targetUser.userId;
   return {};
 }
 
@@ -422,7 +422,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   // checking if all quizzes are owned by user
   for (const item of quizIds) {
     const quiz = store.trash.find(x => x.quizId === item);
-    if (quiz.authUserId !== token) {
+    if (quiz.userId !== token) {
       return { error: 'Some quizzes are not owned by the user' };
     }
   }
@@ -448,8 +448,8 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
   const trashArray = store.trash;
   const userArray = store.users;
 
-  // Checking if the authUserId is valid
-  const user = userArray.find((user) => user.authUserId === token);
+  // Checking if the userId is valid
+  const user = userArray.find((user) => user.userId === token);
   if (!user) {
     return { error: 'invalid token' };
   }
@@ -462,7 +462,7 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
 
   // Ensuring the quiz belongs to the authenticated user
   const quiz = quizArray[quizIndex];
-  if (quiz.authUserId !== token) {
+  if (quiz.userId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
 

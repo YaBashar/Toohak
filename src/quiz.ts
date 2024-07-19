@@ -442,13 +442,27 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   }
 
   const id = uniqueQuestionId(quiz.questions);
+  const answerid = Math.floor(Math.random());
+
+  //Creating a random colour
+  const colorArr = [ 'red', 'blue', 'green', 'yello'];
+  const randomColourIndex = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
+  const randomColour = colorArr[randomColourIndex];
   const questionBody = {
     questionId: id,
     question: question.question,
     duration: question.duration,
     points: question.points,
-    answers: question.answers
+    answers: [
+      {
+        answerid : answerid,
+        answer : question.answers[0].answer,
+        correct : true || false ,
+        colour : randomColour
+      }
+    ]
   };
+
   quiz.questions.push(questionBody);
   setData(data);
   return { questionId: id };

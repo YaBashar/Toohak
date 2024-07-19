@@ -4,6 +4,23 @@ import { port, url } from '../config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
+// wrapper functions
+
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+}
+
+const createQuiz = (token : string, name : string, description : string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }
+  });
+  return JSON.parse(res.body.toString());
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });

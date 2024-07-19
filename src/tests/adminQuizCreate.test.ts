@@ -5,6 +5,13 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // wrapper function
+
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+}
+
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name, description }
@@ -20,8 +27,8 @@ describe('POST /v1/admin/quiz', () => {
   let token: string;
 
   beforeEach(() => {
-    const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-    token = JSON.parse(user.body.toString()).token;
+    const user1 = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
+    token = JSON.parse(user1.body.toString()).token;
   });
 
   test('Token is invalid', () => {

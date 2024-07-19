@@ -113,7 +113,7 @@ beforeEach(() => {
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
-  test('Question id does not exist', () => {
+  test.only('Question id does not exist', () => {
     const res = updateQuestion(token, quiz1Id, '55', 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },

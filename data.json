@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "authUserId": 1,
+      "name": "first last",
+      "email": "zid@ad.unsw.edu.au",
+      "password": "abcd1234",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234"
+      ]
+    }
+  ],
+  "quizzes": [],
+  "sessions": [
+    {
+      "sessionId": 1721349134354,
+      "authUserId": 1
+    }
+  ],
+  "trash": []
+}

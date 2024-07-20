@@ -17,7 +17,7 @@ export function getUserIdFromToken(sessionId: string): number {
 }
 
 export function findUserByToken(token: number, users: Array<User>): User | null {
-  return users.find(user => user.authUserId === token) || null;
+  return users.find(user => user.userId === token) || null;
 }
 
 export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
@@ -25,25 +25,25 @@ export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null 
 }
 
 export function checkQuizOwnership(token: number, quizzes: Array<Quiz>): boolean {
-  return quizzes.some(quiz => quiz.authUserId === token);
+  return quizzes.some(quiz => quiz.userId === token);
 }
 
 export function isQuizNameAvailable(name: string, token: number, quizzes: Array<Quiz>): boolean {
-  return !quizzes.some(quiz => quiz.name === name && quiz.authUserId === token);
+  return !quizzes.some(quiz => quiz.name === name && quiz.userId === token);
 }
 
 export function validateQuizName(name: string): string | null {
   if (name.trim() === '') {
-    return 'Name cannot be empty';
+    throw new Error('Name cannot be empty');
   }
   if (name.length > 30) {
-    return 'Name is too long';
+    throw new Error('Name is too long');
   }
   if (name.length <= 3) {
-    return 'Name is too short';
+    throw new Error('Name is too short');
   }
   if (/[!-:-@[-`{-~]/.test(name)) {
-    return 'Quiz name cannot have symbols';
+    throw new Error('Quiz name cannot have symbols');
   }
   return null;
 }

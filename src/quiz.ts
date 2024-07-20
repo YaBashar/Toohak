@@ -245,23 +245,19 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
   const isNameAvailable = isQuizNameAvailable(name, token, quizArr);
 
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   }
   if (!quiz) {
-    return { error: 'Invalid Quiz id' };
+    throw new Error('Invalid Quiz id');
   }
   if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
   if (!isNameAvailable) {
-    return { error: 'Name is already used' };
+    throw new Error('Name is already used');
   }
 
-  const nameError = validateQuizName(name);
-  if (nameError) {
-    return { error: nameError };
-  }
-
+  validateQuizName(name);
   quiz.name = name;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
   setData(store);

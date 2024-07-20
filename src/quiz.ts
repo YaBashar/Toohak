@@ -21,10 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 import { Answer, Question, Quiz, QuizInfo, QuizList, QuestionId } from './interface';
-import {
-  findUserByToken, findQuizById, checkQuizOwnership,
-  validateQuizName, isQuizNameAvailable, getUserIdFromToken
-} from './helper';
+import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -237,20 +234,15 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   *
 */
 
-export function adminQuizNameUpdate(token: string, quizId: number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | { error: string} {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return { error: 'Invalid token' };
-  }
-
-  const user = findUserByToken(userId, userArr);
   const quiz = findQuizById(quizId, quizArr);
-  const quizUser = checkQuizOwnership(userId, quizArr);
-  const isNameAvailable = isQuizNameAvailable(name, userId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+  const isNameAvailable = isQuizNameAvailable(name, token, quizArr);
 
   if (!user) {
     return { error: 'Invalid User id' };

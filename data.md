@@ -3,7 +3,7 @@
 const data = {
   users: [
     {
-      authUserId: 1,
+      userId: 1,
       name: 'Rani Jiang',
       email: 'ranivorous@gmail.com',
       password: '1234',
@@ -39,7 +39,7 @@ const data = {
       }   
     ],
     
-    authUserId: 1,
+    userId: 1,
       
     },
   ],
@@ -47,7 +47,7 @@ const data = {
   sessions: [
     {
       sessionId: 467894,
-      authUserId: 1,
+      userId: 1,
     }
   ]
 };

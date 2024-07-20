@@ -69,7 +69,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
     });
 
     // Test for checking if quidId is non-existent within Tahook
-    test('Non-existent quiz Id (authUserId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
+    test('Non-existent quiz Id (userId: 1, quizId: 999, description: "Non-existent Quiz")', () => {
       const result = quizDescriptionUpdate(token, 999, 'Non-existent Quiz');
       expect(result.body).toStrictEqual({ error: expect.any(String) });
       expect(result.statusCode).toBe(403);
@@ -101,7 +101,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
     });
 
     // Test for checking if the user has provided a valid input for the quiz description
-    test('Valid inputs (authUserId: 1, quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
+    test('Valid inputs (userId: 1, quizId: 1, description: "Toohak Javascript Quiz 1")', () => {
       const updateResult = quizDescriptionUpdate(token, quizId, 'Toohak Javascript Quiz 1');
       expect(updateResult.statusCode).toBe(200);
       const result = quizInfo(token, quizId);
@@ -118,7 +118,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
     });
 
     // Test for checking if the user with a different quiId has provided a valid input for the quiz description
-    test('Valid inputs (authUserId: 1, quizId: 2, description: "QUIZ 1")', () => {
+    test('Valid inputs (userId: 1, quizId: 2, description: "QUIZ 1")', () => {
       const updateResult = quizDescriptionUpdate(token, quizId, 'QUIZ 1');
       expect(updateResult.statusCode).toBe(200);
       const result = quizInfo(token, quizId);

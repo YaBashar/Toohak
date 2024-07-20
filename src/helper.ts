@@ -13,7 +13,7 @@ export function getUserIdFromToken(sessionId: string): number {
     return -1;
   }
 
-  return session.authUserId;
+  return session.userId;
 }
 
 export function findUserByToken(token: number, users: Array<User>): User | null {

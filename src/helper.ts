@@ -130,6 +130,6 @@ export function checkAdminAuthRegister(email: string, password: string,
       checkName(nameLast);
       checkPassword(password);
     } catch (e) {
-      throw Error(e.message);
+      throw new Error(e.message);
     }
   }

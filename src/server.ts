@@ -67,11 +67,13 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 // adminAuthRegister
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
-  if ('error' in result) {
-    return res.status(400).json(result);
+  try {
+    const token = adminAuthRegister(email, password, nameFirst, nameLast);
+    res.json({ token: token });
+    
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
-  res.json(result);
 });
 
 // adminAuthLogin

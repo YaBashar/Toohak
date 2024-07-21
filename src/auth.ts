@@ -19,11 +19,10 @@ login mechanics, and updating passwords and usernames.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { isEmail } from 'validator';
 import validator from 'validator';
 import { UserDetails, ErrorResponse } from './interface';
-import { findUserIdFromSessionId, findUserIndexFromUserId, findUserIndexFromEmail,
-  findSessionIndexFromSessionId } from './helper';
+import { createDataStoreId, findUserIndexFromUserId, findUserIndexFromEmail } from './helper';
+import { checkAdminAuthRegister } from './helper';
 
 // INTERFACES
 
@@ -44,38 +43,23 @@ import { findUserIdFromSessionId, findUserIndexFromUserId, findUserIndexFromEmai
   *                                 identifier for the user
   *
 */
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | ErrorResponse {
+export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): string {
   const store = getData();
   const userArr = store.users;
 
-  const name = nameFirst + ' ' + nameLast;
-
   // checking for error cases
-  if (!isEmail(email)) {
-    return { error: 'email is not a valid email address' };
-  } else if (!findUserIndexFromEmail) {
-    return { error: 'email is used by another user' };
+  try {
+    checkAdminAuthRegister(email, password, nameFirst, nameLast);
+  } catch (e) {
+    throw new Error(e.message);
   }
 
-  if (/[^A-Za-z' -]/.test(name)) {
-    return { error: 'name contains invalid characters' };
-  } else if (nameFirst.length < 2 || nameFirst.length > 20) {
-    return { error: 'first name must be at least 2 characters and no more than 20' };
-  } else if (nameLast.length < 2 || nameLast.length > 20) {
-    return { error: 'last name must be at least 2 characters and no more than 20' };
-  }
-
-  if (password.length < 8) {
-    return { error: 'password must be at least 8 characters' };
-  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
-    return { error: 'password must contain at least one number and one letter' };
-  }
-
-  // registering the user to the database
-  const newUserId = userArr.length + 1;
+  // registering the user and session to the database
+  const newUserId = createDataStoreId();
+  const newSessId = createDataStoreId();
   const newUser = {
     userId: newUserId,
-    name: name,
+    name: nameFirst + ' ' + nameLast,
     email: email,
     password: password,
     numSuccessfulLogins: 1,
@@ -83,15 +67,14 @@ export function adminAuthRegister(email: string, password: string, nameFirst: st
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = uniqueId(store.sessions);
 
-  // creating token for sessions
   const session = {
-    sessionId: sID,
+    sessionId: newSessId,
     userId: newUserId,
   };
   store.sessions.push(session);
-  return { token: sID.toString() };
+
+  return newSessId.toString();
 }
 
 // function to create a unique id everytime

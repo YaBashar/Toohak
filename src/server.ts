@@ -70,7 +70,6 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   try {
     const token = adminAuthRegister(email, password, nameFirst, nameLast);
     res.json({ token: token });
-    
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

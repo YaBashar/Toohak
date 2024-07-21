@@ -1,5 +1,6 @@
 import { getData } from './dataStore';
-import { User } from './interface';
+import { isEmail } from 'validator';
+import { Question } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -61,15 +62,74 @@ export function findDelQuizIndexFromQuizId(target: number): number {
   HELPER FUNCTIONS FOR CREATING UNIQUE AND RANDOM NUMBER IDS
 */
 
-
-export function createUserId(userArr: User[]): number {
-
-  let userId: number;
+// generates a random number that has not yet been used as a
+// user, session or quiz id. 
+export function createDataStoreId(): number {
+  const sessArr = getData().sessions;
+  let id: number;
 
   do {
-    userId = Math.floor(Math.random() * 1000000) + 1;
-  } while (userArr.find(user => (user.userId === userId)));
+    id = Math.floor(Math.random() * 1000000) + 1;
+  } while (sessArr.some(x => x.userId === id || x.sessionId === id));
 
-  return userId;  
-
+  return id;  
 }
+
+// generates a random number that has not yet been used as a 
+// questionId for a given Quiz
+export function createQuestionId(quesArr: Question[]): number {
+  let id: number;
+
+  do {
+    id = Math.floor(Math.random() * 1000000) + 1;
+  } while (quesArr.some(x => x.questionId === id ));
+
+  return id;
+}
+
+
+/*
+  HELPER FUNCTIONS FOR AUTH RELATED ERROR CHECKS
+*/
+
+// checks that email being registered is valid and new
+function checkEmail(email: string): void {
+  const userArr = getData().users;
+  if(!isEmail(email)) {
+    throw new Error('Email is not a valid email address.');
+  } else if(!findUserIndexFromEmail(email)) {
+    throw new Error('User already exists with this email address.')
+  }
+}
+
+function checkName(name: string): void {
+  if (/[^A-Za-z' -]/.test(name)){
+    throw new Error('Name contains invalid characters.');
+  } else if (name.length < 2 || name.length > 20) {
+    throw new Error('Name must be between 2 and 20 characters.');
+  }
+}
+
+function checkPassword(password:string): void {
+  if (password.length < 8) {
+    throw new Error('Password must be at least 8 characters.');
+  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
+    throw new Error('Password must contain at least one number and one letter');
+  }
+}
+
+
+/*
+  HELPER FUNCTIONS FOR FUNCTION GROUP ERROR TESTING
+*/
+export function checkAdminAuthRegister(email: string, password: string, 
+  nameFirst: string, nameLast: string) {
+    try {
+      checkEmail(email);
+      checkName(nameFirst);
+      checkName(nameLast);
+      checkPassword(password);
+    } catch (e) {
+      throw Error(e.message);
+    }
+  }

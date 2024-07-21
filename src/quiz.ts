@@ -111,8 +111,8 @@ export function adminQuizCreate(token: number, name: string, description: string
     quizId: id,
     name: name,
     description: description,
-    timeCreated: Math.round(Date.now() / 1000),
-    timeLastEdited: Math.round(Date.now() / 1000),
+    timeCreated: Math.floor(new Date().getTime() / 1000),
+    timeLastEdited: Math.floor(new Date().getTime() / 1000),
     numQuestions: 0,
     questions: [],
     duration: 0,
@@ -160,7 +160,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
     return { error: 'Quiz Id not owned by the user' };
   }
 
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   store.trash.push(quiz);
   const index = quizArray.indexOf(quiz);
   quizArray.splice(index, 1);
@@ -220,7 +220,6 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
     duration: totalDuration
   };
 
-  console.log(quizInfo.timeLastEdited);
   return quizInfo;
 }
 
@@ -267,7 +266,7 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
   }
 
   quiz.name = name;
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(store);
   return {};
 }
@@ -322,7 +321,7 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
     return { error: 'Quiz Id not found' };
   } else {
     quiz.description = description;
-    quiz.timeLastEdited = Math.round(Date.now() / 1000);
+    quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
     setData(store);
     return {};
   }

@@ -14,11 +14,30 @@
   ],
   "quizzes": [
     {
+<<<<<<< HEAD
       "quizId": 1721565892183,
       "name": "quizName",
       "description": "description",
       "timeCreated": 1721565892,
       "timeLastEdited": 1721565892,
+=======
+      "quizId": 1721462421683,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1721462422,
+      "timeLastEdited": 1721462422,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 1
+    },
+    {
+      "quizId": 1721462421687,
+      "name": "changeName",
+      "description": "description",
+      "timeCreated": 1721462422,
+      "timeLastEdited": 1721462423,
+>>>>>>> c1886b81e5e236038d300414c93ef5a1b4dc8bdf
       "numQuestions": 0,
       "questions": [],
       "duration": 0,
@@ -27,7 +46,11 @@
   ],
   "sessions": [
     {
+<<<<<<< HEAD
       "sessionId": 1721565892181,
+=======
+      "sessionId": 1721462421680,
+>>>>>>> c1886b81e5e236038d300414c93ef5a1b4dc8bdf
       "userId": 1
     }
   ],

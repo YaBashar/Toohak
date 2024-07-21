@@ -21,6 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
+import { findUserByToken, findQuizById, checkQuizOwnership } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -190,16 +191,18 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
-  const user = userArr.find((user) => user.userId === token);
-  const userQuiz = quizArr.find((quiz) => quiz.userId === token);
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
 
   if (!user) {
-    return { error: 'Invalid User id' };
-  } else if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!userQuiz) {
-    return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
   }
 
   const filteredQuestions = quiz.questions.filter(q => q !== null);
@@ -212,10 +215,12 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
     // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length - 1,
+    numQuestions: filteredQuestions.length,
     questions: filteredQuestions,
     duration: totalDuration
   };
+
+  console.log(quizInfo.timeLastEdited);
   return quizInfo;
 }
 

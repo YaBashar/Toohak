@@ -185,7 +185,7 @@ export function adminUserDetails(token: number): UserDetails| ErrorResponse {
         name: user.name,
         email: user.email,
         numSuccessfulLogins: user.numSuccessfulLogins,
-        numFailedPasswordSinceLastLogin: user.numFailedPasswordSinceLastLogin,
+        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
       }
     };
   }

@@ -14,11 +14,11 @@
   ],
   "quizzes": [
     {
-      "quizId": 1721564693710,
+      "quizId": 1721565036694,
       "name": "quizName",
       "description": "description",
-      "timeCreated": 1721564694,
-      "timeLastEdited": 1721564694,
+      "timeCreated": 1721565037,
+      "timeLastEdited": 1721565037,
       "numQuestions": 0,
       "questions": [],
       "duration": 0,
@@ -27,7 +27,7 @@
   ],
   "sessions": [
     {
-      "sessionId": 1721564693707,
+      "sessionId": 1721565036685,
       "userId": 1
     }
   ],

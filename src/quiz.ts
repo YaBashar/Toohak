@@ -111,8 +111,8 @@ export function adminQuizCreate(token: number, name: string, description: string
     quizId: id,
     name: name,
     description: description,
-    timeCreated: Math.round(Date.now() / 1000),
-    timeLastEdited: Math.round(Date.now() / 1000),
+    timeCreated: Math.floor(new Date().getTime() / 1000),
+    timeLastEdited: Math.floor(new Date().getTime() / 1000),
     numQuestions: 0,
     questions: [],
     duration: 0,
@@ -160,7 +160,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
     return { error: 'Quiz Id not owned by the user' };
   }
 
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   store.trash.push(quiz);
   const index = quizArray.indexOf(quiz);
   quizArray.splice(index, 1);
@@ -191,16 +191,18 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
-  const user = userArr.find((user) => user.userId === token);
-  const userQuiz = quizArr.find((quiz) => quiz.userId === token);
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
 
   if (!user) {
-    return { error: 'Invalid User id' };
-  } else if (!quiz) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!userQuiz) {
-    return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
   }
 
   const filteredQuestions = quiz.questions.filter(q => q !== null);
@@ -213,10 +215,11 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
     timeLastEdited: quiz.timeLastEdited,
     description: quiz.description,
     // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length - 1,
+    numQuestions: filteredQuestions.length,
     questions: filteredQuestions,
     duration: totalDuration
   };
+
   return quizInfo;
 }
 
@@ -259,7 +262,7 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
 
   validateQuizName(name);
   quiz.name = name;
-  quiz.timeLastEdited = Math.round(Date.now() / 1000);
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(store);
   return {};
 }
@@ -314,7 +317,7 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
     return { error: 'Quiz Id not found' };
   } else {
     quiz.description = description;
-    quiz.timeLastEdited = Math.round(Date.now() / 1000);
+    quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
     setData(store);
     return {};
   }

@@ -411,6 +411,14 @@ export function adminQuizTrashView(token: string): {quizzes: QuizList[] } | Erro
 export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | ErrorResponse {
   const store = getData();
 
+  // checking if all quizzes exist in the system
+  for (const item of quizIds) {
+    const quiz = store.quizzes.find(x => x.quizId === item) || store.trash.find(x => x.quizId === item);
+    if (!quiz) {
+      return { error: 'Some quizzes do not exist' };
+    }
+  }
+
   // checking if all quizzes are in trash
   for (const item of quizIds) {
     const quiz = store.trash.find(x => x.quizId === item);

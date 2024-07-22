@@ -78,12 +78,12 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 // adminAuthLogin
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const result = adminAuthLogin(email, password);
-
-  if ('error' in result) {
-    return res.status(400).json(result);
+  try {
+    const token = adminAuthLogin(email, password);
+    res.json({ token: token });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
-  res.json(result);
 });
 
 // adminQuizTrashView
@@ -102,16 +102,11 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
+  try {
+    res.json(adminUserDetails(userId));
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
   }
-
-  const result = adminUserDetails(userId);
-  if ('error' in result) {
-    return res.status(401).json(result);
-  }
-
-  return res.status(200).json(result);
 });
 
 // adminAuthUpdateUserDetails

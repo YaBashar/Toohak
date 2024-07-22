@@ -61,6 +61,9 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (question.duration < 0) {
     return { error: 'Question duration is not a positive number' };
   }
+  if (question.duration === 0) {
+    return { error: 'Question duration is 0' };
+  }
   if (question.duration > 180) {
     return { error: 'Sum of question durations in quiz exceeds 3 minutes' };
   }
@@ -93,15 +96,22 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   }
 
   const id = uniqueQuestionId(quiz.questions);
+  // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+
+  // add the color and answerId here
+  // question.answers.forEach((answer, index) => {
+  //   answer.answerId = index;
+  //   answer.colour = colourArray[index];
+  // });
   const questionBody = {
     questionId: id,
     question: question.question,
     duration: question.duration,
     points: question.points,
     answers: question.answers
-    // Set the answer id in answer and we have to set a random colour for each answer
   };
   quiz.questions.push(questionBody);
+  quiz.timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);
   return { questionId: id };
 }

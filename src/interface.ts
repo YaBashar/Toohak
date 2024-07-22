@@ -15,7 +15,7 @@ export interface UserDetails {
     name: string,
     email: string,
     numSuccessfulLogins: number,
-    numFailedPasswordSinceLastLogin: number,
+    numFailedPasswordsSinceLastLogin: number,
   }
 }
 

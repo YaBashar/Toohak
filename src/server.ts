@@ -380,15 +380,19 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const questionId = parseInt(req.params.questionid as string);
   const userId = getUserIdFromToken(token);
 
+  console.log('Route called with:', { token, quizId, questionId, userId });
+
   try {
     const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
     res.status(200).json(result);
   } catch (error) {
+    console.error('Error caught in route:', error);
     if (error instanceof Error) {
       if (error.message === 'Invalid User id') {
         return res.status(401).json({ error: error.message });
-      } else if (error.message === 'Quiz Id not owned by the user' ||
-        error.message === 'Invalid Quiz id') {
+      } else if (error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user') {
         return res.status(403).json({ error: error.message });
       } else if (error.message === 'Question id does not refer to valid question in quiz') {
         return res.status(400).json({ error: error.message });
@@ -396,7 +400,6 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
     }
   }
 });
-
 // adminQuizInfo
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;

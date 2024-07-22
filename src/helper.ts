@@ -137,7 +137,7 @@ export function checkAdminAuthLogin(email: string, password: string) {
   if (!user) {
     throw new Error('Email address is not registered');
   } else if (user.password !== password) {
-    user.numFailedPasswordSinceLastLogin++;
+    user.numFailedPasswordsSinceLastLogin++;
     throw new Error('Incorrect password for given email');
   }
 }

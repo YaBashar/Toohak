@@ -68,7 +68,7 @@ export function adminAuthRegister(email: string, password: string,
     email: email,
     password: password,
     numSuccessfulLogins: 1,
-    numFailedPasswordSinceLastLogin: 0,
+    numFailedPasswordsSinceLastLogin: 0,
     passwordHistory: [password],
   };
   userArr.push(newUser);
@@ -85,14 +85,14 @@ export function adminAuthRegister(email: string, password: string,
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
-  * their userId value.
+  * their sessionId
   *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
   * ...
-  * @returns {token: number} - number representing a unique
-  *                                 identifier for the user
+  * @returns {string} - string representing a unique
+  *                                 identifier for the session
   *
 */
 export function adminAuthLogin(email: string, password: string): string {
@@ -109,7 +109,7 @@ export function adminAuthLogin(email: string, password: string): string {
 
   // logging in the user
   user.numSuccessfulLogins++;
-  user.numFailedPasswordSinceLastLogin = 0;
+  user.numFailedPasswordsSinceLastLogin = 0;
 
   // creating sessiionId
   const newSessId = createDataStoreId();
@@ -141,27 +141,23 @@ export function adminAuthLogin(email: string, password: string): string {
   *
 */
 
-export function adminUserDetails(userId: number): UserDetails| ErrorResponse {
-  const store = getData();
-  const userArr = store.users;
-  const user = userArr[findUserIndexFromUserId(userId)];
+export function adminUserDetails(userId: number): UserDetails {
+  const user = getData().users[findUserIndexFromUserId(userId)];
 
   // checking for error cases
   if (!user) {
-    return { error: 'invalid token' };
-
-  // returning object containing user details
-  } else {
-    return {
-      user: {
-        userId: user.userId,
-        name: user.name,
-        email: user.email,
-        numSuccessfulLogins: user.numSuccessfulLogins,
-        numFailedPasswordsSinceLastLogin: user.numFailedPasswordSinceLastLogin,
-      }
-    };
+    throw new Error('Invalid UserId');
   }
+  // returning object containing user details
+  return {
+    user: {
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      numSuccessfulLogins: user.numSuccessfulLogins,
+      numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
+    }
+  };
 }
 
 /** [4] adminUserDetailsUpdate

@@ -477,9 +477,10 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' ||
-      result.error === 'Quiz Id not owned by the user') {
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
+    } else if (result.error === 'Quiz ID refers to a quiz that is not currently in the trash') {
+      return res.status(400).json(result);
     }
   }
   return res.status(200).json({});

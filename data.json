@@ -2,30 +2,30 @@
   "users": [
     {
       "userId": 1,
-      "name": "John Doe",
-      "email": "user@unsw.edu.au",
-      "password": "123ABCabc@#$",
+      "name": "first last",
+      "email": "zid@ad.unsw.edu.au",
+      "password": "abcd1234",
       "numSuccessfulLogins": 1,
       "numFailedPasswordSinceLastLogin": 0,
       "passwordHistory": [
-        "123ABCabc@#$"
+        "abcd1234"
       ]
     }
   ],
   "quizzes": [],
   "sessions": [
     {
-      "sessionId": 1721565869777,
+      "sessionId": 1721613867993,
       "userId": 1
     }
   ],
   "trash": [
     {
-      "quizId": 1721565869778,
-      "name": "Quiz Name",
-      "description": "Description",
-      "timeCreated": 1721565870,
-      "timeLastEdited": 1721565870,
+      "quizId": 1721613867994,
+      "name": "valid_name",
+      "description": "valid_description",
+      "timeCreated": 1721613868,
+      "timeLastEdited": 1721613868,
       "numQuestions": 0,
       "questions": [],
       "duration": 0,

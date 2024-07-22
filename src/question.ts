@@ -122,7 +122,6 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
 */
 
 export function adminQuizQuestionDuplicate(token: number, quizId: number, questionId: number): QuestionId | ErrorResponse {
-  console.log('adminQuizQuestionDuplicate called with:', { token, quizId, questionId });
   const store = getData();
 
   const userArr = store.users;
@@ -133,21 +132,17 @@ export function adminQuizQuestionDuplicate(token: number, quizId: number, questi
   const quizUser = checkQuizOwnership(token, quizArr);
 
   if (!user) {
-    console.error('Invalid User id');
     throw new Error('Invalid User id');
   }
   if (findQuiz === -1) {
-    console.error('Invalid Quiz id');
     throw new Error('Invalid Quiz id');
   }
   if (!quizUser) {
-    console.error('Quiz Id not owned by the user');
     throw new Error('Quiz Id not owned by the user');
   }
 
   const findQuestion = findQuestionIndex(quizArr, quizId, questionId);
   if (findQuestion === -1) {
-    console.error('Question id does not refer to valid question in quiz');
     throw new Error('Question id does not refer to valid question in quiz');
   }
 
@@ -167,8 +162,7 @@ export function adminQuizQuestionDuplicate(token: number, quizId: number, questi
 
   quiz.questions.push(duplicatedQuestion);
   setData(store);
-  console.log('Duplicated question created:', duplicatedQuestion);
-  return { questionId: newQuestionId };
+  return { newQuestionId: newQuestionId };
 }
 
 /** [3] adminQuizQuestionDelete

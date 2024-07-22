@@ -21,7 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 import { Quiz, QuizInfo, QuizList } from './interface';
-import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
+import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -341,31 +341,31 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
+  const findQuiz = findQuizIndexFromQuizId(quizId);
   if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
+    throw new Error('Invalid Quiz id');
   }
 
   const quiz = store.quizzes[findQuiz];
-  const user = userArr.find(user => user.userId === token);
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
 
-  const targetUser = store.users.find(user => user.email === userEmail);
+  const targetUser = findUserByEmail(userEmail, userArr);
   if (!targetUser) {
-    return { error: 'Target user email is not a real user' };
+    throw new Error('Target user email is not a real user');
   }
   const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
 
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   } else if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
+    throw new Error('Invalid Quiz id');
   } else if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   } else if (user.userId === targetUser.userId) {
-    return { error: 'Target user email is the same as currently logged in user' };
+    throw new Error('Target user email is the same as currently logged in user');
   } else if (isQuizExists) {
-    return { error: 'Quiz name already in use by target user' };
+    throw new Error('Quiz name already in use by target user');
   }
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.userId = targetUser.userId;

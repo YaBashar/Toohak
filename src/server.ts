@@ -330,25 +330,25 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
   const quizId = parseInt(req.params.quizid as string);
   const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
 
-  const quizTransfer = adminQuizTransfer(userId, quizId, email);
-  if (quizTransfer.error) {
-    if (quizTransfer.error === 'Invalid User id') {
-      return res.status(401).json({ error: quizTransfer.error });
-    } else if (quizTransfer.error === 'Quiz Id not owned by the user' ||
-      quizTransfer.error === 'Invalid Quiz id') {
-      return res.status(403).json({ error: quizTransfer.error });
-    } else if (quizTransfer.error === 'Target user email is not a real user' ||
-      quizTransfer.error === 'Target user email is the same as currently logged in user' ||
-      quizTransfer.error === 'Quiz name already in use by target user'
-    ) {
-      return res.status(400).json({ error: quizTransfer.error });
+  try {
+    const quizTransfer = adminQuizTransfer(userId, quizId, email);
+    res.status(200).json(quizTransfer);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user' ||
+        error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Target user email is not a real user' ||
+        error.message === 'Target user email is the same as currently logged in user' ||
+        error.message === 'Quiz name already in use by target user'
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(quizTransfer);
 });
 
 // adminQuizQuestionCreate

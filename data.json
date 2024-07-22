@@ -1,0 +1,50 @@
+{
+  "users": [
+    {
+      "userId": 470881,
+      "name": "Mubashir Hussain",
+      "email": "sourceuser@unsw.edu.au",
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+    },
+    {
+      "userId": 637529,
+      "name": "Muhammad Chowdhury",
+      "email": "targetuser@unsw.edu.au",
+      "password": "124ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "124ABCabc@#$"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1721651299488,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1721651299,
+      "timeLastEdited": 1721651299,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 470881
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 660686,
+      "userId": 470881
+    },
+    {
+      "sessionId": 207940,
+      "userId": 637529
+    }
+  ],
+  "trash": []
+}

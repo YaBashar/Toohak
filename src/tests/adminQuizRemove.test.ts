@@ -54,9 +54,9 @@ const quizList = (token: string) => {
     { qs: { token } }
   );
   return res;
-}
+};
 
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -111,7 +111,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
 
       ]
     });
-  })
+  });
 
   test('Testing timeLastEdited property is the same as timeCreated', () => {
     const quiz = createQuiz(token1, 'newQuiz', 'description');

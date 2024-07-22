@@ -10,7 +10,7 @@ const createUser = (email: string, password: string, firstName: string, lastName
   return (request('POST', SERVER_URL + '/v1/admin/auth/register',
     { json: { email, password, nameFirst: firstName, nameLast: lastName } }
   ));
-}
+};
 
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
@@ -41,7 +41,7 @@ const questionDelete = (token: string, quizid: number, questionid: number) => {
   return res;
 };
 
-///////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });

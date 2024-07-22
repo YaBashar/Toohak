@@ -20,11 +20,12 @@ function getData(): Store {
 
 function setData(newData: Store) {
   data = newData;
+  saveData();
 }
 
 // Save data to file
 function saveData() {
-  const dataString = JSON.stringify(data);
+  const dataString = JSON.stringify(data, null, 2);
   fs.writeFileSync('data.json', dataString);
 }
 

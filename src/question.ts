@@ -96,7 +96,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
 
   const id = uniqueQuestionId(quiz.questions);
   // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
- 
+
   // add the color and answerId here
   // question.answers.forEach((answer, index) => {
   //   answer.answerId = index;
@@ -108,7 +108,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
     duration: question.duration,
     points: question.points,
     answers: question.answers
-  };  
+  };
   quiz.questions.push(questionBody);
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);

@@ -33,7 +33,7 @@ const questionCreate = (token: string, quizid: number, question: string, duratio
   });
 };
 
-////////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -189,7 +189,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     ]);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
-  })
+  });
 
   // The sum of the question durations in the quiz exceeds 3 minutes
   test('The sum of the question durations in the quiz exceeds 3 minutes', () => {
@@ -302,7 +302,7 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
-  
+
   // test to check quiz id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
     const res = questionCreate(token1, quizid + 1, 'Who is the Monarch of England?', 4, 5, [
@@ -318,7 +318,6 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
-
 
   // The provided quizid does not belong to the user
   test('The provided quizid does not belong to the user', () => {

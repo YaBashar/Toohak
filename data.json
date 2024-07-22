@@ -1,1 +1,46 @@
-{"users":[],"quizzes":[],"sessions":[],"trash":[]}
+{
+  "users": [
+    {
+      "userId": 357690,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234!@#$ABCD"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1721625787693,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1721625787,
+      "timeLastEdited": 1721625787,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 357690
+    },
+    {
+      "quizId": 1721625787694,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1721625787,
+      "timeLastEdited": 1721625787,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 357690
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 730905,
+      "userId": 357690
+    }
+  ],
+  "trash": []
+}

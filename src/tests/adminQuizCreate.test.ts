@@ -10,7 +10,7 @@ const createUser = (email: string, password: string, firstName: string, lastName
   return (request('POST', SERVER_URL + '/v1/admin/auth/register',
     { json: { email, password, nameFirst: firstName, nameLast: lastName } }
   ));
-}
+};
 
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
@@ -26,7 +26,7 @@ const quizList = (token: string) => {
     { qs: { token } }
   );
   return res;
-}
+};
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -82,7 +82,6 @@ describe('POST /v1/admin/quiz', () => {
     expect(res).toStrictEqual({ quizId: expect.any(Number) });
   });
 
-
   test('Quiz created successfully', () => {
     createQuiz(token, 'Quiz 1', 'toohak quiz');
     const res = quizList(token);
@@ -96,4 +95,3 @@ describe('POST /v1/admin/quiz', () => {
     });
   });
 });
-

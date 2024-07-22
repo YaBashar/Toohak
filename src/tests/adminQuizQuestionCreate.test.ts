@@ -175,6 +175,22 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
+  // The question duration is 0
+  test('The question duration is 0', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 0, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ]);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  })
+
   // The sum of the question durations in the quiz exceeds 3 minutes
   test('The sum of the question durations in the quiz exceeds 3 minutes', () => {
     const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 190, 5, [

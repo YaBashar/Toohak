@@ -80,7 +80,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
   });
 
   test('Token is invalid', () => {
-    const res = quizRemove('invalidAuthUserId', qid.quizId);
+    const res = quizRemove('invaliduserId', qid.quizId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });

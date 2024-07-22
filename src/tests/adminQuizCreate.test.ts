@@ -19,6 +19,15 @@ const createQuiz = (token : string, name : string, description : string) => {
   return JSON.parse(res.body.toString());
 };
 
+const quizList = (token: string) => {
+  const res = request(
+    'GET',
+    `${SERVER_URL}/v1/admin/quiz/list`,
+    { qs: { token } }
+  );
+  return res;
+}
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
@@ -32,7 +41,7 @@ describe('POST /v1/admin/quiz', () => {
   });
 
   test('Token is invalid', () => {
-    const res = createQuiz('invalidAuthUserId', 'Sidak', 'valid description');
+    const res = createQuiz('invaliduserId', 'Sidak', 'valid description');
     expect(res).toStrictEqual({ error: expect.any(String) });
   });
 
@@ -73,14 +82,10 @@ describe('POST /v1/admin/quiz', () => {
     expect(res).toStrictEqual({ quizId: expect.any(Number) });
   });
 
+
   test('Quiz created successfully', () => {
     createQuiz(token, 'Quiz 1', 'toohak quiz');
-    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-      qs: {
-        token: token,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = quizList(token);
     expect(JSON.parse(res.body.toString())).toStrictEqual({
       quizzes: [
         {
@@ -91,3 +96,4 @@ describe('POST /v1/admin/quiz', () => {
     });
   });
 });
+

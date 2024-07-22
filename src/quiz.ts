@@ -20,8 +20,8 @@ and update information regarding quizzes.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { Answer, Question, Quiz, QuizInfo, QuizList, QuestionId } from './interface';
-import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
+import { Answer, Question, Quiz, QuizInfo, QuizList, QuestionId, ErrorResponse } from './interface';
+import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findQuestionIndex, createQuestionId } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -469,34 +469,35 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   *
 */
 
-export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | { error: string } {
+export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | ErrorResponse {
   const store = getData();
 
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const user = userArr.find(user => user.userId === token);
+  const findQuiz = findQuizIndexFromQuizId(quizId);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   }
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
+  if (!findQuiz) {
+    throw new Error('Invalid Quiz id');
+  }
   if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
 
-  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
-  if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
-  }
   const quiz = store.quizzes[findQuiz];
 
-  const findQuestion = store.quizzes[findQuiz].questions.findIndex(question => question.questionId === questionId);
+  const findQuestion = findQuestionIndex(quizArr, quizId, questionId);
   if (findQuestion === -1) {
     return { error: 'Question id does not refer to valid question in quiz' };
   }
 
   const question = quizArr[findQuiz].questions[findQuestion];
-  const newQuestionId = uniqueQuestionId(quiz.questions);
+  const newQuestionId = createQuestionId(quiz.questions);
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 

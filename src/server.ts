@@ -483,6 +483,46 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   return res.status(200).json({});
 });
 
+///////////////////////////////////////////////////////////////////////////////
+
+app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const token = req.query.token as string;
+  const quizid = parseInt(req.params.quizid as string);
+  const questionid = parseInt(req.params.questionid as string);
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  const result = adminQuizQuestionDelete(userId, quizid, questionid);
+  if ('error' in result) {
+    if (result.error === 'Invalid Token') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' ||
+      result.error === 'Invalid Quiz Id') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Invalid Question Id') {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+///////////////////////////////////////////////////////////////////////////////
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

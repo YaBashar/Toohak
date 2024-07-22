@@ -130,10 +130,7 @@ export function checkAdminAuthRegister(email: string, password: string,
   }
 }
 
-
-
-
-//////////////////////////////////////////////////////////////
+/// ///////////////////////////////////////////////////////////
 export function findUserByToken(token: number, users: Array<User>): User | null {
   return users.find(user => user.userId === token) || null;
 }

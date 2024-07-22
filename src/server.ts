@@ -380,8 +380,6 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const questionId = parseInt(req.params.questionid as string);
   const userId = getUserIdFromToken(token);
 
-  console.log('Route called with:', { token, quizId, questionId, userId });
-
   try {
     const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
     res.status(200).json(result);

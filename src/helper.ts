@@ -107,7 +107,7 @@ function checkName(name: string): void {
   }
 }
 
-function checkPassword(password:string): void {
+function checkPassword(password: string): void {
   if (password.length < 8) {
     throw new Error('Password must be at least 8 characters.');
   } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
@@ -118,6 +118,7 @@ function checkPassword(password:string): void {
 /*
   HELPER FUNCTIONS FOR FUNCTION GROUP ERROR TESTING
 */
+// checks for any errors in the checkAdminAuthRegister function
 export function checkAdminAuthRegister(email: string, password: string,
   nameFirst: string, nameLast: string) {
   try {
@@ -127,6 +128,17 @@ export function checkAdminAuthRegister(email: string, password: string,
     checkPassword(password);
   } catch (e) {
     throw new Error(e.message);
+  }
+}
+
+// checks for any errors in the adminAuthLogin function
+export function checkAdminAuthLogin(email: string, password: string) {
+  const user = getData().users[findUserIndexFromEmail(email)];
+  if (!user) {
+    throw new Error('Email address is not registered');
+  } else if (user.password !== password) {
+    user.numFailedPasswordSinceLastLogin++;
+    throw new Error('Incorrect password for given email');
   }
 }
 

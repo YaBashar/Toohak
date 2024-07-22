@@ -78,12 +78,12 @@ app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
 // adminAuthLogin
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const result = adminAuthLogin(email, password);
-
-  if ('error' in result) {
-    return res.status(400).json(result);
+  try {
+    const token = adminAuthLogin(email, password);
+    res.json({ token: token });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
-  res.json(result);
 });
 
 // adminQuizTrashView

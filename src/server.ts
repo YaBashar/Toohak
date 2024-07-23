@@ -314,12 +314,14 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   }
   const result = adminQuizTrashEmpty(userId, quizids);
   if ('error' in result) {
-    if (result.error === 'Some quizzes are not owned by the user') {
-      return res.status(403).json({ error: result.error });
+    if (result.error === 'Some quizzes do not exist') {
+      return res.status(400).json({ error: result.error });
     } else if (result.error === 'Some quizzes are not in the trash') {
       return res.status(400).json({ error: result.error });
+    } else if (result.error === 'Some quizzes are not owned by the user') {
+      return res.status(403).json({ error: result.error });
     } else {
-      return res.status(400).json({ error: result.error });
+      return res.status(400).json({ error: 'Unknown error' });
     }
   }
   return res.status(200).json({});
@@ -475,9 +477,10 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' ||
-      result.error === 'Quiz Id not owned by the user') {
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
+    } else if (result.error === 'Quiz ID refers to a quiz that is not currently in the trash') {
+      return res.status(400).json(result);
     }
   }
   return res.status(200).json({});

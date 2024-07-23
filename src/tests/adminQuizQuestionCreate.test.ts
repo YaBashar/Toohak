@@ -33,7 +33,7 @@ const questionCreate = (token: string, quizid: number, question: string, duratio
   });
 };
 
-/// ////////////////////////////////////////////////////////////////////////////
+/// /////////////////////////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -175,6 +175,22 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
+  // The question duration is 0
+  test('The question duration is 0', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 0, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ]);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
+
   // The sum of the question durations in the quiz exceeds 3 minutes
   test('The sum of the question durations in the quiz exceeds 3 minutes', () => {
     const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 190, 5, [
@@ -287,28 +303,18 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  // test to check quiz Id does not refer to a valid quiz
+  // test to check quiz id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizid2 + 1}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Queen Elizabeth',
-              correct: false,
-            }
-          ]
-        }
+    const res = questionCreate(token1, quizid + 1, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
       }
-    });
+    ]);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });

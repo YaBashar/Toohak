@@ -5,7 +5,7 @@ export interface User {
   email: string,
   password: string,
   numSuccessfulLogins: number,
-  numFailedPasswordSinceLastLogin: number,
+  numFailedPasswordsSinceLastLogin: number,
   passwordHistory: string[]
 }
 
@@ -15,7 +15,7 @@ export interface UserDetails {
     name: string,
     email: string,
     numSuccessfulLogins: number,
-    numFailedPasswordSinceLastLogin: number,
+    numFailedPasswordsSinceLastLogin: number,
   }
 }
 

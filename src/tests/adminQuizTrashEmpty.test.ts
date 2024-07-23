@@ -69,14 +69,14 @@ describe('adminQuizTrashEmpty Tests', () => {
     test('Deleting quizzes not in the trash', () => {
       const res = emptyTrash(token, [quizId, quizId2]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(data).toStrictEqual({ error: 'Some quizzes are not in the trash' });
       expect(res.statusCode).toStrictEqual(400);
     });
 
     test('Deleting quizzes with an invalid token', () => {
-      const res = emptyTrash('invlaid token', [quizId]);
+      const res = emptyTrash('invalid token', [quizId]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
       expect(res.statusCode).toStrictEqual(401);
     });
 
@@ -93,8 +93,15 @@ describe('adminQuizTrashEmpty Tests', () => {
       const anotherToken = JSON.parse(anotherUser.body.toString()).token;
       const res = emptyTrash(anotherToken, [quizId]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(data).toStrictEqual({ error: 'Some quizzes are not owned by the user' });
       expect(res.statusCode).toStrictEqual(403);
+    });
+
+    test('Deleting quizzes that do not exist', () => {
+      const res = emptyTrash(token, [1234321]);
+      const data = JSON.parse(res.body.toString());
+      expect(data).toStrictEqual({ error: 'Some quizzes do not exist' });
+      expect(res.statusCode).toStrictEqual(400);
     });
   });
 
@@ -151,7 +158,7 @@ describe('adminQuizTrashEmpty Tests', () => {
 });
 
 const requestViewTrash = (token: string) => {
-  return (request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
+  return request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
     qs: { token: token }, timeout: TIMEOUT_MS
-  }));
+  });
 };

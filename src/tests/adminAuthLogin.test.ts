@@ -52,7 +52,7 @@ describe('Testing login success cases', () => {
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 3,
-        numFailedPasswordSinceLastLogin: 0,
+        numFailedPasswordsSinceLastLogin: 0,
       }
     });
   });
@@ -69,7 +69,7 @@ describe('Testing login success cases', () => {
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 1,
-        numFailedPasswordSinceLastLogin: 3,
+        numFailedPasswordsSinceLastLogin: 3,
       }
     });
   });
@@ -86,7 +86,7 @@ describe('Testing login success cases', () => {
         name: 'first last',
         email: 'zid@unsw.edu.au',
         numSuccessfulLogins: 2,
-        numFailedPasswordSinceLastLogin: 0,
+        numFailedPasswordsSinceLastLogin: 0,
       }
     });
   });

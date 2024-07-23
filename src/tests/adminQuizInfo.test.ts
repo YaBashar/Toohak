@@ -87,5 +87,12 @@ describe('adminQuizInfo Tests', () => {
       );
       expect(quizInfo.statusCode).toStrictEqual(200);
     });
+
+    test('Timestamp is in range', () => {
+      const quizInfo = requestQuizInfo(token, quizId);
+      const quiz = JSON.parse(quizInfo.body.toString());
+      const timestamp = Math.floor(new Date().getTime() / 1000);
+      expect(quiz.timeLastEdited).toBeLessThanOrEqual(timestamp);
+    });
   });
 });

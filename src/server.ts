@@ -182,12 +182,12 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   return res.status(200).json(result);
 });
 
-//  adminQuizDescriptionUpdate
+// adminQuizDescriptionUpdate
 app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const { token, description } = req.body;
   const { quizid } = req.params;
   const userId = getUserIdFromToken(token);
-  const quizIdNum = parseInt(quizid);
+  const quizIdNum = parseInt(quizid, 10);
   if (isNaN(quizIdNum)) {
     return res.status(400).json({ error: 'Invalid Quiz id' });
   }
@@ -196,13 +196,13 @@ app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
     if (result.error === 'Invalid User id') {
       return res.status(401).json(result);
     } else if (result.error === 'This Quiz Id does not refer to a quiz that this user owns' ||
-      result.error === 'Quiz Id not found') {
+               result.error === 'Quiz Id not found') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
     }
   }
-  return res.status(200).json(result);
+  return res.status(200).json({});
 });
 
 // adminQuizNameUpdate

@@ -21,6 +21,7 @@ and update information regarding questions within a quiz.
 
 import { getData, setData } from './dataStore';
 import { Answer, Question, QuestionId, ErrorResponse } from './interface';
+import { findUserByToken, checkQuizOwnership, findQuizIndexFromQuizId, findQuestionIndex, createQuestionId } from './helper';
 
 /** [1] adminQuizQuestionCreate
   *
@@ -130,34 +131,34 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   *
 */
 
-export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | ErrorResponse {
+export function adminQuizQuestionDuplicate(token: number, quizId: number, questionId: number): QuestionId | ErrorResponse {
   const store = getData();
 
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const user = userArr.find(user => user.userId === token);
+  const findQuiz = findQuizIndexFromQuizId(quizId);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   }
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
-  if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
-  }
-
-  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
   if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
+    throw new Error('Invalid Quiz id');
   }
-  const quiz = store.quizzes[findQuiz];
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
 
-  const findQuestion = store.quizzes[findQuiz].questions.findIndex(question => question.questionId === questionId);
+  const findQuestion = findQuestionIndex(quizArr, quizId, questionId);
   if (findQuestion === -1) {
-    return { error: 'Question id does not refer to valid question in quiz' };
+    throw new Error('Question id does not refer to valid question in quiz');
   }
 
-  const question = quizArr[findQuiz].questions[findQuestion];
-  const newQuestionId = uniqueQuestionId(quiz.questions);
+  const quiz = quizArr[findQuiz];
+  const question = quiz.questions[findQuestion];
+  const newQuestionId = createQuestionId(quiz.questions);
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
@@ -171,7 +172,7 @@ export function adminQuizQuestionDuplicate(token : number, quizId: number, quest
 
   quiz.questions.push(duplicatedQuestion);
   setData(store);
-  return { questionId: newQuestionId };
+  return { newQuestionId: newQuestionId };
 }
 
 /** [3] adminQuizQuestionDelete

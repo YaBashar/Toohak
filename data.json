@@ -1,49 +1,45 @@
 {
   "users": [
     {
-      "userId": 354496,
-      "name": "Mubashir Hussain",
-      "email": "sourceuser@unsw.edu.au",
-      "password": "123ABCabc@#$",
+      "userId": 218183,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
       "numSuccessfulLogins": 1,
       "numFailedPasswordsSinceLastLogin": 0,
       "passwordHistory": [
-        "123ABCabc@#$"
-      ]
-    },
-    {
-      "userId": 346230,
-      "name": "Muhammad Chowdhury",
-      "email": "targetuser@unsw.edu.au",
-      "password": "124ABCabc@#$",
-      "numSuccessfulLogins": 1,
-      "numFailedPasswordsSinceLastLogin": 0,
-      "passwordHistory": [
-        "124ABCabc@#$"
+        "abcd1234!@#$ABCD"
       ]
     }
   ],
   "quizzes": [
     {
-      "quizId": 1721699444027,
-      "name": "quizName",
-      "description": "description",
-      "timeCreated": 1721699444,
-      "timeLastEdited": 1721699444,
+      "quizId": 1721629216984,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1721629216,
+      "timeLastEdited": 1721629216,
       "numQuestions": 0,
       "questions": [],
       "duration": 0,
-      "userId": 346230
+      "userId": 218183
+    },
+    {
+      "quizId": 1721629216988,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1721629216,
+      "timeLastEdited": 1721629216,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 218183
     }
   ],
   "sessions": [
     {
-      "sessionId": 492992,
-      "userId": 354496
-    },
-    {
-      "sessionId": 400517,
-      "userId": 346230
+      "sessionId": 987044,
+      "userId": 218183
     }
   ],
   "trash": []

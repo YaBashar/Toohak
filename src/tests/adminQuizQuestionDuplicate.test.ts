@@ -40,7 +40,7 @@ const quizInfo = (token: string, quizId: number) => {
   return JSON.parse(res.body.toString());
 };
 
-const requestDuplicateQuestion = (quizId : number, questionId : number, token : string) => {
+const requestDuplicateQuestion = (token : string, quizId : number, questionId : number) => {
   return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token: token }, timeout: TIMEOUT_MS }));
 };
 /// //////////////////////////////////////////////
@@ -83,21 +83,21 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     });
 
     test('Duplicating of a Question with invalid Authuser id', () => {
-      const duplicateQuiz = requestDuplicateQuestion(quizId, questionId, 'invalid_token');
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(duplicateQuiz.statusCode).toStrictEqual(401);
+      const duplicateQuestion = requestDuplicateQuestion('invalid_token', quizId, questionId);
+      expect(JSON.parse(duplicateQuestion.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(duplicateQuestion.statusCode).toStrictEqual(401);
     });
 
     test('Duplicating Question when Quiz does not exist ', () => {
-      const duplicateQuiz = requestDuplicateQuestion(quizId + 1, questionId, token);
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(duplicateQuiz.statusCode).toStrictEqual(403);
+      const duplicateQuestion = requestDuplicateQuestion(token, quizId + 1, questionId);
+      expect(JSON.parse(duplicateQuestion.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(duplicateQuestion.statusCode).toStrictEqual(403);
     });
 
     test('Quiz Id does not refer to a quiz that this user owns', () => {
-      const duplicateQuiz = requestDuplicateQuestion(quizId + 1, questionId, token);
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(duplicateQuiz.statusCode).toStrictEqual(403);
+      const duplicateQuestion = requestDuplicateQuestion(token, quizId + 1, questionId);
+      expect(JSON.parse(duplicateQuestion.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(duplicateQuestion.statusCode).toStrictEqual(403);
     });
 
     test('Question Id does not refer to a valid question within this quiz', () => {
@@ -125,9 +125,9 @@ describe('adminQuizQuestionDuplicate Tests', () => {
         ]
       }).questionId;
 
-      const duplicateQuiz = requestDuplicateQuestion(quizId, questionId2, token);
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ error: expect.any(String) });
-      expect(duplicateQuiz.statusCode).toStrictEqual(400);
+      const duplicateQuestion = requestDuplicateQuestion(token, quizId, questionId2);
+      expect(JSON.parse(duplicateQuestion.body.toString())).toStrictEqual({ error: expect.any(String) });
+      expect(duplicateQuestion.statusCode).toStrictEqual(400);
     });
   });
 
@@ -164,7 +164,8 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     });
 
     test('success duplicating quiz question through QuizInfo', () => {
-      const quizDuplicateId = requestDuplicateQuestion(quizId, questionId, token);
+      const quizDuplicate = requestDuplicateQuestion(token, quizId, questionId);
+      const questId = JSON.parse(quizDuplicate.body.toString()).newQuestionId;
       const info = quizInfo(token, quizId);
       expect(info).toStrictEqual(
         {
@@ -196,7 +197,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
               ]
             },
             {
-              questionId: JSON.parse(quizDuplicateId.body.toString()).questionId,
+              questionId: questId,
               question: 'Who is the Monarch of England?',
               duration: 4,
               points: 5,
@@ -222,11 +223,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       );
     });
 
-    test('successfully returns new Question id', () => {
-      const duplicateQuiz = requestDuplicateQuestion(quizId, questionId, token);
-      expect(JSON.parse(duplicateQuiz.body.toString())).toStrictEqual({ questionId: expect.any(Number) });
-    });
-
     test('Testing timeLastEdited property is the same as timeCreated', () => {
       const quiz = createQuiz(token, 'newQuiz', 'description');
       const initialTimeCreated = quiz.timeCreated;
@@ -241,12 +237,20 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const initialTimeCreated = createQuizResponse.timeCreated;
 
       setTimeout(() => {
-        requestDuplicateQuestion(quizId, questionId, token);
+        requestDuplicateQuestion(token, quizId, questionId);
         const quizInfoResponse = quizInfo(token, quizId);
         const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
         expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
         done();
       }, 1000);
+    });
+
+    test('Successful quiz question duplicate', () => {
+      const duplicatedQuestion = requestDuplicateQuestion(token, quizId, questionId);
+      expect(JSON.parse(duplicatedQuestion.body.toString())).toStrictEqual({ newQuestionId: expect.any(Number) });
+      const quiz = quizInfo(token, quizId);
+      expect(quiz.questions.length).toEqual(2);
+      expect(quiz.questions[1].questionId).not.toEqual(questionId);
     });
   });
 });

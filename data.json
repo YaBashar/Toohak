@@ -1,34 +1,45 @@
 {
   "users": [
     {
-      "userId": 390678,
-      "name": "Test User",
-      "email": "user@unsw.edu.au",
-      "password": "123ABCabc@#$",
+      "userId": 218183,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
       "numSuccessfulLogins": 1,
       "numFailedPasswordsSinceLastLogin": 0,
       "passwordHistory": [
-        "123ABCabc@#$"
+        "abcd1234!@#$ABCD"
       ]
     }
   ],
   "quizzes": [
     {
-      "quizId": 1721738667759,
-      "name": "Test Quiz",
-      "description": "Test Description",
-      "timeCreated": 1721738667,
-      "timeLastEdited": 1721738667,
+      "quizId": 1721629216984,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1721629216,
+      "timeLastEdited": 1721629216,
       "numQuestions": 0,
       "questions": [],
       "duration": 0,
-      "userId": 390678
+      "userId": 218183
+    },
+    {
+      "quizId": 1721629216988,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1721629216,
+      "timeLastEdited": 1721629216,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 218183
     }
   ],
   "sessions": [
     {
-      "sessionId": 289563,
-      "userId": 390678
+      "sessionId": 987044,
+      "userId": 218183
     }
   ],
   "trash": []

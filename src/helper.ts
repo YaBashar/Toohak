@@ -51,6 +51,32 @@ export function findQuizIndexFromQuizId(target: number): number {
   return (quizArr.findIndex(quiz => (quiz.quizId === target)));
 }
 
+// returns the index of a question with question id in quiz or -1 if not found
+export function findQuestionIndex(quizArray: Quiz[], quizId: number, questionId: number): number {
+  const quiz = quizArray.find(quiz => quiz.quizId === quizId);
+  return quiz ? quiz.questions.findIndex(question => question.questionId === questionId) : -1;
+}
+
+// Checks whether a userid exists with an associated token
+export function findUserByToken(token: number, users: Array<User>): User | null {
+  return users.find(user => user.userId === token) || null;
+}
+
+// Checks whether quiz exists with associated quizId
+export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
+  return quizzes.find(quiz => quiz.quizId === quizId) || null;
+}
+
+// Checks whether a quiz is owned by a partiuclar
+export function checkQuizOwnership(token: number, quizzes: Array<Quiz>): boolean {
+  return quizzes.some(quiz => quiz.userId === token);
+}
+
+// Checks whether a name for a quiz already exists or not
+export function isQuizNameAvailable(name: string, token: number, quizzes: Array<Quiz>): boolean {
+  return !quizzes.some(quiz => quiz.name === name && quiz.userId === token);
+}
+
 // returns the index of quiz with quizId in trash
 export function findDelQuizIndexFromQuizId(target: number): number {
   const trashArr = getData().trash;
@@ -143,22 +169,8 @@ export function checkAdminAuthLogin(email: string, password: string) {
 }
 
 /// ///////////////////////////////////////////////////////////
-export function findUserByToken(token: number, users: Array<User>): User | null {
-  return users.find(user => user.userId === token) || null;
-}
 
-export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
-  return quizzes.find(quiz => quiz.quizId === quizId) || null;
-}
-
-export function checkQuizOwnership(token: number, quizzes: Array<Quiz>): boolean {
-  return quizzes.some(quiz => quiz.userId === token);
-}
-
-export function isQuizNameAvailable(name: string, token: number, quizzes: Array<Quiz>): boolean {
-  return !quizzes.some(quiz => quiz.name === name && quiz.userId === token);
-}
-
+// Validates a quiz name for adminQuizNameUpdate
 export function validateQuizName(name: string): string | null {
   if (name.trim() === '') {
     throw new Error('Name cannot be empty');

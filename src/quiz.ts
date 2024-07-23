@@ -843,7 +843,7 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
     return { error: 'Quiz Id not owned by the user' };
   }
 
-  // Move quiz from trash to quizzes
+  // Move quiz from the trash to quizzes
   quizArray.push(quiz);
   trashArray.splice(trashIndex, 1);
   store.quizzes = quizArray;

@@ -4,6 +4,45 @@ import { port, url } from '../config.json';
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
+// wrapper functions
+
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
+
+const createQuiz = (token : string, name : string, description : string) => {
+  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }
+  });
+  return JSON.parse(res.body.toString());
+};
+
+const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
+  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+    json: {
+      token,
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers
+      }
+    }
+  });
+};
+
+const questionDelete = (token: string, quizid: number, questionid: number) => {
+  const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizid}/question/${questionid}`, {
+    qs: { token },
+    timeout: TIMEOUT_MS
+  });
+  return res;
+};
+
+/// ////////////////////////////////////////////////////////////////////////////
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
@@ -15,149 +54,88 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid', () => {
   let q2id: { questionId: number};
   let quizId: number;
   let quizId2: number;
-
   beforeEach(() => {
     // logging in user 1
-    const uid1 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+    const uid1 = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
     token1 = JSON.parse(uid1.body.toString()).token;
 
     // getting the quiz id for 1st user
-    let quizResponse = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token1, name: 'quiz1', description: 'quiz1 description' } });
-    quizId = JSON.parse(quizResponse.body.toString()).quizId;
+    let quizResponse = createQuiz(token1, 'quiz1', 'quiz1 description');
+    quizId = quizResponse.quizId;
 
-    let questionResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
-      json: {
-        token: token1,
-        questionBody: {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: true,
-            },
-            {
-              answer: 'Queen Elizabeth',
-              correct: false,
-            }
-          ]
-        }
+    // creating a question for user 1
+    let questionResponse = questionCreate(token1, quizId, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
       }
-    });
+    ]);
     qid = JSON.parse(questionResponse.body.toString());
 
     // logging in user 2
-    const uid2 = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5555555@unsw.edu.au', password: 'abs@#$234', nameFirst: 'brim', nameLast: 'johnson' } });
+    const uid2 = createUser('5555555@unsw.edu.au', 'abs@#$234', 'brim', 'johnson');
     token2 = JSON.parse(uid2.body.toString()).token;
 
     // getting the quiz id for 2nd user
-    quizResponse = request('POST', SERVER_URL + '/v1/admin/quiz', { json: { token: token2, name: 'quiz2', description: 'quiz2 description' } });
-    quizId2 = JSON.parse(quizResponse.body.toString()).quizId2;
+    quizResponse = createQuiz(token2, 'quiz2', 'quiz2 description');
+    quizId2 = quizResponse.quizId;
 
-    questionResponse = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId2}/question`, {
-      json: {
-        token: token2,
-        questionBody: {
-          question: 'Who is the Monarch?',
-          duration: 3,
-          points: 4,
-          answers: [
-            {
-              answer: 'Prince',
-              correct: true,
-            },
-            {
-              answer: 'Queen',
-              correct: false,
-            }
-          ]
-        }
+    // creating a question for user 2
+    questionResponse = questionCreate(token2, quizId2, 'Who is the Monarch?', 3, 4, [
+      {
+        answer: 'Prince',
+        correct: true,
+      },
+      {
+        answer: 'Queen',
+        correct: false,
       }
-    });
+    ]);
     q2id = JSON.parse(questionResponse.body.toString());
   });
 
   // test to check if token is invalid
   test('Token is invalid', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
-      qs: {
-        token: 'invaliduserId',
-        quizid: quizId,
-        questionid: qid.questionId,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete('invaliduserId', quizId, qid.questionId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
   // test to check if token is empty
   test('Token is empty', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
-      qs: {
-        token: '',
-        quizid: quizId,
-        questionid: qid.questionId,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete('', quizId, qid.questionId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
   // test to check quiz Id does not refer to a valid quiz
   test('Quiz Id does not refer to a valid quiz', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId + 1902303920}/question/${qid.questionId}`, {
-      qs: {
-        token: token1,
-        quizid: quizId + 1,
-        questionid: qid.questionId,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete(token1, quizId + 1902303920, qid.questionId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
   // test to check if quiz ID does not refer to a quiz that this user owns
   test('Quiz ID does not refer to a quiz that this user owns', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId2}/question/${q2id.questionId}`, {
-      qs: {
-        token: token1,
-        quizid: quizId,
-        questionid: qid.questionId,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete(token1, quizId2, q2id.questionId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
   // Question Id does not refer to a valid question within this quiz
   test('Question Id does not refer to a valid question within this quiz', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId + 1}`, {
-      qs: {
-        token: token1,
-        quizid: quizId,
-        questionid: qid.questionId + 1,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete(token1, quizId, qid.questionId + 1);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   // test to check if the question is removed from the list of questions
   test('Question is removed from the list of questions', () => {
-    const res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${qid.questionId}`, {
-      qs: {
-        token: token1,
-        quizid: quizId,
-        questionid: qid.questionId,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = questionDelete(token1, quizId, qid.questionId);
     expect(JSON.parse(res.body.toString())).toStrictEqual({});
     expect(res.statusCode).toBe(200);
   });

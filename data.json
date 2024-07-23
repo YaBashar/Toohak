@@ -1,1 +1,46 @@
-{"users":[{"authUserId":1,"name":"amelia su","email":"amelia@unsw.edu.au","password":"abcd1234!@#$ABCD","numSuccessfulLogins":2,"numFailedPasswordSinceLastLogin":0,"passwordHistory":["abcd1234!@#$ABCD"]}],"quizzes":[{"quizId":1721216741025,"name":"quiz 1","description":"the first quiz","timeCreated":1721216741,"timeLastEdited":1721216741,"numQuestions":0,"questions":[],"duration":0,"authUserId":1}],"sessions":[{"sessionId":1721216741023,"authUserId":1},{"sessionId":1721216741024,"authUserId":1}],"trash":[]}
+{
+  "users": [
+    {
+      "userId": 530773,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234!@#$ABCD"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1721726876126,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1721726876,
+      "timeLastEdited": 1721726876,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 530773
+    },
+    {
+      "quizId": 1721726876127,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1721726876,
+      "timeLastEdited": 1721726876,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 530773
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 720493,
+      "userId": 530773
+    }
+  ],
+  "trash": []
+}

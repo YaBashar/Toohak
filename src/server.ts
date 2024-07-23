@@ -340,6 +340,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
         return res.status(401).json({ error: error.message });
       } else if (error.message === 'Quiz Id not owned by the user' ||
         error.message === 'Invalid Quiz id') {
+        console.log('in here');
         return res.status(403).json({ error: error.message });
       } else if (error.message === 'Target user email is not a real user' ||
         error.message === 'Target user email is the same as currently logged in user' ||

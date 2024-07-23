@@ -342,19 +342,10 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   const quizArr = store.quizzes;
 
   const findQuiz = findQuizIndexFromQuizId(quizId);
-  if (findQuiz === -1) {
-    throw new Error('Invalid Quiz id');
-  }
-
-  const quiz = store.quizzes[findQuiz];
   const user = findUserByToken(token, userArr);
   const quizUser = checkQuizOwnership(token, quizArr);
-
-  const targetUser = findUserByEmail(userEmail, userArr);
-  if (!targetUser) {
-    throw new Error('Target user email is not a real user');
-  }
   const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
+  const targetUser = findUserByEmail(userEmail, userArr);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -362,13 +353,17 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
     throw new Error('Invalid Quiz id');
   } else if (!quizUser) {
     throw new Error('Quiz Id not owned by the user');
+  } else if (!targetUser) {
+    throw new Error('Target user email is not a real user');
   } else if (user.userId === targetUser.userId) {
     throw new Error('Target user email is the same as currently logged in user');
   } else if (isQuizExists) {
     throw new Error('Quiz name already in use by target user');
   }
   // Change the quiz authuser id so it has the authuser id of the new owner
+  const quiz = store.quizzes[findQuiz];
   quiz.userId = targetUser.userId;
+
   return {};
 }
 

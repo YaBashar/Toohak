@@ -1,0 +1,35 @@
+{
+  "users": [
+    {
+      "userId": 390678,
+      "name": "Test User",
+      "email": "user@unsw.edu.au",
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1721738667759,
+      "name": "Test Quiz",
+      "description": "Test Description",
+      "timeCreated": 1721738667,
+      "timeLastEdited": 1721738667,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 390678
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 289563,
+      "userId": 390678
+    }
+  ],
+  "trash": []
+}

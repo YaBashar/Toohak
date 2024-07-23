@@ -109,28 +109,45 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   }
 });
 
-// adminAuthUpdateUserDetails
+// adminAuthUpdateUserDetails v1
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
-  const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
 
-  if ('error' in result) {
-    if (result.error === 'invalid userId' ||
-      result.error === 'userId does not exist') {
-      console.log(401);
-      return res.status(401).json(result);
-    } else if ('error' in result) {
-      console.log(result.error);
-      console.log(400);
-      return res.status(400).json(result);
+  try {
+    const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
+    
+    if (result.error) {
+      if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+        return res.status(401).json({ error: result.error });
+      } else {
+        return res.status(400).json({ error: result.error });
+      }
     }
+    return res.status(200).json(result);
+  } catch (error) {
   }
-  console.log(200);
-  return res.status(200).json(result);
+});
+
+// adminAuthUpdateUserDetails v2
+app.put('/v2/admin/user/details', (req: Request, res: Response) => {
+  const { token } = req.header;
+  const { email, nameFirst, nameLast } = req.body;
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
+    
+    if (result.error) {
+      if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
+        return res.status(401).json({ error: result.error });
+      } else {
+        return res.status(400).json({ error: result.error });
+      }
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+  }
 });
 
 // adminQuizRemove

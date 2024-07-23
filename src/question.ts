@@ -77,7 +77,6 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (question.answers.some((answer) => answer.answer.length < 1)) {
     return { error: 'Answer is less than 1 character' };
   }
-
   if (question.answers.some((answer) => answer.answer.length > 30)) {
     return { error: 'Answer is more than 30 characters' };
   }
@@ -93,7 +92,17 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (quiz.userId !== token) {
     return { error: 'Quiz Id not owned by the user' };
   }
-
+  if (question.thumbnailUrl === '') {
+    return { error: 'ThumbnailUrl is empty' };
+  }
+  // The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png
+  if (!question.thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+    return { error: 'ThumbnailUrl is not a valid image file' };
+  }
+  // The thumbnailUrl does not begin with 'http://' or 'https://'
+  if (!question.thumbnailUrl.match(/^(http|https):\/\//)) {
+    return { error: 'ThumbnailUrl is not a valid url' };
+  }
   const id = uniqueQuestionId(quiz.questions);
   // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 
@@ -107,7 +116,8 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
     question: question.question,
     duration: question.duration,
     points: question.points,
-    answers: question.answers
+    answers: question.answers,
+    thumbnailUrl: question.thumbnailUrl
   };
   quiz.questions.push(questionBody);
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
@@ -166,7 +176,8 @@ export function adminQuizQuestionDuplicate(token : number, quizId: number, quest
     question: question.question,
     duration: question.duration,
     points: question.points,
-    answers: question.answers
+    answers: question.answers,
+    thumbnailUrl: question.thumbnailUrl
   };
 
   quiz.questions.push(duplicatedQuestion);

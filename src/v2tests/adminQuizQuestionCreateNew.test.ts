@@ -226,7 +226,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
-
+ 
   // The points awarded for the question are less than 1
   test('The points awarded for the question are less than 1', () => {
     const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 0, [

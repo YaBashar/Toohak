@@ -1,0 +1,79 @@
+{
+  "users": [
+    {
+      "userId": 504446,
+      "name": "sidak singh",
+      "email": "z5525050@unsw.edu.au",
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+    },
+    {
+      "userId": 939803,
+      "name": "brim johnson",
+      "email": "z5555555@unsw.edu.au",
+      "password": "abs@#$234",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abs@#$234"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1721733718837,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1721733718,
+      "timeLastEdited": 1721733718,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1721733718840,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "Prince Charles",
+              "correct": true
+            },
+            {
+              "answer": "Queen Elizabeth",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 504446
+    },
+    {
+      "quizId": 1721733718839,
+      "name": "quizName2",
+      "description": "description",
+      "timeCreated": 1721733718,
+      "timeLastEdited": 1721733718,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 939803
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 519506,
+      "userId": 504446
+    },
+    {
+      "sessionId": 599657,
+      "userId": 939803
+    }
+  ],
+  "trash": []
+}

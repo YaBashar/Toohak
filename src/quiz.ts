@@ -289,38 +289,40 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  // These two lines finds the Tahook user with both a valid userId and quidId
+  // Find the user with the given userId
   const user = userArr.find((user) => user.userId === token);
+  if (!user) {
+    return { error: 'Invalid User id' };
+  }
+
+  // Find the quiz with the given quizId
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  if (!quiz) {
+    return { error: 'Quiz Id not found' };
+  }
 
   // Check if the quiz is owned by the user with the given UserId
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
-
-  // Error messages returned if the error tests cases are activated within the program
-  // If a person's Tahook quiz does not match the userId, an error will then be returned
-  if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
+  if (quiz.userId !== token) {
+    return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
   }
 
   // Check if description is empty
   if (description.length === 0) {
     return { error: 'Quiz description cannot be empty' };
   }
+
   // If the description length exceeds 100 characters, return an error
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     return { error: 'Quiz description is more than 100 characters in length' };
   }
 
-  if (!user) {
-    return { error: 'userId does not exist' };
-  } else if (!quiz) {
-    return { error: 'Quiz Id not found' };
-  } else {
-    quiz.description = description;
-    quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
-    setData(store);
-    return {};
-  }
+  // Update quiz description and timestamp
+  quiz.description = description;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+
+  // Save the updated store
+  setData(store);
+  return {};
 }
 
 /** [7] adminQuizTransfer

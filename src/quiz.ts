@@ -43,23 +43,26 @@ import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, is
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(token: number): {quizzes: QuizList[]} | ErrorResponse {
+export function adminQuizList(token: number): { quizzes: QuizList[] } | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    return { error: 'invalid user id' };
-  }
-  const result: QuizList[] = [];
+  try {
+    const user = data.users.find(user => user.userId === token);
 
-  const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
-  for (const item of userQuizzes) {
-    result.push({
+    if (!user) {
+      throw new Error('invalid user id');
+    }
+
+    const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
+    const result: QuizList[] = userQuizzes.map(item => ({
       quizId: item.quizId,
       name: item.name
-    });
+    }));
+
+    return { quizzes: result };
+  } catch (error) {
+    return { error: (error as Error).message };
   }
-  return { quizzes: result };
 }
 
 /** [2] adminQuizCreate

@@ -16,8 +16,8 @@ const createUser = (email: string, password: string, firstName: string, lastName
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description }, timeout: TIMEOUT_MS }
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description }, timeout: TIMEOUT_MS }
   );
   return JSON.parse(res.body.toString());
 };
@@ -25,8 +25,8 @@ const createQuiz = (token : string, name : string, description : string) => {
 const createQuizQuestion = (token : string, quizId : number, questionBody : object) => {
   const res = request(
     'POST',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/question`,
-    { json: { token: token, questionBody: questionBody }, timeout: TIMEOUT_MS }
+    SERVER_URL + `/v2/admin/quiz/${quizId}/question`,
+    { headers: { token }, json: { questionBody: questionBody }, timeout: TIMEOUT_MS }
   );
   return JSON.parse(res.body.toString());
 };

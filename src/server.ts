@@ -186,11 +186,11 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
 app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const { token, description } = req.body;
   const { quizid } = req.params;
-  const userId = getUserIdFromToken(token);
   const quizIdNum = parseInt(quizid, 10);
   if (isNaN(quizIdNum)) {
     return res.status(400).json({ error: 'Invalid Quiz id' });
   }
+  const userId = getUserIdFromToken(token);
   const result = adminQuizDescriptionUpdate(userId, quizIdNum, description);
   if ('error' in result) {
     if (result.error === 'Invalid User id') {
@@ -400,6 +400,7 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
     }
   }
 });
+
 // adminQuizInfo
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;

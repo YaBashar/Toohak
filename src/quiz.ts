@@ -288,39 +288,31 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
-  // Find the user with the given userId
   const user = userArr.find((user) => user.userId === token);
   if (!user) {
     return { error: 'Invalid User id' };
   }
 
-  // Find the quiz with the given quizId
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   if (!quiz) {
     return { error: 'Quiz Id not found' };
   }
 
-  // Check if the quiz is owned by the user with the given UserId
   if (quiz.userId !== token) {
     return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
   }
 
-  // Check if description is empty
   if (description.length === 0) {
     return { error: 'Quiz description cannot be empty' };
   }
 
-  // If the description length exceeds 100 characters, return an error
   if (description.length > MAX_DESCRIPTION_LENGTH) {
     return { error: 'Quiz description is more than 100 characters in length' };
   }
 
-  // Update quiz description and timestamp
   quiz.description = description;
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
 
-  // Save the updated store
   setData(store);
   return {};
 }

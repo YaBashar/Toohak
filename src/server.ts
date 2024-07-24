@@ -152,25 +152,52 @@ app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   }
 });
 
-// adminQuizRemove
+// adminQuizRemove v1
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
-  const quizid = parseInt(req.params.quizid as string);
-  const token = req.query.token as string;
-  const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  const result = adminQuizRemove(userId, quizid);
-
-  if ('error' in result) {
-    if (result.error === 'Invalid user id') {
-      return res.status(401).json(result);
-    } else if (result.error === 'Invalid quiz Id entered' ||
-      result.error === 'Quiz Id not owned by the user') {
-      return res.status(403).json(result);
+  try {
+    const quizid = parseInt(req.params.quizid as string);
+    const token = req.query.token as string;
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    const result = adminQuizRemove(userId, quizid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid user id') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Invalid quiz Id entered' ||
+        error.message === 'Quiz Id not owned by the user') {
+      return res.status(403).json({ error: error.message });
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminQuizRemove v2
+app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
+  try {
+    const quizid = parseInt(req.params.quizid as string);
+    const token = req.headers.token as string;
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    const result = adminQuizRemove(userId, quizid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid user id') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Invalid quiz Id entered' ||
+      error.message === 'Quiz Id not owned by the user') {
+      return res.status(403).json({ error: error.message });
+    }
+  }
 });
 
 // adminUserPasswordUpdate

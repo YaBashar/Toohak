@@ -255,10 +255,6 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
 export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | ErrorResponse {
   const data = getData();
   const user = data.users.find(user => user.userId === token);
-  console.log(oldPassword)
-  console.log(newPassword)
-  console.log(token)
-  console.log(data)
 
   if (!user) {
     throw new Error('userId does not exist');

@@ -77,6 +77,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (question.answers.some((answer) => answer.answer.length < 1)) {
     return { error: 'Answer is less than 1 character' };
   }
+
   if (question.answers.some((answer) => answer.answer.length > 30)) {
     return { error: 'Answer is more than 30 characters' };
   }
@@ -103,6 +104,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   if (!question.thumbnailUrl.match(/^(http|https):\/\//)) {
     return { error: 'ThumbnailUrl is not a valid url' };
   }
+
   const id = uniqueQuestionId(quiz.questions);
   // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
 

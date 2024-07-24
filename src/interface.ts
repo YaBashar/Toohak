@@ -32,7 +32,7 @@ export interface Question {
   duration: number,
   points: number,
   answers: Answer[],
-  thumbnailUrl: string
+  thumbnailUrl?: string
 }
 
 export interface QuestionId {

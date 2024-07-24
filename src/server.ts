@@ -130,7 +130,7 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 
 // adminAuthUpdateUserDetails v2
 app.put('/v2/admin/user/details', (req: Request, res: Response) => {
-  const token  = req.header('token');
+  const token = req.header('token');
   const { email, nameFirst, nameLast } = req.body;
   const userId = getUserIdFromToken(token);
 

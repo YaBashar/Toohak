@@ -13,8 +13,11 @@ const createUser = (email: string, password: string, firstName: string, lastName
 };
 
 const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: {
+      token,
+    },
+    json: { name, description }
   });
   return JSON.parse(res.body.toString());
 };

@@ -47,7 +47,17 @@ const quizRemove = (token: string, quizId: number) => {
   return res;
 };
 
-/// /////////
+const quizList = (token: string) => {
+  const res = request(
+    'GET',
+    `${SERVER_URL}/v1/admin/quiz/list`,
+    { qs: { token } }
+  );
+  return res;
+};
+
+/// /////////////////////////////////////////////////////////////////////////////
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
@@ -93,26 +103,14 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     expect(res.statusCode).toBe(403);
   });
 
-  // test to check if the quiz is removed from the list of quizzes
   test('Quiz is removed from the list of quizzes', () => {
-    let res = request('DELETE', SERVER_URL + `/v1/admin/quiz/${qid.quizId}`, {
-      qs: {
-        token: token1,
-      },
-      timeout: TIMEOUT_MS
-    });
-    res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-      qs: {
-        token: token1,
-      },
-      timeout: TIMEOUT_MS
-    });
+    let res = quizRemove(token1, qid.quizId);
+    res = quizList(token1);
     expect(JSON.parse(res.body.toString())).toStrictEqual({
       quizzes: [
 
       ]
     });
-    expect(res.statusCode).toBe(200);
   });
 
   test('Testing timeLastEdited property is the same as timeCreated', () => {

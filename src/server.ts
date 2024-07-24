@@ -159,7 +159,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   }
   try {
     const result = adminUserPasswordUpdate(userId, oldPassword, newPassword);
-    res.status(200).json(result)
+    res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'invalid userId') {
@@ -181,7 +181,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   }
   try {
     const result = adminUserPasswordUpdate(userId, oldPassword, newPassword);
-    res.status(200).json(result)
+    res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'invalid userId') {

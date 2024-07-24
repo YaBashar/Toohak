@@ -109,24 +109,47 @@ app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   }
 });
 
-// adminAuthUpdateUserDetails
+// adminAuthUpdateUserDetails v1
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
   const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
-  const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
 
-  if ('error' in result) {
-    if (result.error === 'invalid userId' ||
-      result.error === 'userId does not exist') {
-      return res.status(401).json(result);
-    } else if ('error' in result) {
-      return res.status(400).json(result);
+  try {
+    const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId' || error.message === 'userId does not exist') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminAuthUpdateUserDetails v2
+app.put('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const { email, nameFirst, nameLast } = req.body;
+  const userId = getUserIdFromToken(token);
+
+  if (!token) {
+    return res.status(401).json({ error: 'invalid userid' });
+  }
+
+  try {
+    const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId' || error.message === 'userId does not exist') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
 });
 
 // adminQuizRemove

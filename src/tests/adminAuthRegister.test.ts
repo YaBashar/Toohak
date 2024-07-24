@@ -141,7 +141,7 @@ describe('Testing that information has been correctly registered', () => {
         name: 'first last',
         email: 'email@unsw.edu.au',
         numSuccessfulLogins: 1,
-        numFailedPasswordSinceLastLogin: 0,
+        numFailedPasswordsSinceLastLogin: 0,
       }
     });
 

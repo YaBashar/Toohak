@@ -34,6 +34,9 @@ import { getData, setData } from './dataStore';
 export function clear (): Record<string, never> {
   const store = getData();
 
+  const fs = require('fs');
+  fs.truncate('./data.json', 0, function() {});
+
   store.users = [];
   store.quizzes = [];
   store.sessions = [];

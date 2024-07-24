@@ -363,6 +363,7 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   if (isQuizExists) {
     throw new Error('Quiz name already in use by target user');
   }
+
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.userId = targetUser.userId;
   return {};

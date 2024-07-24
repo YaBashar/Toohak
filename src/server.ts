@@ -382,6 +382,30 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   return res.status(200).json(result);
 });
 
+// adminQuizQuestionDuplicate V2
+app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const userId = getUserIdFromToken(token);
+  if (!userId) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+
+  const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
+  if ('error' in result) {
+    if (result.error === 'Invalid User id') {
+      return res.status(401).json(result);
+    } else if (result.error === 'Quiz Id not owned by the user' ||
+      result.error === 'Invalid Quiz id') {
+      return res.status(403).json(result);
+    } else if (result.error === 'Question id does not refer to valid question in quiz') {
+      return res.status(400).json(result);
+    }
+  }
+  return res.status(200).json(result);
+});
+
 // adminQuizInfo
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;

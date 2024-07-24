@@ -425,24 +425,28 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
 
 // adminQuizQuestionCreate
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
-  const { token, questionBody } = req.body;
-  const quizid = parseInt(req.params.quizid as string);
-  const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'Invalid Token' });
-  }
-  const result = adminQuizQuestionCreate(userId, quizid, questionBody);
-  if ('error' in result) {
-    if (result.error === 'Invalid Token') {
-      return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' ||
-      result.error === 'Quiz does not exist') {
-      return res.status(403).json(result);
+  try {
+    const { token, questionBody } = req.body;
+    const quizid = parseInt(req.params.quizid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Quiz does not exist') {
+      return res.status(403).json({ error: error.message });
     } else {
-      return res.status(400).json(result);
+      return res.status(400).json({ error: error.message });
     }
   }
-  return res.status(200).json(result);
 });
 
 // adminQuizQuestiondDuplicate
@@ -584,6 +588,38 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   }
   return res.status(200).json({});
 });
+/// /////////////////////////////////////////////////////////////////////////////
+
+/// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
+
+// adminQuizQuestionCreate
+app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const { questionBody } = req.body;
+    const quizid = parseInt(req.params.quizid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Quiz does not exist') {
+      return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+/// /////////////////////////////////////////////////////////////////////////////
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

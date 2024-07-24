@@ -31,7 +31,8 @@ export interface Question {
   question: string,
   duration: number,
   points: number,
-  answers: Answer[]
+  answers: Answer[],
+  thumbnailUrl?: string
 }
 
 export interface QuestionId {

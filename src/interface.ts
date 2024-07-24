@@ -1,11 +1,3 @@
-// States and Actions
-type States = 'LOBBY' | 'QUESTION_COUNTDOWN' | 'QUESTION_OPEN' | 'QUESTION_CLOSE' | 'ANSWER_SHOW' | 'FINAL_RESULTS'| 'END';
-type Actions = 'NEXT_QUESTION' | 'SKIP_COUNTDOWN' | 'GO_TO_ANSWER' | 'END';
-
-export interface PlayerSession {
-    state: States
-}
-
 // dataStore
 export interface User {
   userId: number,

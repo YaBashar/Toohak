@@ -172,7 +172,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
 });
 
 // adminUserPasswordUpdate v2
-app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   const token = req.header('token');
   const { oldPassword, newPassword } = req.body;
   const userId = getUserIdFromToken(token);
@@ -184,7 +184,7 @@ app.put('/v1/admin/user/password', (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'invalid userId') {
+      if (error.message === 'userId does not exist') {
         return res.status(401).json({ error: error.message });
       } else {
         return res.status(400).json({ error: error.message });

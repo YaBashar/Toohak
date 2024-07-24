@@ -15,8 +15,8 @@ const createUser = (email: string, password: string, nameFirst: string, nameLast
 };
 
 const updatePassword = (token: string, oldPassword: string, newPassword: string) => {
-  return (request('PUT', SERVER_URL + '/v1/admin/user/password', {
-    json: { token, oldPassword, newPassword }
+  return (request('PUT', SERVER_URL + '/v2/admin/user/password', {
+    headers: { token }, json: { oldPassword, newPassword }, timeout: TIMEOUT_MS
   }));
 };
 
@@ -26,10 +26,11 @@ beforeEach(() => {
   token = user.body.token;
 });
 
-describe('PUT /v1/admin/user/password', () => {
+describe('PUT /v2/admin/user/password', () => {
   // Old password is not correct
   test('Incorrect password', () => {
     const res = updatePassword(token, 'abcd1234!@#$ABC', 'newabcd1234!@#$ABCD');
+    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -37,6 +38,7 @@ describe('PUT /v1/admin/user/password', () => {
   // Old password and new password are the same
   test('Old password is the same as the new password', () => {
     const res = updatePassword(token, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABCD');
+    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -44,6 +46,7 @@ describe('PUT /v1/admin/user/password', () => {
   // New password has been used before
   test('New password has been used before', () => {
     const res = updatePassword(token, 'abcd1234!@#$ABCD', 'abcd1234!@#$ABC');
+    console.log(JSON.parse(res.body.toString()));
     expect(res.statusCode).toBe(200);
     const res2 = updatePassword(token, 'abcd1234!@#$ABC', 'abcd1234!@#$ABCD');
     expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: expect.any(String) });
@@ -53,6 +56,7 @@ describe('PUT /v1/admin/user/password', () => {
   // New password is too short
   test('Invalid password length', () => {
     const res = updatePassword(token, 'abcd1234!@#$ABCD', 'abcd123');
+    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -60,6 +64,7 @@ describe('PUT /v1/admin/user/password', () => {
   // New password doesn't contain at least on number and one letter
   test('Password does not contain at least one number and one letter', () => {
     const res = updatePassword(token, 'abcd1234!@#$ABCD', 'abcdefgh');
+    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
     const res2 = updatePassword(token, 'abcd1234!@#$ABCD', '12345678');

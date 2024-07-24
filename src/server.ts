@@ -572,27 +572,58 @@ app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   }
 });
 
-// adminQuizQuestionDelete
+// adminQuizQuestionDelete v1
 app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
-  const token = req.query.token as string;
-  const quizid = parseInt(req.params.quizid as string);
-  const questionid = parseInt(req.params.questionid as string);
-  const userId = getUserIdFromToken(token);
-  if (userId === -1) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
-  const result = adminQuizQuestionDelete(userId, quizid, questionid);
-  if ('error' in result) {
-    if (result.error === 'Invalid Token') {
-      return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' ||
-      result.error === 'Invalid Quiz Id') {
-      return res.status(403).json(result);
-    } else if (result.error === 'Invalid Question Id') {
-      return res.status(400).json(result);
+  try {
+    const token = req.query.token as string;
+    const quizid = parseInt(req.params.quizid as string);
+    const questionid = parseInt(req.params.questionid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    const result = adminQuizQuestionDelete(userId, quizid, questionid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Invalid Quiz Id') {
+      return res.status(403).json({ error: error.message });
+    } else if (error.message === 'Invalid Question Id') {
+      return res.status(400).json({ error: error.message });
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminQuizQuestionDelete v2
+app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const quizid = parseInt(req.params.quizid as string);
+    const questionid = parseInt(req.params.questionid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+    const result = adminQuizQuestionDelete(userId, quizid, questionid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Invalid Quiz Id') {
+      return res.status(403).json({ error: error.message });
+    } else if (error.message === 'Invalid Question Id') {
+      return res.status(400).json({ error: error.message });
+    }
+  }
 });
 
 // adminQuizTrashRestore
@@ -646,7 +677,7 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
 });
 
-/// /////////////////////////////////////////////////////////////////////////////
+/// ////////////////////////////////////////////////////////////////////////////
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

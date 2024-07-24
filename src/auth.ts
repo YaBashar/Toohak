@@ -251,40 +251,42 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
   * ...
   * @returns {} - empty object
 */
+
 export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | ErrorResponse {
   const data = getData();
   const user = data.users.find(user => user.userId === token);
 
   if (!user) {
-    return { error: 'userId does not exist' };
+    throw new Error('userId does not exist');
   }
 
   if (user.password !== oldPassword) {
-    return { error: 'incorrect password' };
+    throw new Error('incorrect password');
   }
 
   if (oldPassword === newPassword) {
-    return { error: 'new password is the same as old password' };
+    throw new Error('new password is the same as old password');
   }
 
   if (user.passwordHistory.includes(newPassword)) {
-    return { error: 'password has already been used' };
+    throw new Error('password has already been used');
   }
 
   if (newPassword.length < 8) {
-    return { error: 'password is too short' };
+    throw new Error('password is too short');
   }
 
   const hasNumber = /\d/.test(newPassword);
   const hasLetter = /[a-zA-Z]/.test(newPassword);
   if (!hasNumber || !hasLetter) {
-    return { error: 'new password should contain at least one letter and one number' };
+    throw new Error('new password should contain at least one letter and one number');
   }
 
+  // Update password and history
   user.passwordHistory.push(newPassword);
   user.password = newPassword;
 
-  return {};
+  return {}; // Return an empty object on success
 }
 
 /** [6] adminAuthLogout

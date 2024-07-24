@@ -60,7 +60,6 @@ export function adminQuizList(token: number): { quizzes: QuizList[] } | ErrorRes
     }));
 
     return { quizzes: result };
-
   } catch (error) {
     return { error: (error as Error).message };
   }

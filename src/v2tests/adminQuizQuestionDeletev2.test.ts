@@ -13,32 +13,31 @@ const createUser = (email: string, password: string, firstName: string, lastName
 };
 
 const createQuiz = (token : string, name : string, description : string) => {
-    const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
-      headers: {
-        token,
-      },
-      json: { name, description }
-    });
-    return JSON.parse(res.body.toString());
-  };
-  
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: {
+      token,
+    },
+    json: { name, description }
+  });
+  return JSON.parse(res.body.toString());
+};
 
 const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
-    return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
-      headers: {
-        token,
-      },
-      json: {
-        questionBody: {
-          question,
-          duration,
-          points,
-          answers,
-          thumbnailUrl
-        }
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
+      token,
+    },
+    json: {
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers,
+        thumbnailUrl
       }
-    });
-  };
+    }
+  });
+};
 
 const questionDelete = (token: string, quizid: number, questionid: number) => {
   const res = request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizid}/question/${questionid}`, {

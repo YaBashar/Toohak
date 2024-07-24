@@ -337,12 +337,10 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   *
 */
 export function adminQuizTransfer(token: number, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
-
-  console.log('350');
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  
+
   const user = findUserByToken(token, userArr);
   if (!user) {
     throw new Error('Invalid User id');
@@ -362,13 +360,11 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
     throw new Error('Target user email is not a real user');
   }
   const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
-  console.log(324555);
   if (isQuizExists) {
     throw new Error('Quiz name already in use by target user');
   }
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.userId = targetUser.userId;
-  console.log("rtddhttkutkutktjy")
   return {};
 }
 

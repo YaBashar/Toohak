@@ -93,20 +93,20 @@ export function adminQuizCreate(token: number, name: string, description: string
     ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   for (let i = 0; i < specialChars.length; i++) {
     if (name.includes(specialChars[i])) {
-      return { error: 'Name contains invalid characters' };
+      throw new Error('Name contains invalid characters');
     }
   }
   if (name.length < 3) {
-    return { error: 'name is less than 3 characters' };
+    throw new Error('name is less than 3 characters');
   }
   if (name.length > 30) {
-    return { error: 'name is more than 30 characters' };
+    throw new Error('name is more than 30 characters');
   }
   if (description.length > 100) {
-    return { error: 'Description is more than 100 characters in length' };
+    throw new Error('Description is more than 100 characters in length');
   }
   if (quizArr.find((quiz) => quiz.name === name && quiz.userId === token)) {
-    return { error: 'Name is already used by current logged in user' };
+    throw new Error('Name is already used by current logged in user');
   }
 
   const id = uniqueQuizId(quizArr);
@@ -120,6 +120,7 @@ export function adminQuizCreate(token: number, name: string, description: string
     questions: [],
     duration: 0,
     userId: token,
+    thumbnailUrl: ''
   };
   store.quizzes.push(quiz);
   setData(store);

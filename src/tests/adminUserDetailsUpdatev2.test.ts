@@ -10,7 +10,7 @@ let token2: string;
 
 // wrapper function
 const updateDetails = (token: string, email: string, nameFirst: string, nameLast: string) => {
-  return (request('PUT', SERVER_URL + '/v2/admin/user/details', { headers: { token }, timeout: TIMEOUT_MS })); 
+  return (request('PUT', SERVER_URL + '/v2/admin/user/details', { headers: { token }, json: { email, nameFirst, nameLast }, timeout: TIMEOUT_MS })); 
 }
 
 const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {

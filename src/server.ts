@@ -9,7 +9,6 @@ import fs from 'fs';
 import path from 'path';
 import process from 'process';
 import { getUserIdFromToken } from './helper';
-import { adminQuizNameUpdate, adminQuizQuestionDuplicate, adminQuizTransfer } from './quiz';
 import { clear } from '../src/other';
 import {
   adminAuthRegister, adminAuthLogin, adminUserDetails, adminUserDetailsUpdate,
@@ -18,9 +17,14 @@ import {
 
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
-  adminQuizInfo, adminQuizQuestionCreate, adminQuizQuestionDelete, adminQuizTrashView,
-  adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizTrashEmpty, adminQuizTrashRestore
+  adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
+  adminQuizTransfer
 } from './quiz';
+
+import {
+  adminQuizQuestionCreate, adminQuizQuestionDelete,
+  adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
+} from './question';
 
 // Set up app
 const app = express();
@@ -63,22 +67,23 @@ app.delete('/v1/clear', (req: Request, res: Response) => {
 // adminAuthRegister
 app.post('/v1/admin/auth/register', (req: Request, res: Response) => {
   const { email, password, nameFirst, nameLast } = req.body;
-  const result = (adminAuthRegister(email, password, nameFirst, nameLast));
-  if ('error' in result) {
-    return res.status(400).json(result);
+  try {
+    const token = adminAuthRegister(email, password, nameFirst, nameLast);
+    res.json({ token: token });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
-  res.json(result);
 });
 
 // adminAuthLogin
 app.post('/v1/admin/auth/login', (req: Request, res: Response) => {
   const { email, password } = req.body;
-  const result = adminAuthLogin(email, password);
-
-  if ('error' in result) {
-    return res.status(400).json(result);
+  try {
+    const token = adminAuthLogin(email, password);
+    res.json({ token: token });
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
-  res.json(result);
 });
 
 // adminQuizTrashView
@@ -96,28 +101,22 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 // adminAuthUserDetails
 app.get('/v1/admin/user/details', (req: Request, res: Response) => {
   const token = req.query.token as string;
-  const authUserId = getUserIdFromToken(token);
-
-  if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
+  const userId = getUserIdFromToken(token);
+  try {
+    res.json(adminUserDetails(userId));
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
   }
-
-  const result = adminUserDetails(authUserId);
-  if ('error' in result) {
-    return res.status(401).json(result);
-  }
-
-  return res.status(200).json(result);
 });
 
 // adminAuthUpdateUserDetails
 app.put('/v1/admin/user/details', (req: Request, res: Response) => {
   const { token, email, nameFirst, nameLast } = req.body;
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   }
-  const result = adminUserDetailsUpdate(authUserId, email, nameFirst, nameLast);
+  const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
 
   if ('error' in result) {
     if (result.error === 'invalid userId' ||
@@ -134,11 +133,11 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const quizid = parseInt(req.params.quizid as string);
   const token = req.query.token as string;
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  const result = adminQuizRemove(authUserId, quizid);
+  const result = adminQuizRemove(userId, quizid);
 
   if ('error' in result) {
     if (result.error === 'Invalid user id') {
@@ -154,83 +153,109 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
 // adminUserPasswordUpdate
 app.put('/v1/admin/user/password', (req: Request, res: Response) => {
   const { token, oldPassword, newPassword } = req.body;
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  const result = adminUserPasswordUpdate(authUserId, oldPassword, newPassword);
-  if ('error' in result) {
-    if (result.error === 'invalid userId') {
-      return res.status(401).json(result);
-    } else {
-      return res.status(400).json(result);
+  try {
+    const result = adminUserPasswordUpdate(userId, oldPassword, newPassword);
+    res.status(200).json(result)
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminUserPasswordUpdate v2
+app.put('/v1/admin/user/password', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const { oldPassword, newPassword } = req.body;
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
+  try {
+    const result = adminUserPasswordUpdate(userId, oldPassword, newPassword);
+    res.status(200).json(result)
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
 });
 
 // adminQuizList
 app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   const token = req.query.token as string;
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'invalid user id' });
   }
-  const result = adminQuizList(authUserId);
+  const result = adminQuizList(userId);
   if ('error' in result) {
     return res.status(401).json(result);
   }
   return res.status(200).json(result);
 });
 
-//  adminQuizDescriptionUpdate
+// adminQuizDescriptionUpdate
 app.put('/v1/admin/quiz/:quizid/description', (req: Request, res: Response) => {
   const { token, description } = req.body;
   const { quizid } = req.params;
-  const authUserId = getUserIdFromToken(token);
-  const quizIdNum = parseInt(quizid);
+  const quizIdNum = parseInt(quizid, 10);
   if (isNaN(quizIdNum)) {
     return res.status(400).json({ error: 'Invalid Quiz id' });
   }
-  const result = adminQuizDescriptionUpdate(authUserId, quizIdNum, description);
+  const userId = getUserIdFromToken(token);
+  const result = adminQuizDescriptionUpdate(userId, quizIdNum, description);
   if ('error' in result) {
     if (result.error === 'Invalid User id') {
       return res.status(401).json(result);
     } else if (result.error === 'This Quiz Id does not refer to a quiz that this user owns' ||
-      result.error === 'Quiz Id not found') {
+               result.error === 'Quiz Id not found') {
       return res.status(403).json(result);
     } else {
       return res.status(400).json(result);
     }
   }
-  return res.status(200).json(result);
+  return res.status(200).json({});
 });
 
 // adminQuizNameUpdate
 app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   const { token, name } = req.body;
   const quizid = parseInt(req.params.quizid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
-    return res.status(401).json({ error: 'invalid token' });
-  }
-  const quizNameUpdate = adminQuizNameUpdate(authUserId, quizid, name);
-  if (quizNameUpdate.error) {
-    if (quizNameUpdate.error === 'Invalid User id') {
-      return res.status(401).json({ error: quizNameUpdate.error });
-    } else if (quizNameUpdate.error === 'Quiz Id not owned by the user' ||
-      quizNameUpdate.error === 'Invalid Quiz id') {
-      return res.status(403).json({ error: quizNameUpdate.error });
-    } else if (quizNameUpdate.error === 'Name is already used' ||
-      quizNameUpdate.error === 'Name cannot be empty' ||
-      quizNameUpdate.error === 'Name is too short' ||
-      quizNameUpdate.error === 'Name is too long' ||
-      quizNameUpdate.error === 'Quiz name cannot have symbols'
-    ) {
-      return res.status(400).json({ error: quizNameUpdate.error });
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const quizNameUpdate = adminQuizNameUpdate(userId, quizid, name);
+    res.json(quizNameUpdate);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user' ||
+        error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Name is already used' ||
+        error.message === 'Name cannot be empty' ||
+        error.message === 'Name is too short' ||
+        error.message === 'Name is too long' ||
+        error.message === 'Quiz name cannot have symbols'
+      ) {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  res.json(quizNameUpdate);
 });
 
 // adminQuizQuestionMove
@@ -238,9 +263,9 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
   const { token, newPosition } = req.body;
   const quizId = parseInt(req.params.quizid as string);
   const questionId = parseInt(req.params.questionid as string);
-  const authUserId = getUserIdFromToken(token);
+  const userId = getUserIdFromToken(token);
 
-  if (authUserId === -1) {
+  if (userId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   } else if (!quizId) {
     return res.status(403).json({ error: 'quiz does not exist for this user' });
@@ -248,7 +273,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
 
-  const result = adminQuizQuestionMove(authUserId, quizId, questionId, newPosition);
+  const result = adminQuizQuestionMove(userId, quizId, questionId, newPosition);
 
   if ('error' in result) {
     if (result.error === 'invalid token') {
@@ -267,9 +292,9 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   const { token, questionBody } = req.body;
   const quizid = parseInt(req.params.quizid as string);
   const questionid = parseInt(req.params.questionid as string);
-  const authUserId = getUserIdFromToken(token);
+  const userId = getUserIdFromToken(token);
 
-  if (authUserId === -1) {
+  if (userId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   }
   if (!quizid) {
@@ -278,7 +303,7 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   if (!questionid) {
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
-  const result = adminQuizQuestionUpdate(authUserId, quizid, questionid, questionBody);
+  const result = adminQuizQuestionUpdate(userId, quizid, questionid, questionBody);
 
   if ('error' in result) {
     if (result.error === 'quiz does not exist for this user') {
@@ -308,18 +333,20 @@ app.post('/v1/admin/auth/logout', (req: Request, res: Response) => {
 app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizids = JSON.parse(req.query.quizIds as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Token is empty or invalid' });
   }
-  const result = adminQuizTrashEmpty(authUserId, quizids);
+  const result = adminQuizTrashEmpty(userId, quizids);
   if ('error' in result) {
-    if (result.error === 'Some quizzes are not owned by the user') {
-      return res.status(403).json({ error: result.error });
+    if (result.error === 'Some quizzes do not exist') {
+      return res.status(400).json({ error: result.error });
     } else if (result.error === 'Some quizzes are not in the trash') {
       return res.status(400).json({ error: result.error });
+    } else if (result.error === 'Some quizzes are not owned by the user') {
+      return res.status(403).json({ error: result.error });
     } else {
-      return res.status(400).json({ error: result.error });
+      return res.status(400).json({ error: 'Unknown error' });
     }
   }
   return res.status(200).json({});
@@ -329,12 +356,12 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const { token, email } = req.body;
   const quizId = parseInt(req.params.quizid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'invalid token' });
   }
 
-  const quizTransfer = adminQuizTransfer(authUserId, quizId, email);
+  const quizTransfer = adminQuizTransfer(userId, quizId, email);
   if (quizTransfer.error) {
     if (quizTransfer.error === 'Invalid User id') {
       return res.status(401).json({ error: quizTransfer.error });
@@ -355,11 +382,11 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
 app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   const { token, questionBody } = req.body;
   const quizid = parseInt(req.params.quizid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid Token' });
   }
-  const result = adminQuizQuestionCreate(authUserId, quizid, questionBody);
+  const result = adminQuizQuestionCreate(userId, quizid, questionBody);
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
@@ -378,23 +405,25 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   const { token } = req.body;
   const quizId = parseInt(req.params.quizid as string);
   const questionId = parseInt(req.params.questionid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
-    return res.status(401).json({ error: 'Invalid token' });
-  }
+  const userId = getUserIdFromToken(token);
 
-  const result = adminQuizQuestionDuplicate(authUserId, quizId, questionId);
-  if ('error' in result) {
-    if (result.error === 'Invalid User id') {
-      return res.status(401).json(result);
-    } else if (result.error === 'Quiz Id not owned by the user' ||
-      result.error === 'Invalid Quiz id') {
-      return res.status(403).json(result);
-    } else if (result.error === 'Question id does not refer to valid question in quiz') {
-      return res.status(400).json(result);
+  try {
+    const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error caught in route:', error);
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Question id does not refer to valid question in quiz') {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(result);
 });
 
 // adminQuizInfo
@@ -402,31 +431,34 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
   const quizId = parseInt(req.params.quizid as string);
 
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
   }
-  const quizInfo = adminQuizInfo(authUserId, quizId);
 
-  if ('error' in quizInfo) {
-    if (quizInfo.error === 'Invalid User id') {
-      return res.status(401).json(quizInfo);
-    } else if (quizInfo.error === 'Invalid Quiz id' ||
-      quizInfo.error === 'This Quiz Id does not refer to a quiz that this user owns') {
-      return res.status(403).json(quizInfo);
+  try {
+    const quizInfo = adminQuizInfo(userId, quizId);
+    res.status(200).json(quizInfo);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' ||
+        error.message === 'This Quiz Id does not refer to a quiz that this user owns') {
+        return res.status(403).json({ error: error.message });
+      }
     }
   }
-  res.status(200).json(quizInfo);
 });
 
 // adminQuizCreate
 app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   const { token, name, description } = req.body;
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  const result = adminQuizCreate(authUserId, name, description);
+  const result = adminQuizCreate(userId, name, description);
   if ('error' in result) {
     if (result.error === 'Invalid token') {
       return res.status(401).json(result);
@@ -442,11 +474,11 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
   const token = req.query.token as string;
   const quizid = parseInt(req.params.quizid as string);
   const questionid = parseInt(req.params.questionid as string);
-  const authUserId = getUserIdFromToken(token);
-  if (authUserId === -1) {
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
     return res.status(401).json({ error: 'Invalid token' });
   }
-  const result = adminQuizQuestionDelete(authUserId, quizid, questionid);
+  const result = adminQuizQuestionDelete(userId, quizid, questionid);
   if ('error' in result) {
     if (result.error === 'Invalid Token') {
       return res.status(401).json(result);
@@ -464,17 +496,18 @@ app.delete('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
 app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   const { token } = req.body;
   const quizid = parseInt(req.params.quizid as string, 10);
-  const authUserId = getUserIdFromToken(token);
-  if (!authUserId) {
+  const userId = getUserIdFromToken(token);
+  if (!userId) {
     return res.status(401).json({ error: 'invalid token' });
   }
-  const result = adminQuizTrashRestore(authUserId, quizid);
+  const result = adminQuizTrashRestore(userId, quizid);
   if ('error' in result) {
     if (result.error === 'invalid token') {
       return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user' ||
-      result.error === 'Quiz Id not owned by the user') {
+    } else if (result.error === 'quiz does not exist for this user' || result.error === 'Quiz Id not owned by the user') {
       return res.status(403).json(result);
+    } else if (result.error === 'Quiz ID refers to a quiz that is not currently in the trash') {
+      return res.status(400).json(result);
     }
   }
   return res.status(200).json({});

@@ -18,10 +18,15 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore';
-import { isEmail } from 'validator';
+import { getData } from './dataStore';
 import validator from 'validator';
-import { UserDetails } from './interface';
+import {
+  UserDetails, ErrorResponse
+} from './interface';
+import {
+  createDataStoreId, findUserIndexFromUserId, findUserIndexFromEmail,
+  checkAdminAuthRegister, checkAdminAuthLogin
+} from './helper';
 
 // INTERFACES
 
@@ -30,7 +35,7 @@ import { UserDetails } from './interface';
 /** [1] adminAuthRegister
   *
   * Registers a user with an email, password, and name,
-  * then returns their authUserId value.
+  * then returns a string containing their session id.
   *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
@@ -38,119 +43,88 @@ import { UserDetails } from './interface';
   * @param {string} nameFirst - user's first name
   * @param {string} nameLast - user's last name
   * ...
-  * @returns {authUserId: number} - number representing a unique
-  *                                 identifier for the user
+  * @returns {string} - string representing a unique
+  *                                 identifier for the session
   *
 */
-export function adminAuthRegister(email: string, password: string, nameFirst: string, nameLast: string): { token: string } | { error: string } {
+export function adminAuthRegister(email: string, password: string,
+  nameFirst: string, nameLast: string): string {
   const store = getData();
   const userArr = store.users;
 
-  const name = nameFirst + ' ' + nameLast;
-
   // checking for error cases
-  if (!isEmail(email)) {
-    return { error: 'email is not a valid email address' };
-  } else if (userArr.some(user => user.email === email)) {
-    return { error: 'email is used by another user' };
+  try {
+    checkAdminAuthRegister(email, password, nameFirst, nameLast);
+  } catch (e) {
+    throw new Error(e.message);
   }
 
-  if (/[^A-Za-z' -]/.test(name)) {
-    return { error: 'name contains invalid characters' };
-  } else if (nameFirst.length < 2 || nameFirst.length > 20) {
-    return { error: 'first name must be at least 2 characters and no more than 20' };
-  } else if (nameLast.length < 2 || nameLast.length > 20) {
-    return { error: 'last name must be at least 2 characters and no more than 20' };
-  }
-
-  if (password.length < 8) {
-    return { error: 'password must be at least 8 characters' };
-  } else if (!(/\d/.test(password) && /[a-zA-Z]/.test(password))) {
-    return { error: 'password must contain at least one number and one letter' };
-  }
-
-  // registering the user to the database
-  const newUserId = userArr.length + 1;
+  // registering the user and session to the database
+  const newUserId = createDataStoreId();
+  const newSessId = createDataStoreId();
   const newUser = {
-    authUserId: newUserId,
-    name: name,
+    userId: newUserId,
+    name: nameFirst + ' ' + nameLast,
     email: email,
     password: password,
     numSuccessfulLogins: 1,
-    numFailedPasswordSinceLastLogin: 0,
+    numFailedPasswordsSinceLastLogin: 0,
     passwordHistory: [password],
   };
   userArr.push(newUser);
-  const sID = uniqueId(store.sessions);
 
-  // creating token for sessions
   const session = {
-    sessionId: sID,
-    authUserId: newUserId,
+    sessionId: newSessId,
+    userId: newUserId,
   };
   store.sessions.push(session);
-  return { token: sID.toString() };
-}
 
-// function to create a unique id everytime
-function uniqueId(sessArr: { sessionId: number }[]): number {
-  let uId: number;
-  do {
-    uId = Date.now();
-  } while (sessArr.find(session => (session.sessionId === uId)));
-  return uId;
+  return newSessId.toString();
 }
 
 /** [2] adminAuthLogin
   *
   * Given a registered user's email and password returns
-  * their authUserId value.
+  * their sessionId
   *
   * @param {string} email - user's email address
   * @param {string} password - user's password required for logging
   *                            into the Toohak platform
   * ...
-  * @returns {token: number} - number representing a unique
-  *                                 identifier for the user
+  * @returns {string} - string representing a unique
+  *                                 identifier for the session
   *
 */
-
-export function adminAuthLogin(email: string, password: string): { token: string} | { error: string} {
+export function adminAuthLogin(email: string, password: string): string {
   const store = getData();
   const userArr = store.users;
-
-  const user = userArr.find((user) => user.email === email);
+  const user = userArr[findUserIndexFromEmail(email)];
 
   // checking for error cases
-  if (!user) {
-    return { error: 'Email address does not exist' };
-  } else if (user.password !== password) {
-    user.numFailedPasswordSinceLastLogin++;
-    setData(store);
-    return { error: 'Incorrect password' };
+  try {
+    checkAdminAuthLogin(email, password);
+  } catch (e) {
+    throw new Error(e.massage);
+  }
 
   // logging in the user
-  } else {
-    user.numSuccessfulLogins++;
-    user.numFailedPasswordSinceLastLogin = 0;
-    setData(store);
+  user.numSuccessfulLogins++;
+  user.numFailedPasswordsSinceLastLogin = 0;
 
-    const sID = uniqueId(store.sessions);
+  // creating sessiionId
+  const newSessId = createDataStoreId();
+  const session = {
+    sessionId: newSessId,
+    userId: user.userId,
+  };
 
-    // creating token for session
-    const session = {
-      sessionId: sID,
-      authUserId: user.authUserId,
-    };
-
-    store.sessions.push(session);
-    return { token: sID.toString() };
-  }
+  store.sessions.push(session);
+  return newSessId.toString();
 }
 
 /** [3] adminUserDetails
   *
-  * Given an admin user's authUserId, returns details about the user.
+  * Given an admin user's userId, returns details about the user.
   *
   * @param {number} token - number representing a unique
   *                              identifier for the user
@@ -163,32 +137,27 @@ export function adminAuthLogin(email: string, password: string): { token: string
   *     numSuccessfulLogins: number,
   *     numFailedPasswordsSinceLastLogin: number,
   *   }
-  * } - an object with information about the user based on their authUserId
+  * } - an object with information about the user based on their userId
   *
 */
 
-export function adminUserDetails(token: number): UserDetails| { error: string} {
-  const store = getData();
-  const userArr = store.users;
-
-  const user = userArr.find((user) => user.authUserId === token);
+export function adminUserDetails(userId: number): UserDetails {
+  const user = getData().users[findUserIndexFromUserId(userId)];
 
   // checking for error cases
   if (!user) {
-    return { error: 'invalid token' };
-
-  // returning object containing user details
-  } else {
-    return {
-      user: {
-        authUserId: user.authUserId,
-        name: user.name,
-        email: user.email,
-        numSuccessfulLogins: user.numSuccessfulLogins,
-        numFailedPasswordSinceLastLogin: user.numFailedPasswordSinceLastLogin,
-      }
-    };
+    throw new Error('Invalid UserId');
   }
+  // returning object containing user details
+  return {
+    user: {
+      userId: user.userId,
+      name: user.name,
+      email: user.email,
+      numSuccessfulLogins: user.numSuccessfulLogins,
+      numFailedPasswordsSinceLastLogin: user.numFailedPasswordsSinceLastLogin,
+    }
+  };
 }
 
 /** [4] adminUserDetailsUpdate
@@ -204,7 +173,7 @@ export function adminUserDetails(token: number): UserDetails| { error: string} {
   * @returns {} - empty object
 */
 
-export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | { error : string} {
+export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string) : Record<string, never> | ErrorResponse {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
 
@@ -212,7 +181,7 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
     return { error: 'invalid userId' };
   }
 
-  if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+  if (data.users.some(user => user.email === email && user.userId !== token)) {
     return { error: 'email used by another user' };
   }
 
@@ -244,13 +213,13 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
     return { error: 'last name is too long' };
   }
 
-  const userIndex = data.users.findIndex(user => user.authUserId === token);
+  const userIndex = data.users.findIndex(user => user.userId === token);
 
   if (userIndex === -1) {
     return { error: 'userId does not exist' };
   } else if (!validator.isEmail(email)) {
     return { error: 'invalid email address' };
-  } else if (data.users.some(user => user.email === email && user.authUserId !== token)) {
+  } else if (data.users.some(user => user.email === email && user.userId !== token)) {
     return { error: 'email used by another user' };
   } else if (specialChars.test(nameFirst)) {
     return { error: 'first name contains invalid characters' };
@@ -282,45 +251,42 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
   * ...
   * @returns {} - empty object
 */
-export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | { error: string } {
+
+export function adminUserPasswordUpdate(token: number, oldPassword: string, newPassword: string): Record<string, never> | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.authUserId === token);
+  const user = data.users.find(user => user.userId === token);
 
-  try {
-    if (!user) {
-      throw new Error('userId does not exist');
-    }
-
-    if (user.password !== oldPassword) {
-      throw new Error('incorrect password');
-    }
-
-    if (oldPassword === newPassword) {
-      throw new Error('new password is the same as old password');
-    }
-
-    if (user.passwordHistory.includes(newPassword)) {
-      throw new Error('password has already been used');
-    }
-
-    if (newPassword.length < 8) {
-      throw new Error('password is too short');
-    }
-
-    const hasNumber = /\d/.test(newPassword);
-    const hasLetter = /[a-zA-Z]/.test(newPassword);
-    if (!hasNumber || !hasLetter) {
-      throw new Error('new password should contain at least one letter and one number');
-    }
-
-    // Update password and history
-    user.passwordHistory.push(newPassword);
-    user.password = newPassword;
-
-    return {}; // Return an empty object on success
-  } catch (error) {
-    return { error: (error as Error).message }; // Return the error message
+  if (!user) {
+    throw new Error('userId does not exist');
   }
+
+  if (user.password !== oldPassword) {
+    throw new Error('incorrect password');
+  }
+
+  if (oldPassword === newPassword) {
+    throw new Error('new password is the same as old password');
+  }
+
+  if (user.passwordHistory.includes(newPassword)) {
+    throw new Error('password has already been used');
+  }
+
+  if (newPassword.length < 8) {
+    throw new Error('password is too short');
+  }
+
+  const hasNumber = /\d/.test(newPassword);
+  const hasLetter = /[a-zA-Z]/.test(newPassword);
+  if (!hasNumber || !hasLetter) {
+    throw new Error('new password should contain at least one letter and one number');
+  }
+
+  // Update password and history
+  user.passwordHistory.push(newPassword);
+  user.password = newPassword;
+
+  return {}; // Return an empty object on success
 }
 
 /** [6] adminAuthLogout
@@ -332,7 +298,7 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   * ...
   * @returns {} - empty object
 */
-export function adminAuthLogout(token: string): Record<string, never> | { error : string} {
+export function adminAuthLogout(token: string): Record<string, never> | ErrorResponse {
   const result = parseFloat(token);
 
   const store = getData();
@@ -347,7 +313,7 @@ export function adminAuthLogout(token: string): Record<string, never> | { error 
   }
 
   const index = sessArr.indexOf(session);
-  sessArr.splice(index);
+  sessArr.splice(index, 1);
 
   return {};
 }

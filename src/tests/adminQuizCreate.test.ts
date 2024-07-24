@@ -5,11 +5,27 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // wrapper function
+
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
+
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name, description }
   });
   return JSON.parse(res.body.toString());
+};
+
+const quizList = (token: string) => {
+  const res = request(
+    'GET',
+    `${SERVER_URL}/v1/admin/quiz/list`,
+    { qs: { token } }
+  );
+  return res;
 };
 
 beforeEach(() => {
@@ -20,12 +36,12 @@ describe('POST /v1/admin/quiz', () => {
   let token: string;
 
   beforeEach(() => {
-    const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
-    token = JSON.parse(user.body.toString()).token;
+    const user1 = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
+    token = JSON.parse(user1.body.toString()).token;
   });
 
   test('Token is invalid', () => {
-    const res = createQuiz('invalidAuthUserId', 'Sidak', 'valid description');
+    const res = createQuiz('invaliduserId', 'Sidak', 'valid description');
     expect(res).toStrictEqual({ error: expect.any(String) });
   });
 
@@ -68,12 +84,7 @@ describe('POST /v1/admin/quiz', () => {
 
   test('Quiz created successfully', () => {
     createQuiz(token, 'Quiz 1', 'toohak quiz');
-    const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-      qs: {
-        token: token,
-      },
-      timeout: TIMEOUT_MS
-    });
+    const res = quizList(token);
     expect(JSON.parse(res.body.toString())).toStrictEqual({
       quizzes: [
         {

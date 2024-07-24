@@ -1,21 +1,21 @@
 // dataStore
 export interface User {
-  authUserId: number,
+  userId: number,
   name: string,
   email: string,
   password: string,
   numSuccessfulLogins: number,
-  numFailedPasswordSinceLastLogin: number,
+  numFailedPasswordsSinceLastLogin: number,
   passwordHistory: string[]
 }
 
 export interface UserDetails {
   user: {
-    authUserId: number,
+    userId: number,
     name: string,
     email: string,
     numSuccessfulLogins: number,
-    numFailedPasswordSinceLastLogin: number,
+    numFailedPasswordsSinceLastLogin: number,
   }
 }
 
@@ -35,7 +35,7 @@ export interface Question {
 }
 
 export interface QuestionId {
-  questionId: number
+  newQuestionId: number
 }
 
 export interface Quiz {
@@ -47,7 +47,7 @@ export interface Quiz {
   numQuestions: number,
   questions: Question[],
   duration: number,
-  authUserId: number
+  userId: number
 }
 
 export interface QuizList {
@@ -68,7 +68,11 @@ export interface QuizInfo {
 
 export interface Session {
   sessionId: number,
-  authUserId: number
+  userId: number
+}
+
+export interface ErrorResponse {
+  error : string
 }
 
 export interface Store {

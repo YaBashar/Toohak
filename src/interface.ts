@@ -36,7 +36,7 @@ export interface Question {
 }
 
 export interface QuestionId {
-  questionId: number
+  newQuestionId: number
 }
 
 export interface Quiz {

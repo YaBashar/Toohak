@@ -8,10 +8,9 @@ let token: string;
 
 // wrapper functions
 const quizList = (token: string) => {
-  const res = request('GET', SERVER_URL + '/v1/admin/quiz/list', {
-    qs: { token }
+  return request('GET', SERVER_URL + '/v2/admin/quiz/list', {
+    headers: { token }, timeout: TIMEOUT_MS
   });
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
@@ -53,16 +52,16 @@ describe('GET /v1/admin/quiz/list', () => {
   // AuthUserId isn't valid
   test('Invalid AuthUserId', () => {
     const res = quizList('randomstring');
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
     const res2 = quizList('1');
-    expect(res2.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res2.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res2.statusCode).toBe(401);
   });
 
   test('Logged in user has no quizzes', () => {
     const res = quizList(token);
-    expect(res.body).toStrictEqual(
+    expect(JSON.parse(res.body.toString())).toStrictEqual(
       {
         quizzes:
         [
@@ -75,7 +74,7 @@ describe('GET /v1/admin/quiz/list', () => {
     const quizId = createQuiz(token, 'quiz 1', 'the first quiz')
     const quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz')
     const res = quizList(token);
-    expect(res.body).toStrictEqual(
+    expect(JSON.parse(res.body.toString())).toStrictEqual(
       {
         quizzes:
         [
@@ -90,33 +89,5 @@ describe('GET /v1/admin/quiz/list', () => {
         ]
       });
     expect(res.statusCode).toBe(200);
-    // const deleted = removeQuiz(token, quizId.body.quizId);
-    // expect(deleted.statusCode).toBe(200);
-    // console.log(deleted.body);
-    // expect(deleted.body).toStrictEqual({});
-    // const res2 = quizList(token);
-    // expect(res2.body).toStrictEqual(
-    //   {
-    //     quizzes:
-    //     [
-    //       {
-    //         quizId: quiz2Id.body.quizId,
-    //         name: 'quiz 2'
-    //       }
-    //     ]
-    //   });
-    // expect(res2.statusCode).toBe(200);
-    // updateQuizName(token, quiz2Id.body.quizid, 'new name');
-    // const res3 = quizList(token);
-    // expect(res3.body).toStrictEqual(
-    //   {
-    //     quizzes:
-    //     [
-    //       {
-    //         quizId: quiz2Id.body.quizId,
-    //         name: 'new name'
-    //       }
-    //     ]
-    //   });
   });
 });

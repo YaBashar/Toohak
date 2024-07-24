@@ -90,33 +90,5 @@ describe('GET /v1/admin/quiz/list', () => {
         ]
       });
     expect(res.statusCode).toBe(200);
-    // const deleted = removeQuiz(token, quizId.body.quizId);
-    // expect(deleted.statusCode).toBe(200);
-    // console.log(deleted.body);
-    // expect(deleted.body).toStrictEqual({});
-    // const res2 = quizList(token);
-    // expect(res2.body).toStrictEqual(
-    //   {
-    //     quizzes:
-    //     [
-    //       {
-    //         quizId: quiz2Id.body.quizId,
-    //         name: 'quiz 2'
-    //       }
-    //     ]
-    //   });
-    // expect(res2.statusCode).toBe(200);
-    // updateQuizName(token, quiz2Id.body.quizid, 'new name');
-    // const res3 = quizList(token);
-    // expect(res3.body).toStrictEqual(
-    //   {
-    //     quizzes:
-    //     [
-    //       {
-    //         quizId: quiz2Id.body.quizId,
-    //         name: 'new name'
-    //       }
-    //     ]
-    //   });
   });
 });

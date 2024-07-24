@@ -175,11 +175,33 @@ app.get('/v1/admin/quiz/list', (req: Request, res: Response) => {
   if (userId === -1) {
     return res.status(401).json({ error: 'invalid user id' });
   }
-  const result = adminQuizList(userId);
-  if ('error' in result) {
-    return res.status(401).json(result);
+
+  try {
+    const result = adminQuizList(userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(401).json({ error: 'error.message' });
+    }
   }
-  return res.status(200).json(result);
+});
+
+// adminQuizList v2
+app.get('/v2/admin/quiz/list', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
+    return res.status(401).json({ error: 'invalid user id' });
+  }
+
+  try {
+    const result = adminQuizList(userId);
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      return res.status(401).json({ error: 'error.message' });
+    }
+  }
 });
 
 // adminQuizDescriptionUpdate

@@ -76,7 +76,7 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   // in answers array there are 2 answers, we need to check every answer and
   // check its length if its less than 1 or not
   if (question.answers.some((answer) => answer.answer.length < 1)) {
-   throw new Error('Answer is less than 1 character');
+    throw new Error('Answer is less than 1 character');
   }
   if (question.answers.some((answer) => answer.answer.length > 30)) {
     throw new Error('Answer is more than 30 characters');

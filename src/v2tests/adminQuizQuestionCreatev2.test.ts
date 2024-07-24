@@ -69,7 +69,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-    "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
@@ -87,7 +87,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-    "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
@@ -101,7 +101,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: true,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -115,7 +115,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: true,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -153,7 +153,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -167,7 +167,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: true,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -185,7 +185,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -203,7 +203,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -221,12 +221,12 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
- 
+
   // The points awarded for the question are less than 1
   test('The points awarded for the question are less than 1', () => {
     const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 0, [
@@ -239,7 +239,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -257,7 +257,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -275,7 +275,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: true,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -293,7 +293,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -311,7 +311,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -329,7 +329,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -347,7 +347,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
@@ -365,7 +365,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
@@ -383,7 +383,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      ""
+    ''
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -402,7 +402,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.gif"
+    'http://google.com/some/image/path.gif'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -421,7 +421,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "http://google.com/some/image/path.doc"
+    'http://google.com/some/image/path.doc'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -439,7 +439,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-      "google.com/some/image/path.jpg"
+    'google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
@@ -457,7 +457,7 @@ describe('POST /v2/admin/quiz/:quizid/question', () => {
         correct: false,
       }
     ],
-    "http://google.com/some/image/path.jpg"
+    'http://google.com/some/image/path.jpg'
     );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ questionId: expect.any(Number) });
     expect(res.statusCode).toBe(200);

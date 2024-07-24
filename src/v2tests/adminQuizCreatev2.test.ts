@@ -15,7 +15,7 @@ const createUser = (email: string, password: string, firstName: string, lastName
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
     headers: {
-        token,
+      token,
     },
     json: { name, description }
   });

@@ -518,7 +518,6 @@ app.post('/v1/admin/quiz', (req: Request, res: Response) => {
   }
 });
 
-
 // adminQuizCreate v2
 app.post('/v2/admin/quiz', (req: Request, res: Response) => {
   try {

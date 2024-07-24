@@ -208,17 +208,17 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   const user = userArr.find((user) => user.userId === token);
 
   if (!user) {
-    return { error: 'Invalid Token' };
+    throw new Error('Invalid Token');
   }
   if (!quiz) {
-    return { error: 'Invalid Quiz Id' };
+    throw new Error('Invalid Quiz Id');
   }
   if (quiz.userId !== token) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
   const question = quiz.questions.find((question: Question) => question.questionId === questionId);
   if (!question) {
-    return { error: 'Invalid Question Id' };
+    throw new Error('Invalid Question Id');
   }
   const index = quiz.questions.indexOf(question);
   quiz.questions.splice(index, 1);

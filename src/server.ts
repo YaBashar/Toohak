@@ -116,37 +116,39 @@ app.put('/v1/admin/user/details', (req: Request, res: Response) => {
 
   try {
     const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
-    
-    if (result.error) {
-      if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
-        return res.status(401).json({ error: result.error });
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId' || error.message === 'userId does not exist') {
+        return res.status(401).json({ error: error.message });
       } else {
-        return res.status(400).json({ error: result.error });
+        return res.status(400).json({ error: error.message });
       }
     }
-    return res.status(200).json(result);
-  } catch (error) {
   }
 });
 
 // adminAuthUpdateUserDetails v2
 app.put('/v2/admin/user/details', (req: Request, res: Response) => {
-  const { token } = req.header;
+  const token  = req.header('token');
   const { email, nameFirst, nameLast } = req.body;
   const userId = getUserIdFromToken(token);
 
+  if (!token) {
+    return res.status(401).json({ error: 'invalid userid' });
+  }
+
   try {
     const result = adminUserDetailsUpdate(userId, email, nameFirst, nameLast);
-    
-    if (result.error) {
-      if (result.error === 'invalid userId' || result.error === 'userId does not exist') {
-        return res.status(401).json({ error: result.error });
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid userId' || error.message === 'userId does not exist') {
+        return res.status(401).json({ error: error.message });
       } else {
-        return res.status(400).json({ error: result.error });
+        return res.status(400).json({ error: error.message });
       }
     }
-    return res.status(200).json(result);
-  } catch (error) {
   }
 });
 

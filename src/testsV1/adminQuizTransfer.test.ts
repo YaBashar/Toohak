@@ -123,7 +123,7 @@ describe('adminQuizTransfer Tests', () => {
     });
 
     test('Check that transferred quiz is under name of target user through quizList', () => {
-      request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/transfer`, { json: { token: sourceToken, email: 'targetuser@unsw.edu.au' }, timeout: TIMEOUT_MS });
+      requestQuizTransfer(sourceToken, quizId, 'targetuser@unsw.edu.au');
       const quizList = request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token: targetToken }, timeout: TIMEOUT_MS });
 
       expect(JSON.parse(quizList.body.toString())).toStrictEqual({
@@ -146,23 +146,30 @@ describe('adminQuizTransfer Tests', () => {
       });
     });
 
-    // Failing tests
     test('Test successful quiz transfer', () => {
       const res = requestQuizTransfer(sourceToken, quizId, 'targetuser@unsw.edu.au');
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
       const quizzes = requestQuizList(sourceToken);
-      const quizInList = JSON.parse(quizzes.body.toString()).quizzes;
-      expect(quizInList).toStrictEqual([{ quizId: quizId, name: 'test quiz' }]);
+      expect(JSON.parse(quizzes.body.toString())).toStrictEqual({
+        quizzes: []
+      });
     });
 
     test('Test successful quiz transfer, then transfer back to creator', () => {
       const parse = JSON.parse(requestQuizTransfer(sourceToken, quizId, 'targetuser@unsw.edu.au').body.toString());
       expect(parse).toStrictEqual({});
-      const res = requestQuizTransfer(targetToken, quizId, 'sourceuser@email.com');
-      expect(JSON.parse(res.body.toString())).toStrictEqual({});
+      const res = JSON.parse(requestQuizTransfer(targetToken, quizId, 'sourceuser@unsw.edu.au').body.toString());
+      expect(res).toStrictEqual({});
+
       const quizzes = requestQuizList(sourceToken);
-      const quizInList = JSON.parse(quizzes.body.toString());
-      expect(JSON.parse(quizInList.body.toString())).toStrictEqual([{ quizId: quizId, name: 'test quiz' }]);
+      expect(JSON.parse(quizzes.body.toString())).toStrictEqual({
+        quizzes: [
+          {
+            name: 'quizName',
+            quizId: quizId
+          }
+        ]
+      });
     });
   });
 });

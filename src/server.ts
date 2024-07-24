@@ -233,38 +233,6 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   }
 });
 
-// adminQuizNameUpdate V2 route
-app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
-  const token = req.header('token');
-  const { name } = req.body;
-  const quizid = parseInt(req.params.quizid as string);
-
-  if (!token) {
-    return res.status(401).json({ error: 'Token is empty or invalid' });
-  }
-
-  const userId = getUserIdFromToken(token);
-
-  try {
-    const quizNameUpdate = adminQuizNameUpdate(userId, quizid, name);
-    res.json(quizNameUpdate);
-  } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === 'Invalid User id') {
-        return res.status(401).json({ error: error.message });
-      } else if (error.message === 'Quiz Id not owned by the user' ||
-        error.message === 'Invalid Quiz id') {
-        return res.status(403).json({ error: error.message });
-      } else if (error.message === 'Name is already used' ||
-        error.message === 'Name cannot be empty' ||
-        error.message === 'Name is too short' ||
-        error.message === 'Name is too long' ||
-        error.message === 'Quiz name cannot have symbols') {
-        return res.status(400).json({ error: error.message });
-      }
-    }
-  }
-});
 // adminQuizQuestionMove
 app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
   const { token, newPosition } = req.body;

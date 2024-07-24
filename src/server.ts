@@ -502,9 +502,34 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   }
 });
 
-// adminQuizInfo
+// adminQuizInfo V1
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
+  const quizId = parseInt(req.params.quizid as string);
+
+  const userId = getUserIdFromToken(token);
+  if (userId === -1) {
+    return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
+  }
+
+  try {
+    const quizInfo = adminQuizInfo(userId, quizId);
+    res.status(200).json(quizInfo);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' ||
+        error.message === 'This Quiz Id does not refer to a quiz that this user owns') {
+        return res.status(403).json({ error: error.message });
+      }
+    }
+  }
+});
+
+// adminQuizInfo V2
+app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
   const quizId = parseInt(req.params.quizid as string);
 
   const userId = getUserIdFromToken(token);

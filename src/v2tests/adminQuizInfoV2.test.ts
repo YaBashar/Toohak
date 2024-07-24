@@ -21,7 +21,7 @@ const createQuiz = (token : string, name : string, description : string) => {
 };
 
 const requestQuizInfo = (token : string, quizId : number) => {
-  return (request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: token } }));
+  return (request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } }));
 };
 /// /////////////////////////////////////////////////////////////
 

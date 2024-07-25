@@ -34,7 +34,7 @@ describe('Testing correct return', () => {
         name: 'first last',
         email: 'zid@ad.unsw.edu.au',
         numSuccessfulLogins: 1,
-        numFailedPasswordSinceLastLogin: 0,
+        numFailedPasswordsSinceLastLogin: 0,
       }
     };
 

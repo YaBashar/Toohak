@@ -363,41 +363,42 @@ export function adminQuizQuestionMove(token: number, quizId: number, questionId:
   const user = data.users.find(user => user.userId === token);
 
   if (!user) {
-    return { error: 'invalid token' };
+    throw new Error('invalid token');
   }
+
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
   if (quizIndex === -1) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   const quiz = data.quizzes[quizIndex];
   if (!quiz) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (quiz.userId !== token) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   const question = quiz.questions.find(question => question.questionId === questionId);
   if (!question) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   if (newPosition < 0) {
-    return { error: 'position value is less than zero' };
+    throw new Error('position value is less than zero');
   }
 
   if (quiz.questions.indexOf(question) === newPosition) {
-    return { error: 'new position is current position' };
+    throw new Error('new position is current position');
   }
 
   if (newPosition > quiz.questions.length - 1) {
-    return { error: 'new position is too big' };
+    throw new Error('new position is too big');
   }
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);

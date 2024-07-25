@@ -83,7 +83,6 @@ describe('PUT /v2/admin/user/details', () => {
   // successful use of function
   test('function used correctly', () => {
     const res = updateDetails(token, 'amelia1@unsw.ed.au', 'ameliag', 'su');
-    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({});
     expect(res.statusCode).toBe(200);
   });

@@ -77,9 +77,47 @@ export interface ErrorResponse {
   error : string
 }
 
+enum States {
+  LOBBY,
+  QUESTION_COUNTDOWN,
+  QUESTION_OPEN,
+  QUESTION_CLOSE,
+  ANSWER_SHOW,
+  FINAL_RESULTS,
+  END
+}
+
+interface Player {
+  playerId: number, 
+  name: string, 
+  state: States,
+  numQuestions: Number, 
+  atQuestion: number, 
+  points: number,
+}
+
+interface Results {
+  questionId: number, 
+  playersCorrectList: String[],
+  averageAnswerTime: number, 
+  percentageCorrect: number
+}
+
+interface Game {
+  sessionId: number,
+  status: States,
+  quizId: number,
+  players: Player[],
+  activeQuestion: number,
+  questionResults: Results[],
+}
+
+
 export interface Store {
   users: User[],
   quizzes: Quiz[],
   sessions: Session[],
-  trash: Quiz[]
+  trash: Quiz[],
+
+  games: Game[],
 }

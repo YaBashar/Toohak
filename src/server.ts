@@ -679,6 +679,14 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 
 /// ////////////////////////////////////////////////////////////////////////////
 
+/// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
+
+// adminQuizSessionCreate
+app.post('/v1/admin/quiz/{quizid}/session/start', (req: Request, res: Response) => {
+  return res.status(500).json({ error: 'route not implemented yet'});
+})
+
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

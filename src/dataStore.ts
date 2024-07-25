@@ -6,7 +6,6 @@ let data: Store = {
   quizzes: [],
   sessions: [],
   trash: [],
-
   games: [],
 };
 

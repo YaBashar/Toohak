@@ -1,5 +1,4 @@
 
-
 /*
 LOBBY: Players can join in this state, and nothing has started.
 
@@ -16,19 +15,25 @@ FINAL_RESULTS: This is where the final results are displayed for all players and
 END: The game is now over and inactive.
 */
 
-
-enum Actions {
-  NEXT_QUESTION,
-  SKIP_COUNTDOWN,
-  GO_TO_ANSWER,
-  GO_TO_FINAL_RESULTS,
+export enum States {
+  LOBBY,
+  QUESTION_COUNTDOWN,
+  QUESTION_OPEN,
+  QUESTION_CLOSE,
+  ANSWER_SHOW,
+  FINAL_RESULTS,
   END
 }
 
-enum Status {
-  ACTIVE,
-  INACTIVE
-}
+// enum Actions {
+//   NEXT_QUESTION,
+//   SKIP_COUNTDOWN,
+//   GO_TO_ANSWER,
+//   GO_TO_FINAL_RESULTS,
+//   END
+// }
 
-
-// start session
+// enum Status {
+//   ACTIVE,
+//   INACTIVE
+// }

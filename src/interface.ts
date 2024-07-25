@@ -1,5 +1,5 @@
 // dataStore
-import { States } from './game'
+import { States } from './game';
 
 export interface User {
   userId: number,
@@ -80,17 +80,17 @@ export interface ErrorResponse {
 }
 
 interface Player {
-  playerId: number, 
-  name: string, 
-  numQuestions: Number, 
-  atQuestion: number, 
+  playerId: number,
+  name: string,
+  numQuestions: number,
+  atQuestion: number,
   points: number,
 }
 
 interface Results {
-  questionId: number, 
-  playersCorrectList: String[],
-  averageAnswerTime: number, 
+  questionId: number,
+  playersCorrectList: string[],
+  averageAnswerTime: number,
   percentageCorrect: number
 }
 

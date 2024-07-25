@@ -375,18 +375,55 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid', (req: Request, res: Respo
   if (!questionid) {
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
-  const result = adminQuizQuestionUpdate(userId, quizid, questionid, questionBody);
 
-  if ('error' in result) {
-    if (result.error === 'quiz does not exist for this user') {
-      return res.status(403).json(result);
-    } else if (result.error === 'invalid token' || result.error === 'empty token') {
-      return res.status(401).json(result);
-    } else if ('error' in result) {
-      return res.status(400).json(result);
+  try {
+    const result = adminQuizQuestionUpdate(userId, quizid, questionid, questionBody);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'quiz does not exist for this user') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'invalid token' || error.message === 'empty token') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminQuizQuestionUpdate v2
+app.put('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const { questionBody } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+  const questionid = parseInt(req.params.questionid as string);
+  const userId = getUserIdFromToken(token);
+
+  if (userId === -1) {
+    return res.status(401).json({ error: 'invalid token' });
+  }
+  if (!quizid) {
+    return res.status(403).json({ error: 'quiz does not exist for this user' });
+  }
+  if (!questionid) {
+    return res.status(400).json({ error: 'question id does not exist in this quiz' });
+  }
+
+  try {
+    const result = adminQuizQuestionUpdate(userId, quizid, questionid, questionBody);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'quiz does not exist for this user') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'invalid token' || error.message === 'empty token') {
+        return res.status(401).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
 });
 
 // adminAuthLogout

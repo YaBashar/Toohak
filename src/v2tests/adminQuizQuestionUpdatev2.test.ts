@@ -50,18 +50,18 @@ const addQuestion = (token: string, quizId: string, question: string, duration: 
 };
 
 const updateQuestion = (token: string, quizId: string, questionId: string, question: string, duration: number, points: number, answers: object) => {
-  const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizId}/question/${questionId}`, {
+  return (request('PUT', `${SERVER_URL}/v2/admin/quiz/${quizId}/question/${questionId}`, {
+    headers: { token },
     json: {
-      token,
       questionBody: {
         question,
         duration,
         points,
         answers
       }
-    }
-  });
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+    },
+    timeout: TIMEOUT_MS
+  }));
 };
 
 beforeEach(() => {
@@ -106,7 +106,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -117,7 +117,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -128,7 +128,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -139,7 +139,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -154,7 +154,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: "Queen Elizabeth's corgi", correct: false },
         { answer: 'Prince George', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -163,7 +163,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
       [
         { answer: 'Prince Charles', correct: true }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -174,7 +174,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -191,7 +191,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -202,7 +202,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -213,7 +213,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -224,7 +224,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: '', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -235,7 +235,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham is the current reigning Monarch of England', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -246,7 +246,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince William', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -257,7 +257,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: false },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
@@ -268,7 +268,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
@@ -280,7 +280,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
 
@@ -299,7 +299,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Charles', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
@@ -310,7 +310,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
       ]);
-    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
@@ -322,6 +322,6 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true }
       ]);
     expect(res.statusCode).toBe(200);
-    expect(res.body).toStrictEqual({});
+    expect(JSON.parse(res.body.toString())).toStrictEqual({});
   });
 });

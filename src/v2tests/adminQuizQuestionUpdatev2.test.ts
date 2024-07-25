@@ -93,9 +93,6 @@ beforeEach(() => {
       { answer: '2', correct: true },
       { answer: '11', correct: false }
     ]).questionId;
-
-  console.log(quiz1Id);
-  console.log(question1Quiz1Id);
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {

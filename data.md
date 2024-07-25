@@ -49,7 +49,81 @@ const data = {
       sessionId: 467894,
       userId: 1,
     }
+  ],
+
+
+  games: [
+    // when a quiz is yet to start. this is what create session will do to the database.
+    {
+      sessionId: 453,
+      status: LOBBY, 
+      quizId: 48793,
+      players: [],                             // no players joined yet
+      activeQuestion: 0,                       // no active question yet
+      questionResults: [                       // session create will set this up for each q in quiz
+        {
+          questionId: 45795749, 
+          playersCorrectList: [],
+          averageAnswerTime: 0, 
+          percentageCorrect: 0          
+        }, 
+        {
+          questionId: 90385473, 
+          playersCorrectList: [],
+          averageAnswerTime: 0, 
+          percentageCorrect: 0          
+        }, 
+      ]
+    },
+
+    {
+      sessionId: 234,
+      status: QUESTION_OPEN,                   // session in the middle of a game
+      players: [
+        {
+          playerId: 3456,
+          name: 'player one',
+          numQuestions: 3,                     // ie there are three questions in this quiz
+          atQuestion: 2                        // player answering question 2 (starts from 1)
+          points: 7                            // current total points
+        },
+        {
+          playerId: 3456,
+          name: 'player two',
+          numQuestions: 5,                   
+          atQuestion: 2                        
+          points: 13,                                      
+        },      
+      ]
+      activeQuestion: 54798754                 // questionId of current question. matches q2
+      questionResults: [
+        {
+          questionId: 347976, 
+          playersCorrectList: [
+            'player one'                       // players with correct answers are added here + points update 
+          ],
+          averageAnswerTime: 35,               
+          percentageCorrect: 50,               // 50% got answer right       
+        }, 
+        {
+          questionId: 54798754,                // current question
+          playersCorrectList: [
+            'player two'                       // players can't see updated results until answer_show
+          ],
+          averageAnswerTime: 12,               // p2 has more points even because of time scaling + weight
+          percentageCorrect: 50,          
+        }, 
+        {
+          questionId: 0387028,                 // next and last question. still empty. 
+          playersCorrectList: [],
+          averageAnswerTime: 0, 
+          percentageCorrect: 0          
+        }, 
+      ]
+    }
   ]
+
+
 };
 
 ```

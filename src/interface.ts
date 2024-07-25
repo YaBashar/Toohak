@@ -5,7 +5,7 @@ export interface User {
   email: string,
   password: string,
   numSuccessfulLogins: number,
-  numFailedPasswordSinceLastLogin: number,
+  numFailedPasswordsSinceLastLogin: number,
   passwordHistory: string[]
 }
 
@@ -15,7 +15,7 @@ export interface UserDetails {
     name: string,
     email: string,
     numSuccessfulLogins: number,
-    numFailedPasswordSinceLastLogin: number,
+    numFailedPasswordsSinceLastLogin: number,
   }
 }
 
@@ -31,11 +31,12 @@ export interface Question {
   question: string,
   duration: number,
   points: number,
-  answers: Answer[]
+  answers: Answer[],
+  thumbnailUrl?: string
 }
 
 export interface QuestionId {
-  questionId: number
+  newQuestionId: number
 }
 
 export interface Quiz {
@@ -48,6 +49,7 @@ export interface Quiz {
   questions: Question[],
   duration: number,
   userId: number
+  thumbnailUrl: string
 }
 
 export interface QuizList {

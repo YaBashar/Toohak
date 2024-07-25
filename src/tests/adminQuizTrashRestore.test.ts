@@ -62,6 +62,12 @@ describe('adminQuizTrashRestore Tests', () => {
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     });
 
+    test('Quiz ID does not exist', () => {
+      const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 2}/restore`, { json: { token } });
+      expect(res.statusCode).toBe(403);
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    });
+
     test('Quiz ID refers to a quiz that is not currently in the trash', () => {
       const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId + 1}/restore`, { json: { token } });
       expect(res.statusCode).toBe(403);

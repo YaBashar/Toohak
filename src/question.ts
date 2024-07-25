@@ -366,6 +366,7 @@ export function adminQuizQuestionMove(token: number, quizId: number, questionId:
   if (!user) {
     throw new Error('invalid token');
   }
+
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
   if (quizIndex === -1) {
     throw new Error('quiz does not exist for this user');

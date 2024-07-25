@@ -345,18 +345,52 @@ app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: 
     return res.status(400).json({ error: 'question id does not exist in this quiz' });
   }
 
-  const result = adminQuizQuestionMove(userId, quizId, questionId, newPosition);
-
-  if ('error' in result) {
-    if (result.error === 'invalid token') {
-      return res.status(401).json(result);
-    } else if (result.error === 'quiz does not exist for this user') {
-      return res.status(403).json(result);
-    } else {
-      return res.status(400).json(result);
+  try {
+    const result = adminQuizQuestionMove(userId, quizId, questionId, newPosition);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid token') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'quiz does not exist for this user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
-  return res.status(200).json(result);
+});
+
+// adminQuizQuestionMove
+app.put('/v2/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const { newPosition } = req.body;
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const userId = getUserIdFromToken(token);
+
+  if (userId === -1) {
+    return res.status(401).json({ error: 'invalid token' });
+  } else if (!quizId) {
+    return res.status(403).json({ error: 'quiz does not exist for this user' });
+  } else if (!questionId) {
+    return res.status(400).json({ error: 'question id does not exist in this quiz' });
+  }
+
+  try {
+    const result = adminQuizQuestionMove(userId, quizId, questionId, newPosition);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'invalid token') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'quiz does not exist for this user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
 });
 
 // adminQuizQuestionUpdate
@@ -715,6 +749,8 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 });
 
 /// ////////////////////////////////////////////////////////////////////////////
+
+/// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

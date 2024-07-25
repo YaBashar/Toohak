@@ -73,6 +73,7 @@ describe('adminQuizInfo Tests', () => {
 
     test('Successfully Returned quizInfo', () => {
       const quizInfo = requestQuizInfo(token, quizId);
+      console.log(JSON.parse(quizInfo.body.toString()));
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,
@@ -82,7 +83,8 @@ describe('adminQuizInfo Tests', () => {
           description: 'description',
           numQuestions: expect.any(Number),
           questions: expect.any(Array),
-          duration: expect.any(Number)
+          duration: expect.any(Number),
+          thumbnailUrl: expect.any(String)
         }
       );
       expect(quizInfo.statusCode).toStrictEqual(200);

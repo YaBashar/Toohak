@@ -28,6 +28,7 @@ const data = {
         question: "Who is the Monarch of England?",
         duration: 4,
         points: 5,
+        thumbnailUrl: 'https:///'
         answers: [
           {
             answerId: 2384,

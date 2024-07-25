@@ -118,7 +118,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'Toohak Javascript Quiz 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
 
@@ -135,7 +135,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'QUIZ 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
 
@@ -153,7 +153,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: longDescription,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
 
@@ -171,7 +171,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: description,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
   });

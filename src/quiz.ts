@@ -190,7 +190,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorResponse {
+export function adminQuizInfo(token: number, quizId: number, version: string): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -220,7 +220,8 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
     // Update numQuestions based on filtered questions
     numQuestions: filteredQuestions.length,
     questions: filteredQuestions,
-    duration: totalDuration
+    duration: totalDuration,
+    thumbnailUrl: quiz.thumbnailUrl
   };
 
   return quizInfo;

@@ -512,8 +512,9 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
   }
 
+  const version = '/v1';
   try {
-    const quizInfo = adminQuizInfo(userId, quizId);
+    const quizInfo = adminQuizInfo(userId, quizId, version);
     res.status(200).json(quizInfo);
   } catch (error) {
     if (error instanceof Error) {
@@ -537,8 +538,9 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
   }
 
+  const version = '/v2';
   try {
-    const quizInfo = adminQuizInfo(userId, quizId);
+    const quizInfo = adminQuizInfo(userId, quizId, version);
     res.status(200).json(quizInfo);
   } catch (error) {
     if (error instanceof Error) {

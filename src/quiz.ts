@@ -190,7 +190,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number, version: string): QuizInfo | ErrorResponse {
+export function adminQuizInfo(token: number, quizId: number, isVersion2: boolean): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -210,19 +210,34 @@ export function adminQuizInfo(token: number, quizId: number, version: string): Q
 
   const filteredQuestions = quiz.questions.filter(q => q !== null);
   const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
+  let quizInfo: QuizInfo;
 
-  const quizInfo: QuizInfo = {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description,
-    // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length,
-    questions: filteredQuestions,
-    duration: totalDuration,
-    thumbnailUrl: quiz.thumbnailUrl
-  };
+  if (isVersion2) {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+      thumbnailUrl: quiz.thumbnailUrl
+    };
+  } else {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+    };
+  }
 
   return quizInfo;
 }

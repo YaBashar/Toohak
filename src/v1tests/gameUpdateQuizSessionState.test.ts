@@ -54,6 +54,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
   describe('Error Cases', () => {
     let token : string;
     let quizId : number;
+    let sessionId : number;
 
     beforeEach(() => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
@@ -80,10 +81,12 @@ describe('adminQuizQuestionDuplicate Tests', () => {
             }
           ]
         });
+      const session = requestCreateSession(token, quizId, 3);
+      sessionId = JSON.parse(session.body.toString()).sessionId;
     });
 
     test('Token is empty or invalid', () => {
-      const res = updateQuizSessionStatus('invalid token', quizId, 3, Actions.NEXT_QUESTION);
+      const res = updateQuizSessionStatus('invalid token', quizId, sessionId, Actions.NEXT_QUESTION);
       const data = JSON.parse(res.body.toString());
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -93,7 +96,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     test('Valid token but user is not owner of the quiz', () => {
       const user2 = createUser('zid2@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
       const token2 = JSON.parse(user2.body.toString()).token;
-      const res = updateQuizSessionStatus(token2, quizId, 3, Actions.NEXT_QUESTION);
+      const res = updateQuizSessionStatus(token2, quizId, sessionId, Actions.NEXT_QUESTION);
       const data = JSON.parse(res.body.toString());
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -101,7 +104,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     });
 
     test('Valid token is provided but quiz doesnt exist', () => {
-      const res = updateQuizSessionStatus(token, quizId + 1, 3, Actions.NEXT_QUESTION);
+      const res = updateQuizSessionStatus(token, quizId + 1, sessionId, Actions.NEXT_QUESTION);
       const data = JSON.parse(res.body.toString());
 
       expect(data).toStrictEqual({ error: expect.any(String) });
@@ -110,7 +113,23 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     // 400 ERRORS
     // Session Id does not refer to a valid session within this quiz
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      const res = updateQuizSessionStatus(token, quizId, sessionId + 1, Actions.NEXT_QUESTION);
+      const data = JSON.parse(res.body.toString());
+
+      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(res.statusCode).toStrictEqual(400);
+    });
+
     // Action provided is not a valid Action enum
+    test('Session Id does not refer to a valid session within this quiz', () => {
+      const res = updateQuizSessionStatus(token, quizId, sessionId, 'invalid_action' as unknown as Actions);
+      const data = JSON.parse(res.body.toString());
+
+      expect(data).toStrictEqual({ error: expect.any(String) });
+      expect(res.statusCode).toStrictEqual(400);
+    });
+
     // Action enum cannot be applied in the current state (see spec for details)
   });
 

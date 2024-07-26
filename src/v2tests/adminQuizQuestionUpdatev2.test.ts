@@ -85,7 +85,7 @@ beforeEach(() => {
       { answer: 'Prince Beckham', correct: false }
     ],
     'http://google.com/some/image/path.jpg'
-    ).questionId;
+  ).questionId;
 
   // create a second quiz
   quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').quizId;
@@ -98,7 +98,7 @@ beforeEach(() => {
       { answer: '11', correct: false }
     ],
     'http://google.com/some/image/path.jpg'
-    ).questionId;
+  ).questionId;
 });
 
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
@@ -108,9 +108,9 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince William', correct: false },
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
-      ], 
+      ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -123,7 +123,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -136,7 +136,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -147,9 +147,9 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince William', correct: false },
         { answer: 'Prince Charles', correct: true },
         { answer: 'Prince Beckham', correct: false }
-      ], 
+      ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -166,7 +166,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince George', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -177,7 +177,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -190,7 +190,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -203,7 +203,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: '11', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     const res = updateQuestion(token, quiz1Id, question1Quiz1Id, 'Who is the Monarch of England?', 15, 5,
       [
         { answer: 'Prince William', correct: false },
@@ -211,7 +211,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -224,7 +224,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -237,7 +237,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -250,7 +250,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: '', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -263,7 +263,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham is the current reigning Monarch of England', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -276,7 +276,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince William', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -289,7 +289,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -302,7 +302,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -316,7 +316,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -337,7 +337,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
@@ -350,7 +350,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
@@ -363,7 +363,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       ''
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -376,7 +376,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       'http://google.com/some/image/path'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -389,7 +389,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Beckham', correct: false }
       ],
       '/google.com/some/image/path.jpg'
-      );
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -402,7 +402,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
         { answer: 'Prince Charles', correct: true }
       ],
       'http://google.com/some/image/path.jpg'
-      );
+    );
     expect(res.statusCode).toBe(200);
     expect(JSON.parse(res.body.toString())).toStrictEqual({});
   });

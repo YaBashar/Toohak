@@ -255,11 +255,11 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
       question: string,
       duration: number,
       points: number,
-      answers:Answer[]
+      answers:Answer[],
+      thumbnailUrl: string
     }
 ) : Record<string, never> | { error: string } {
   const data = getData();
-  console.log(data);
   const user = data.users.find(user => user.userId === token);
 
   if (!user) {
@@ -300,7 +300,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   if (questionBody.answers.length < 2) {
     throw new Error('question does not have enough answers');
   }
-  if (questionBody.duration < 0 || typeof (questionBody.duration) !== 'number') {
+  if (questionBody.duration <= 0 || typeof (questionBody.duration) !== 'number') {
     throw new Error('duration is not a positive number');
   }
   let duration = 0;
@@ -334,11 +334,24 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
     throw new Error('no correct answer for this question');
   }
 
+  if (questionBody.thumbnailUrl === '') {
+    throw new Error('thumbnail is empty');
+  }
+  if (questionBody.thumbnailUrl) {
+    if (!questionBody.thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+      throw new Error('thumbnail is the wrong type');
+    }
+    if (!questionBody.thumbnailUrl.match(/^https?:\/\//)) {
+      throw new Error('thumbnailUrl is not a url');
+    }
+  }
+
   const quest: Question = quiz.questions[questionIndex];
   quest.question = questionBody.question;
   quest.duration = questionBody.duration;
   quest.points = questionBody.points;
   quest.answers = questionBody.answers;
+  quest.thumbnailUrl = questionBody.thumbnailUrl;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
   setData(data);

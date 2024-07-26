@@ -1,11 +1,11 @@
 {
   "users": [
     {
-      "userId": 42616,
+      "userId": 648361,
       "name": "amelia su",
       "email": "amelia@unsw.edu.au",
       "password": "abcd1234!@#$ABCD",
-      "numSuccessfulLogins": 1,
+      "numSuccessfulLogins": 2,
       "numFailedPasswordsSinceLastLogin": 0,
       "passwordHistory": [
         "abcd1234!@#$ABCD"
@@ -14,34 +14,82 @@
   ],
   "quizzes": [
     {
-      "quizId": 1721901654084,
+      "quizId": 1721953539269,
       "name": "quiz 1",
       "description": "the first quiz",
-      "timeCreated": 1721901654,
-      "timeLastEdited": 1721901654,
+      "timeCreated": 1721953539,
+      "timeLastEdited": 1721953539,
       "numQuestions": 0,
-      "questions": [],
+      "questions": [
+        {
+          "questionId": 1721953539273,
+          "question": "Who is the ruler of England?",
+          "duration": 10,
+          "points": 2,
+          "answers": [
+            {
+              "answer": "Prince George",
+              "correct": false
+            },
+            {
+              "answer": "Prince William",
+              "correct": false
+            },
+            {
+              "answer": "Prince Charles",
+              "correct": true
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
       "duration": 0,
-      "userId": 42616,
+      "userId": 648361,
       "thumbnailUrl": ""
     },
     {
-      "quizId": 1721901654085,
+      "quizId": 1721953539275,
       "name": "quiz 2",
       "description": "the second quiz",
-      "timeCreated": 1721901654,
-      "timeLastEdited": 1721901654,
+      "timeCreated": 1721953539,
+      "timeLastEdited": 1721953539,
       "numQuestions": 0,
-      "questions": [],
+      "questions": [
+        {
+          "questionId": 1721953539277,
+          "question": "What is 1 + 1?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "4",
+              "correct": false
+            },
+            {
+              "answer": "2",
+              "correct": true
+            },
+            {
+              "answer": "11",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
       "duration": 0,
-      "userId": 42616,
+      "userId": 648361,
       "thumbnailUrl": ""
     }
   ],
   "sessions": [
     {
-      "sessionId": 206543,
-      "userId": 42616
+      "sessionId": 422968,
+      "userId": 648361
+    },
+    {
+      "sessionId": 749497,
+      "userId": 648361
     }
   ],
   "trash": [],

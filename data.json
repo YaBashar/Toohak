@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "userId": 830564,
+      "userId": 803689,
       "name": "sidak singh",
       "email": "z5525050@unsw.edu.au",
       "password": "123ABCabc@#$",
@@ -14,22 +14,65 @@
   ],
   "quizzes": [
     {
-      "quizId": 1721888382918,
+      "quizId": 1721878444319,
       "name": "quizName",
       "description": "description",
-      "timeCreated": 1721888382,
-      "timeLastEdited": 1721888382,
+      "timeCreated": 1721878444,
+      "timeLastEdited": 1721878444,
       "numQuestions": 0,
-      "questions": [],
+      "questions": [
+        {
+          "questionId": 1721878444323,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "Prince Charles",
+              "correct": false
+            },
+            {
+              "answer": "Prince is not Charles",
+              "correct": true
+            },
+            {
+              "answer": "Prince is Beckham",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": ""
+        },
+        {
+          "questionId": 618757,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "Prince Charles",
+              "correct": false
+            },
+            {
+              "answer": "Prince is not Charles",
+              "correct": true
+            },
+            {
+              "answer": "Prince is Beckham",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": ""
+        }
+      ],
       "duration": 0,
-      "userId": 830564,
+      "userId": 803689,
       "thumbnailUrl": ""
     }
   ],
   "sessions": [
     {
-      "sessionId": 58019,
-      "userId": 830564
+      "sessionId": 188622,
+      "userId": 803689
     }
   ],
   "trash": []

@@ -487,7 +487,6 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
     const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
     res.status(200).json(result);
   } catch (error) {
-    console.error('Error caught in route:', error);
     if (error instanceof Error) {
       if (error.message === 'Invalid User id') {
         return res.status(401).json({ error: error.message });
@@ -512,9 +511,9 @@ app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
   }
 
-  const version = '/v1';
+  const isVersion2 = false;
   try {
-    const quizInfo = adminQuizInfo(userId, quizId, version);
+    const quizInfo = adminQuizInfo(userId, quizId, isVersion2);
     res.status(200).json(quizInfo);
   } catch (error) {
     if (error instanceof Error) {
@@ -538,9 +537,9 @@ app.get('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
     return res.status(401).json({ error: 'Invalid token' }); // Updated to return a proper JSON object
   }
 
-  const version = '/v2';
+  const isVersion2 = true;
   try {
-    const quizInfo = adminQuizInfo(userId, quizId, version);
+    const quizInfo = adminQuizInfo(userId, quizId, isVersion2);
     res.status(200).json(quizInfo);
   } catch (error) {
     if (error instanceof Error) {

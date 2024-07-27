@@ -25,6 +25,7 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
+import { gameUpdateQuizSessionState } from './game';
 
 // Set up app
 const app = express();
@@ -707,6 +708,31 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
       return res.status(403).json({ error: error.message });
     } else {
       return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+// gameQuizSessionUpdate
+app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const gameId = parseInt(req.params.sessionid as string);
+  const { action } = req.body;
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' || error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
 });

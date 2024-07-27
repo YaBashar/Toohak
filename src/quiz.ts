@@ -480,3 +480,43 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
 
   return {};
 }
+
+/** [11] adminQuizUpdateThumbnail
+ * 
+ *  Updates the thumbnial of a quiz
+ * 
+ * @param {number} token 
+ * @param {number} quizId 
+ * @param {string} thumbnailUrl 
+ * @returns {} - empty object if successfull
+ */
+export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnailUrl: string): Record<string, never> | ErrorResponse {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+    throw new Error('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+  }
+  if (!thumbnailUrl.match(/^https?:\/\//)) {
+    throw new Error('The thumbnailUrl does not begin with http:// or https://');
+  }
+
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+  setData(store);
+  return {};
+}

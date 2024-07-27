@@ -23,13 +23,13 @@ const moveQuizToTrash = (token: string, quizId: number) => {
 };
 
 const restoreQuiz = (token: string, quizId: number) => {
-    const res = request(
-      'POST',
+  const res = request(
+    'POST',
       `${SERVER_URL}/v2/admin/quiz/${quizId}/restore`,
       { headers: { token }, json: {} }
-    );
-    return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-  };
+  );
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+};
 
 /// /////////////////////////////////////////////////////////////
 beforeEach(() => {

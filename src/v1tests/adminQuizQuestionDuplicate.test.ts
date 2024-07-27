@@ -167,6 +167,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const quizDuplicate = requestDuplicateQuestion(token, quizId, questionId);
       const questId = JSON.parse(quizDuplicate.body.toString()).newQuestionId;
       const info = quizInfo(token, quizId);
+      console.log(info);
       expect(info).toStrictEqual(
         {
           quizId: quizId,
@@ -218,7 +219,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
             }
 
           ],
-          duration: expect.any(Number)
+          duration: expect.any(Number),
         }
       );
     });

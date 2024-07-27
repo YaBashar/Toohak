@@ -43,23 +43,26 @@ import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, is
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(token: number): {quizzes: QuizList[]} | ErrorResponse {
+export function adminQuizList(token: number): { quizzes: QuizList[] } | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    return { error: 'invalid user id' };
-  }
-  const result: QuizList[] = [];
+  try {
+    const user = data.users.find(user => user.userId === token);
 
-  const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
-  for (const item of userQuizzes) {
-    result.push({
+    if (!user) {
+      throw new Error('invalid user id');
+    }
+
+    const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
+    const result: QuizList[] = userQuizzes.map(item => ({
       quizId: item.quizId,
       name: item.name
-    });
+    }));
+
+    return { quizzes: result };
+  } catch (error) {
+    return { error: (error as Error).message };
   }
-  return { quizzes: result };
 }
 
 /** [2] adminQuizCreate
@@ -90,20 +93,20 @@ export function adminQuizCreate(token: number, name: string, description: string
     ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   for (let i = 0; i < specialChars.length; i++) {
     if (name.includes(specialChars[i])) {
-      return { error: 'Name contains invalid characters' };
+      throw new Error('Name contains invalid characters');
     }
   }
   if (name.length < 3) {
-    return { error: 'name is less than 3 characters' };
+    throw new Error('name is less than 3 characters');
   }
   if (name.length > 30) {
-    return { error: 'name is more than 30 characters' };
+    throw new Error('name is more than 30 characters');
   }
   if (description.length > 100) {
-    return { error: 'Description is more than 100 characters in length' };
+    throw new Error('Description is more than 100 characters in length');
   }
   if (quizArr.find((quiz) => quiz.name === name && quiz.userId === token)) {
-    return { error: 'Name is already used by current logged in user' };
+    throw new Error('Name is already used by current logged in user');
   }
 
   const id = uniqueQuizId(quizArr);
@@ -117,6 +120,7 @@ export function adminQuizCreate(token: number, name: string, description: string
     questions: [],
     duration: 0,
     userId: token,
+    thumbnailUrl: ''
   };
   store.quizzes.push(quiz);
   setData(store);
@@ -151,13 +155,13 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   const user = userArray.find((user) => { return user.userId === token; });
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
-    return { error: 'Invalid user id' };
+    throw new Error('Invalid user id');
   }
   if (!quiz) {
-    return { error: 'Invalid quiz Id entered' };
+    throw new Error('Invalid quiz Id entered');
   }
   if (quiz.userId !== token) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
 
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
@@ -168,7 +172,6 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   setData(store);
   return {};
 }
-
 /** [4] adminQuizInfo
   *
   * Gets all of the relevant information about the current quiz.
@@ -187,7 +190,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorResponse {
+export function adminQuizInfo(token: number, quizId: number, isVersion2: boolean): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -207,18 +210,34 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
 
   const filteredQuestions = quiz.questions.filter(q => q !== null);
   const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
+  let quizInfo: QuizInfo;
 
-  const quizInfo: QuizInfo = {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description,
-    // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length,
-    questions: filteredQuestions,
-    duration: totalDuration
-  };
+  if (isVersion2) {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+      thumbnailUrl: quiz.thumbnailUrl
+    };
+  } else {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+    };
+  }
 
   return quizInfo;
 }
@@ -425,7 +444,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
       }
     }
     store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
-    setData(store); 
+    setData(store);
     return {};
   } catch (error) {
     if (error instanceof Error) {

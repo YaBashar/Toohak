@@ -5,7 +5,8 @@ let data: Store = {
   users: [],
   quizzes: [],
   sessions: [],
-  trash: []
+  trash: [],
+  games: [],
 };
 
 // Load data from file on startup

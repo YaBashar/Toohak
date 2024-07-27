@@ -94,7 +94,7 @@ interface Results {
   percentageCorrect: number
 }
 
-interface Game {
+export interface Game {
   sessionId: number,
   status: States,
   quizId: number,

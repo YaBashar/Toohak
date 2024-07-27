@@ -73,7 +73,6 @@ describe('adminQuizInfo Tests', () => {
 
     test('Successfully Returned quizInfo', () => {
       const quizInfo = requestQuizInfo(token, quizId);
-      console.log(JSON.parse(quizInfo.body.toString()));
       expect(JSON.parse(quizInfo.body.toString())).toStrictEqual(
         {
           quizId: quizId,

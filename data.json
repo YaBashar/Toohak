@@ -1,82 +1,48 @@
-<<<<<<< HEAD
 {
   "users": [
     {
-      "userId": 803689,
-      "name": "sidak singh",
-      "email": "z5525050@unsw.edu.au",
-      "password": "123ABCabc@#$",
+      "userId": 962953,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
       "numSuccessfulLogins": 1,
       "numFailedPasswordsSinceLastLogin": 0,
       "passwordHistory": [
-        "123ABCabc@#$"
+        "abcd1234!@#$ABCD"
       ]
     }
   ],
   "quizzes": [
     {
-      "quizId": 1721878444319,
-      "name": "quizName",
-      "description": "description",
-      "timeCreated": 1721878444,
-      "timeLastEdited": 1721878444,
+      "quizId": 1722083745959,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1722083745,
+      "timeLastEdited": 1722083745,
       "numQuestions": 0,
-      "questions": [
-        {
-          "questionId": 1721878444323,
-          "question": "Who is the Monarch of England?",
-          "duration": 4,
-          "points": 5,
-          "answers": [
-            {
-              "answer": "Prince Charles",
-              "correct": false
-            },
-            {
-              "answer": "Prince is not Charles",
-              "correct": true
-            },
-            {
-              "answer": "Prince is Beckham",
-              "correct": false
-            }
-          ],
-          "thumbnailUrl": ""
-        },
-        {
-          "questionId": 618757,
-          "question": "Who is the Monarch of England?",
-          "duration": 4,
-          "points": 5,
-          "answers": [
-            {
-              "answer": "Prince Charles",
-              "correct": false
-            },
-            {
-              "answer": "Prince is not Charles",
-              "correct": true
-            },
-            {
-              "answer": "Prince is Beckham",
-              "correct": false
-            }
-          ],
-          "thumbnailUrl": ""
-        }
-      ],
+      "questions": [],
       "duration": 0,
-      "userId": 803689,
+      "userId": 962953,
+      "thumbnailUrl": ""
+    },
+    {
+      "quizId": 1722083745961,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1722083745,
+      "timeLastEdited": 1722083745,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 962953,
       "thumbnailUrl": ""
     }
   ],
   "sessions": [
     {
-      "sessionId": 188622,
-      "userId": 803689
+      "sessionId": 329937,
+      "userId": 962953
     }
   ],
   "trash": []
 }
-=======
->>>>>>> e79f2198182eb79d169694b36de87bd18e8e883e

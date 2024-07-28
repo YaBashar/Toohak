@@ -78,8 +78,8 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
     sessionId: newSessId,
     status: States.LOBBY,
     quizId: quiz.quizId,
-    players: players,
     autoStartNum: autoStartNum,
+    players: players,
     activeQuestion: 0,
     questionResults: results,
   };

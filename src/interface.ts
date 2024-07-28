@@ -99,8 +99,8 @@ export interface Game {
   sessionId: number,
   status: States,
   quizId: number,
-  players: Player[],
   autoStartNum: number,
+  players: Player[],
   activeQuestion: number,
   questionResults: Results[],
 }

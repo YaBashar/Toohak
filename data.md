@@ -60,7 +60,8 @@ const data = {
       status: LOBBY, 
       quizId: 48793,
       autoNumStart: 3,                         // eg auto start game when 3 players join
-      players: [],                             // no players joined yet
+      players: [], 
+      numQuestions: 2,                        
       activeQuestion: 0,                       // no active question yet
       questionResults: [                       // session create will set this up for each q in quiz
         {
@@ -86,18 +87,17 @@ const data = {
         {
           playerId: 3456,
           name: 'player one',
-          numQuestions: 3,                     // ie there are three questions in this quiz
           atQuestion: 2                        // player answering question 2 (starts from 1)
           points: 7                            // current total points
         },
         {
           playerId: 3456,
-          name: 'player two',
-          numQuestions: 5,                   
+          name: 'player two',    
           atQuestion: 2                        
           points: 13,                                      
         },      
       ],
+      numQuestions: 3,                          // ie there are three questions in this quiz
       activeQuestion: 54798754                 // questionId of current question. matches q2
       questionResults: [
         {

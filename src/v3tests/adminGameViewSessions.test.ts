@@ -81,7 +81,7 @@ const requestCreateSession = (token: string, quizid: number, autoStartNum: numbe
   const sessId = (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
     headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
   }));
-  return JSON.parse(sessId.body.toString());
+  return JSON.parse(sessId.body.toString()).sessionId;
 };
 
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {

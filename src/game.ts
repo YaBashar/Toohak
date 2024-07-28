@@ -116,9 +116,29 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
 
 // /v1/admin/quiz/{quizid}/sessions
-export function adminGameViewSessions(quizId: number) {
+export function adminGameViewSessions(userId: number, quizId: number) {
+  const quiz = getData().quizzes.find(x => x.quizId === quizId);
+  const gameArr = getData().games;
 
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  } else if (quiz.userId !== userId) {
+    throw new Error('User is not an owner of this quiz.');
+  }
 
+  const active: Number[] = [];
+  const inactive: Number[] = [];
 
-  
+  for (let sess of gameArr) {
+    if (sess.status === States.END) {
+      inactive.push(sess.sessionId);
+    } else{
+      active.push(sess.sessionId);
+    }
+  }
+ 
+  return {
+    activeSessions: active,
+    inactiveSessions: inactive
+  };
 }

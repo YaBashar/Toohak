@@ -29,8 +29,8 @@ const createQuiz = (token: string, name: string, description: string) => {
 const quizDescriptionUpdate = (token: string, quizId: number, description: string) => {
   const res = request(
     'PUT',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}/description`,
-    { json: { token, description } }
+    `${SERVER_URL}/v2/admin/quiz/${quizId}/description`,
+    { headers: { token }, json: { description } }
   );
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
@@ -118,7 +118,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'Toohak Javascript Quiz 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number),
+        duration: expect.any(Number)
       });
     });
 
@@ -135,7 +135,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'QUIZ 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number),
+        duration: expect.any(Number)
       });
     });
 
@@ -153,7 +153,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: longDescription,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number),
+        duration: expect.any(Number)
       });
     });
 
@@ -171,7 +171,7 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: description,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number),
+        duration: expect.any(Number)
       });
     });
   });

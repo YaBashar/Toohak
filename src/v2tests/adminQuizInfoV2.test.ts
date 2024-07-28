@@ -15,13 +15,13 @@ const createUser = (email: string, password: string, firstName: string, lastName
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description } });
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description } });
   return JSON.parse(res.body.toString());
 };
 
 const requestQuizInfo = (token : string, quizId : number) => {
-  return (request('GET', SERVER_URL + `/v1/admin/quiz/${quizId}`, { qs: { token: token } }));
+  return (request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } }));
 };
 /// /////////////////////////////////////////////////////////////
 
@@ -83,6 +83,7 @@ describe('adminQuizInfo Tests', () => {
           numQuestions: expect.any(Number),
           questions: expect.any(Array),
           duration: expect.any(Number),
+          thumbnailUrl: expect.any(String)
         }
       );
       expect(quizInfo.statusCode).toStrictEqual(200);

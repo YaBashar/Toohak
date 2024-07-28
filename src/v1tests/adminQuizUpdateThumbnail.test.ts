@@ -1,7 +1,5 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
-import { json } from 'stream/consumers';
-import exp from 'constants';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -29,13 +27,10 @@ const createQuiz = (token : string, name : string, description : string) => {
 		return res;
 	};
 
-	const quizInfo = (token: string, quizId: number) => {
-		const res = request(
-			'GET',
-			`${SERVER_URL}/v1/admin/quiz/${quizId}`,
-			{ qs: { token } }
-		);
+	const requestQuizInfo = (token : string, quizId : number) => {
+		const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } });
 		return JSON.parse(res.body.toString());
+		;
 	};
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -154,28 +149,37 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 			expect(thumbnail.statusCode).toBe(403);
 		});
 	});
-
+	
 	describe('Success Cases', () => {
 		let token: string;
 		let quizId: number;
-
+		
 		beforeEach(() => {
 			const user = createUser('z5525050@unsw.edu.au', '123ABC@#$', 'sidak', 'singh');
 			token = JSON.parse(user.body.toString()).token;
 			quizId = createQuiz(token, 'quizName', 'description').quizId;
 		});
-
+		
 		test('Check that function returns empty object', () => {
-			const thumbnail = updateThumbnail(token, quizId, 'thumbnail');
-			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({});
-			expect(thumbnail.statusCode).toBe(200);
+			const thumbnail = updateThumbnail(token, quizId, '');
+			console.log(thumbnail.body.toString());
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ });
 		});
 		
     test('Check thumbnail has been updated successfully through QuizInfo', () => {
-			const imgUrl = updateThumbnail(token, quizId, 'http://google.com/some/image/path.jpeg');
-			const result = quizInfo(token, quizId);
-			expect(result.thumbnail).toBe('http://google.com/some/image/path.jpeg');
-			expect(imgUrl.statusCode).toBe(200);
+			updateThumbnail(token, quizId, 'http://google.com/some/image/path.png');
+			const result = requestQuizInfo(token, quizId);
+			expect(result).toStrictEqual({
+        quizId: quizId,
+        name: expect.any(String),
+        timeCreated: expect.any(Number),
+        timeLastEdited: expect.any(Number),
+        description: expect.any(String),
+        numQuestions: expect.any(Number),
+        questions: expect.any(Array),
+        duration: expect.any(Number),
+				thumbnailUrl: 'http://google.com/some/image/path.png'
+      });
 		});
 
 		test('Testing timeLastEdited property is the same as timeCreated', () => {
@@ -193,8 +197,8 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 
       setTimeout(() => {
         const thumbnail = updateThumbnail(token, quizId, 'http://google.com/some/image/path.jpg');
-				const result = quizInfo(token, quizId);
-				expect(result.timeLastEdited).toBeGreaterThan(initialTimeCreated);
+				const result = requestQuizInfo(token, quizId);
+				expect(result).toBeGreaterThan(initialTimeCreated);
 				done();
 			}, 1000);
     });

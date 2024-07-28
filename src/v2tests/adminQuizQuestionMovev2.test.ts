@@ -86,6 +86,10 @@ beforeEach(() => {
   ]);
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
   test('Question id does not exist', () => {
     const res = moveQuestion(token, quiz1Id, '55', 2);

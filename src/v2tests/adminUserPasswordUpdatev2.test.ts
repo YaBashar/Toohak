@@ -26,6 +26,10 @@ beforeEach(() => {
   token = user.body.token;
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('PUT /v2/admin/user/password', () => {
   // Old password is not correct
   test('Incorrect password', () => {

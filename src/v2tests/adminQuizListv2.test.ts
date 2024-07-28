@@ -33,6 +33,10 @@ beforeEach(() => {
   token = user.body.token;
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('GET /v1/admin/quiz/list', () => {
   // AuthUserId isn't valid
   test('Invalid AuthUserId', () => {

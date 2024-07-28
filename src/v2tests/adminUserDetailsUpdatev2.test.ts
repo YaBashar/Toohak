@@ -25,6 +25,10 @@ beforeEach(() => {
   token = user.body.token;
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('PUT /v2/admin/user/details', () => {
   // Email is currently used by another user (excluding the current authorised user)
   test('Email is already used by another user', () => {

@@ -83,7 +83,6 @@ export interface ErrorResponse {
 export interface Player {
   playerId: number,
   name: string,
-  numQuestions: number,
   atQuestion: number,
   points: number,
 }
@@ -101,6 +100,7 @@ export interface Game {
   quizId: number,
   autoStartNum: number,
   players: Player[],
+  numQuestions: number,
   activeQuestion: number,
   questionResults: Results[],
 }

@@ -54,7 +54,7 @@ test('Session is not in LOBBY state', () => {
 
 
 // HELPER FUNCTIONS
-const requestPlayerJoin = (sessionId: number, name: string) {
+const requestPlayerJoin = (sessionId: number, name: string) => {
   return (request('POST', SERVER_URL + '/v1/player/join', {
     json: { sessionId, name }, timeout: TIMEOUT_MS
   }));

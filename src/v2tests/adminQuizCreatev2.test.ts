@@ -35,6 +35,10 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('POST /v2/admin/quiz', () => {
   let token: string;
 

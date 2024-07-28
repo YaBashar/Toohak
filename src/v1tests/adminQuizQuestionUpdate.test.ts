@@ -73,6 +73,10 @@ beforeEach(() => {
   question1Quiz2Id = JSON.parse(question1Quiz2.body.toString()).questionid;
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid', () => {
   test('Question id does not exist', () => {
     const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quiz1Id}/question/${55}`, {

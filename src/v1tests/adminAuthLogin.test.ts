@@ -11,6 +11,10 @@ beforeEach(() => {
   uid = requestAuthRegister('zid@unsw.edu.au', 'abcd1234', 'first', 'last');
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('Testing login error cases', () => {
   // Email address does not exist.
   test('Email address does not exist', () => {

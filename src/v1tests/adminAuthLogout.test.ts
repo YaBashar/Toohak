@@ -10,6 +10,10 @@ beforeEach(() => {
   token = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('Testing logout error cases', () => {
   test('Invalid token', () => {
     const res = requestAuthLogout('invalid token');

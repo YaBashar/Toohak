@@ -53,6 +53,10 @@ beforeEach(() => {
   clear();
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('adminQuizDescriptionUpdate Tests', () => {
   describe('Error Cases', () => {
     let token: string;

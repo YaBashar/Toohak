@@ -1,0 +1,49 @@
+{
+  "users": [
+    {
+      "userId": 445571,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234!@#$ABCD"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722136171288,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1722136171,
+      "timeLastEdited": 1722136171,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 445571,
+      "thumbnailUrl": ""
+    },
+    {
+      "quizId": 1722136171290,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1722136171,
+      "timeLastEdited": 1722136171,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 445571,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 584726,
+      "userId": 445571
+    }
+  ],
+  "trash": [],
+  "games": []
+}

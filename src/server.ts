@@ -929,8 +929,6 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   }
 });
 
-/// ////////////////////////////////////////////////////////////////////////////
-
 // adminQuizUpdateThumbnail
 app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   try {
@@ -957,8 +955,6 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
     }
   }
 });
-
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

@@ -190,7 +190,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorResponse {
+export function adminQuizInfo(token: number, quizId: number, isVersion2: boolean): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -211,18 +211,34 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | ErrorRe
   const filteredQuestions = quiz.questions.filter(q => q !== null);
   const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
 
-  const quizInfo: QuizInfo = {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description,
-    // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length,
-    questions: filteredQuestions,
-    duration: totalDuration
-  };
+  let quizInfo: QuizInfo;
 
+  if (isVersion2) {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+      thumbnailUrl: quiz.thumbnailUrl
+    };
+  } else {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+    };
+  }
   return quizInfo;
 }
 
@@ -293,24 +309,24 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   const quizArr = store.quizzes;
   const user = userArr.find((user) => user.userId === token);
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   }
 
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   if (!quiz) {
-    return { error: 'Quiz Id not found' };
+    throw new Error('Quiz Id not found');
   }
 
   if (quiz.userId !== token) {
-    return { error: 'This Quiz Id does not refer to a quiz that this user owns' };
+    throw new Error('This Quiz Id does not refer to a quiz that this user owns');
   }
 
   if (description.length === 0) {
-    return { error: 'Quiz description cannot be empty' };
+    throw new Error('Quiz description cannot be empty');
   }
 
   if (description.length > MAX_DESCRIPTION_LENGTH) {
-    return { error: 'Quiz description is more than 100 characters in length' };
+    throw new Error('Quiz description is more than 100 characters in length');
   }
 
   quiz.description = description;
@@ -482,12 +498,12 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
 }
 
 /** [11] adminQuizUpdateThumbnail
- * 
+ *
  *  Updates the thumbnial of a quiz
- * 
- * @param {number} token 
- * @param {number} quizId 
- * @param {string} thumbnailUrl 
+ *
+ * @param {number} token
+ * @param {number} quizId
+ * @param {string} thumbnailUrl
  * @returns {} - empty object if successfull
  */
 export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnailUrl: string): Record<string, never> | ErrorResponse {
@@ -495,7 +511,7 @@ export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnai
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const quiz = findQuizById(quizId, quizArr);
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = findUserByToken(token, userArr);
   const quizUser = checkQuizOwnership(token, quizArr);
 
@@ -503,7 +519,7 @@ export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnai
     throw new Error('Invalid User id');
   }
   if (!quiz) {
-    throw new Error('Invalid Quiz id');
+    throw new Error('Invalid Quiz Id');
   }
   if (!quizUser) {
     throw new Error('Quiz Id not owned by the user');
@@ -514,7 +530,6 @@ export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnai
   if (!thumbnailUrl.match(/^https?:\/\//)) {
     throw new Error('The thumbnailUrl does not begin with http:// or https://');
   }
-
   quiz.thumbnailUrl = thumbnailUrl;
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(store);

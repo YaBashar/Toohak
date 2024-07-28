@@ -100,6 +100,7 @@ export interface Game {
   status: States,
   quizId: number,
   players: Player[],
+  autoStartNum: number,
   activeQuestion: number,
   questionResults: Results[],
 }

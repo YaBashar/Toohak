@@ -25,8 +25,8 @@ const createQuiz = (token : string, name : string, description : string) => {
 const quizList = (token: string) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/list`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/list`,
+    { headers: { token } }
   );
   return res;
 };
@@ -35,7 +35,7 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('POST /v1/admin/quiz', () => {
+describe('POST /v2/admin/quiz', () => {
   let token: string;
 
   beforeEach(() => {

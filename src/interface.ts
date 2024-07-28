@@ -51,7 +51,7 @@ export interface Quiz {
   questions: Question[],
   duration: number,
   userId: number
-  thumbnailUrl: string
+  thumbnailUrl?: string
 }
 
 export interface QuizList {
@@ -68,6 +68,7 @@ export interface QuizInfo {
   numQuestions: number,
   questions: Question[];
   duration : number
+  thumbnailUrl? : string
 }
 
 export interface Session {

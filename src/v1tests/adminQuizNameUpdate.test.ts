@@ -148,7 +148,7 @@ describe('adminQuizNameUpdate Tests', () => {
         description: 'description',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
 

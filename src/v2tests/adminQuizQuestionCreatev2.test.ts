@@ -5,17 +5,17 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // wrapper functions
-const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
-  });
-  return JSON.parse(res.body.toString());
-};
-
 const createUser = (email: string, password: string, firstName: string, lastName: string) => {
   return request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst: firstName, nameLast: lastName }
   });
+};
+
+const createQuiz = (token : string, name : string, description : string) => {
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { token, name, description }
+  });
+  return JSON.parse(res.body.toString());
 };
 
 const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {

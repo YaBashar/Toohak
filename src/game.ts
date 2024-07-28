@@ -89,7 +89,6 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   return { sessionId: newSessId };
 }
 
-
 export function adminGamePlayerJoin(sessionId: number, name: string) {
   const session = getData().games.find(x => x.sessionId === sessionId);
 
@@ -109,5 +108,5 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
     points: 0,
   });
 
-  return {playerId: newPlayerId };
-};
+  return { playerId: newPlayerId };
+}

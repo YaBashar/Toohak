@@ -27,7 +27,7 @@ test('Name of user entered is not unique', () => {
   const res = requestPlayerJoin(sessionId, 'first last');
   const data = JSON.parse(res.body.toString());
 
-  expect(data).toStrictEqual({error: expect.any(String)});
+  expect(data).toStrictEqual({ error: expect.any(String) });
   expect(res.statusCode).toStrictEqual(400);
 });
 
@@ -35,7 +35,7 @@ test('SessionId does not refer to a valid session', () => {
   const res = requestPlayerJoin(sessionId + 1, 'first last');
   const data = JSON.parse(res.body.toString());
 
-  expect(data).toStrictEqual({error: expect.any(String)});
+  expect(data).toStrictEqual({ error: expect.any(String) });
   expect(res.statusCode).toStrictEqual(400);
 });
 
@@ -47,18 +47,16 @@ test('Session is not in LOBBY state', () => {
   const res = requestPlayerJoin(sessionId, 'player four');
   const data = JSON.parse(res.body.toString());
 
-  expect(data).toStrictEqual({error: expect.any(String)});
+  expect(data).toStrictEqual({ error: expect.any(String) });
   expect(res.statusCode).toStrictEqual(400);
 });
-
-
 
 // HELPER FUNCTIONS
 const requestPlayerJoin = (sessionId: number, name: string) => {
   return (request('POST', SERVER_URL + '/v1/player/join', {
     json: { sessionId, name }, timeout: TIMEOUT_MS
   }));
-}
+};
 
 const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
   const sessId = (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
@@ -66,21 +64,21 @@ const requestCreateSession = (token: string, quizid: number, autoStartNum: numbe
   }));
   return JSON.parse(sessId.body.toString());
 };
-  
+
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const uid = (request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
   }));
   return JSON.parse(uid.body.toString()).token;
 };
-  
+
 const requestCreateQuiz = (token: string, name : string, description : string) => {
   const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
     json: { token, name, description }, timeout: TIMEOUT_MS
   }));
   return JSON.parse(quiz.body.toString()).quizId;
 };
-  
+
 const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
   return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
     json: {

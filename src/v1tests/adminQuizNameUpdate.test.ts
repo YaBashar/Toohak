@@ -12,6 +12,10 @@ const createUser = (email: string, password: string, firstName: string, lastName
   ));
 };
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',

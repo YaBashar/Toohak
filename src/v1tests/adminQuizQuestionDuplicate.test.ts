@@ -49,6 +49,10 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('adminQuizQuestionDuplicate Tests', () => {
   describe('Error Cases', () => {
     let token : string;
@@ -167,7 +171,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const quizDuplicate = requestDuplicateQuestion(token, quizId, questionId);
       const questId = JSON.parse(quizDuplicate.body.toString()).newQuestionId;
       const info = quizInfo(token, quizId);
-      console.log(info);
       expect(info).toStrictEqual(
         {
           quizId: quizId,

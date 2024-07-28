@@ -8,6 +8,10 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 /// ////////////////////////////////////////////////////////////////////////////
 
 describe('Testing email address input', () => {

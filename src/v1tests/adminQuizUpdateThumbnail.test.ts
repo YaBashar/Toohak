@@ -23,7 +23,7 @@ const createQuiz = (token : string, name : string, description : string) => {
 	};
 
 	const updateThumbnail = (token: string, quizId: number, thumbnail: string) => {
-		const res = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, 
+		const res = request('PUT', SERVER_URL + `/v1/admin/quiz/${quizId}/thumbnail`, 
 		{ headers: { token }, json: { thumbnail }, timeout: TIMEOUT_MS
 		});
 		return res;
@@ -49,7 +49,7 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 		let quizId: number;
 	
 		beforeEach(() => {
-			const user = createUser('z5525050@unsw.edu.au', '123@#$', 'sidak', 'singh');
+			const user = createUser('z5525050@unsw.edu.au', '123ABX@#$', 'sidak', 'singh');
 			token = JSON.parse(user.body.toString()).token;
 			quizId = createQuiz(token, 'quizName', 'description').quizId;
 		});
@@ -90,7 +90,7 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 			}
 		])('Check fail for invalid thumbnail', ({ imgUrl, errorMessage }) => {
 			const thumbnail = updateThumbnail(token, quizId, imgUrl);
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual(errorMessage);
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: errorMessage });
 			expect(thumbnail.statusCode).toBe(400);
 		});
 	
@@ -126,31 +126,31 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 			}
 		])('Check fail for invalid thumbnail', ({ imgUrl, errorMessage }) => {
 			const thumbnail = updateThumbnail(token, quizId, imgUrl);
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual(errorMessage);
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: expect.any(String) });
 			expect(thumbnail.statusCode).toBe(400);
 		});
 	
 		test('Token is empty', () => {
 			const thumbnail = updateThumbnail('', quizId, 'https://google.com/some/image/path.jpg');
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual({ error: expect.any(String) });
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: expect.any(String) });
 			expect(thumbnail.statusCode).toBe(401);
 		});
 	
 		test('Token is invalid', () => {
 			const thumbnail = updateThumbnail('invalidToken', quizId, 'http://google.com/some/image/path.jpg');
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual({ error: expect.any(String) });
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: expect.any(String) });
 			expect(thumbnail.statusCode).toBe(401);
 		});
 	
 		test('Invalid Quiz Id', () => {
 			const thumbnail = updateThumbnail(token, quizId + 1, 'http://google.com/some/image/path.png');
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual({ error: expect.any(String) });
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: expect.any(String) });
 			expect(thumbnail.statusCode).toBe(403);
 		});
 	
 		test('Quiz Id does not refer to a quiz that this user owns', () => {
 			const thumbnail = updateThumbnail(token, quizId + 1, 'http://google.com/some/image/path.png');
-			expect(JSON.parse(thumbnail.body.toString()).error).toEqual({ error: expect.any(String) });
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({ error: expect.any(String) });
 			expect(thumbnail.statusCode).toBe(403);
 		});
 	});
@@ -160,14 +160,14 @@ describe('PUT /v1/admin/quiz/:quizid/thumbnail', () => {
 		let quizId: number;
 
 		beforeEach(() => {
-			const user = createUser('z5525050@unsw.edu.au', '123@#$', 'sidak', 'singh');
+			const user = createUser('z5525050@unsw.edu.au', '123ABC@#$', 'sidak', 'singh');
 			token = JSON.parse(user.body.toString()).token;
 			quizId = createQuiz(token, 'quizName', 'description').quizId;
 		});
 
 		test('Check that function returns empty object', () => {
 			const thumbnail = updateThumbnail(token, quizId, 'thumbnail');
-			expect(JSON.parse(thumbnail.body.toString())).toEqual({});
+			expect(JSON.parse(thumbnail.body.toString())).toStrictEqual({});
 			expect(thumbnail.statusCode).toBe(200);
 		});
 		

@@ -20,7 +20,7 @@ and update information regarding quizzes.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse, Question } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
@@ -490,7 +490,7 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
  * @param {string} thumbnailUrl 
  * @returns {} - empty object if successfull
  */
-export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnailUrl: string): Record<string, never> | ErrorResponse {
+export function adminQuizUpdateThumbnail(token: number, quizId: number, question: Question): Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -503,19 +503,21 @@ export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnai
     throw new Error('Invalid User id');
   }
   if (!quiz) {
-    throw new Error('Invalid Quiz id');
+    throw new Error('Invalid Quiz Id');
   }
   if (!quizUser) {
     throw new Error('Quiz Id not owned by the user');
   }
-  if (!thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
-    throw new Error('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
-  }
-  if (!thumbnailUrl.match(/^https?:\/\//)) {
-    throw new Error('The thumbnailUrl does not begin with http:// or https://');
+  if (question.thumbnailUrl) {
+    if (!question.thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+      throw new Error('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+    }
+    if (!question.thumbnailUrl.match(/^https?:\/\//)) {
+      throw new Error('The thumbnailUrl does not begin with http:// or https://');
+    }
   }
 
-  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.thumbnailUrl = question.thumbnailUrl;
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
   setData(store);
   return {};

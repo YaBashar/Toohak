@@ -41,6 +41,7 @@ export function clear (): Record<string, never> {
   store.quizzes = [];
   store.sessions = [];
   store.trash = [];
+  store.games = [];
 
   setData(store);
   return {};

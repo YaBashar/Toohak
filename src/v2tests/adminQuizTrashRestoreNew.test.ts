@@ -26,9 +26,10 @@ const moveQuizToTrash = (token: string, quizId: number) => {
 const restoreQuiz = (token: string, quizId: number) => {
   const res = request(
     'POST',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/restore`,
-    { json: { token } });
-  return JSON.parse(res.body.toString());
+      `${SERVER_URL}/v2/admin/quiz/${quizId}/restore`,
+      { headers: { token }, json: {} }
+  );
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
 /// /////////////////////////////////////////////////////////////

@@ -28,6 +28,7 @@ const data = {
         question: "Who is the Monarch of England?",
         duration: 4,
         points: 5,
+        thumbnailUrl: 'https:///'
         answers: [
           {
             answerId: 2384,
@@ -58,6 +59,7 @@ const data = {
       sessionId: 453,
       status: LOBBY, 
       quizId: 48793,
+      autoNumStart: 3,                         // eg auto start game when 3 players join
       players: [],                             // no players joined yet
       activeQuestion: 0,                       // no active question yet
       questionResults: [                       // session create will set this up for each q in quiz
@@ -79,6 +81,7 @@ const data = {
     {
       sessionId: 234,
       status: QUESTION_OPEN,                   // session in the middle of a game
+      autoNumStart: 3,                         // eg auto start game when 2 players join
       players: [
         {
           playerId: 3456,
@@ -94,7 +97,7 @@ const data = {
           atQuestion: 2                        
           points: 13,                                      
         },      
-      ]
+      ],
       activeQuestion: 54798754                 // questionId of current question. matches q2
       questionResults: [
         {

@@ -51,7 +51,7 @@ export interface Quiz {
   questions: Question[],
   duration: number,
   userId: number
-  thumbnailUrl: string
+  thumbnailUrl?: string
 }
 
 export interface QuizList {
@@ -68,6 +68,7 @@ export interface QuizInfo {
   numQuestions: number,
   questions: Question[];
   duration : number
+  thumbnailUrl? : string
 }
 
 export interface Session {
@@ -79,26 +80,27 @@ export interface ErrorResponse {
   error : string
 }
 
-interface Player {
+export interface Player {
   playerId: number,
   name: string,
-  numQuestions: number,
   atQuestion: number,
   points: number,
 }
 
-interface Results {
+export interface Results {
   questionId: number,
   playersCorrectList: string[],
   averageAnswerTime: number,
   percentageCorrect: number
 }
 
-interface Game {
+export interface Game {
   sessionId: number,
   status: States,
   quizId: number,
+  autoStartNum: number,
   players: Player[],
+  numQuestions: number,
   activeQuestion: number,
   questionResults: Results[],
 }

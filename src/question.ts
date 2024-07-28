@@ -120,6 +120,9 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
     answers: question.answers,
     thumbnailUrl: question.thumbnailUrl
   };
+
+  console.log(questionBody.thumbnailUrl);
+
   quiz.questions.push(questionBody);
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);

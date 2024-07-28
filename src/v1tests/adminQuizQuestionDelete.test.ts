@@ -47,6 +47,10 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('DELETE /v1/admin/quiz/:quizid/question/:questionid', () => {
   let token1: string;
   let token2: string;

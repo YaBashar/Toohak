@@ -42,6 +42,7 @@ export enum States {
 //   INACTIVE
 // }
 
+// /v1/admin/quiz/{quizid}/session/start
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
   const gameArr = getData().games;
@@ -89,6 +90,8 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   return { sessionId: newSessId };
 }
 
+
+// /v1/player/join
 export function adminGamePlayerJoin(sessionId: number, name: string) {
   const session = getData().games.find(x => x.sessionId === sessionId);
 
@@ -109,4 +112,13 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   });
 
   return { playerId: newPlayerId };
+}
+
+
+// /v1/admin/quiz/{quizid}/sessions
+export function adminGameViewSessions(quizId: number) {
+
+
+
+  
 }

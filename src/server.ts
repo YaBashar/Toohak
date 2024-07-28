@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin
+  adminGameCreateSession, adminGamePlayerJoin, adminGameViewSessions
 } from './game';
 
 // Set up app
@@ -927,6 +927,26 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
+});
+
+
+// adminGameViewSessions
+app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
+  const quizid = parseInt(req.params.quizid as string);
+  const token = req.headers.token as string;
+  const userId = getUserIdFromToken(token);
+
+  if (userId === -1) {
+    return res.status(401).json({ error: 'Invalid Token' });
+  } 
+  
+  try {
+    const data = adminGameViewSessions(quizid);
+    res.json(data);
+  } catch (error) {
+    return res.status(403).json({error: error.message});
+  }
+
 });
 
 /// ////////////////////////////////////////////////////////////////////////////

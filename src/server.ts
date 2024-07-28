@@ -28,7 +28,7 @@ import {
 import { gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession
+  adminGameCreateSession, adminGamePlayerJoin
 } from './game';
 
 // Set up app
@@ -941,6 +941,17 @@ app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) =
     } else {
       return res.status(400).json({ error: error.message });
     }
+  }
+});
+
+// adminGamePlayerJoin
+app.post('/v1/player/join', (req: Request, res: Response) => {
+  const { sessionId, name } = req.body;
+  try {
+    const data = adminGamePlayerJoin(sessionId, name);
+    res.json(data);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 

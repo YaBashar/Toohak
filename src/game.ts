@@ -84,11 +84,34 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
     autoStartNum: autoStartNum,
     players: players,
     activeQuestion: 0,
+    numQuestions: quiz.questions.length,
     questionResults: results,
   };
 
   getData().games.push(newSession);
   return { sessionId: newSessId };
+}
+
+export function adminGamePlayerJoin(sessionId: number, name: string) {
+  const session = getData().games.find(x => x.sessionId === sessionId);
+
+  if (!session) {
+    throw new Error('SessionId does not refer to a valid session');
+  } else if (session.status !== States.LOBBY) {
+    throw new Error('Session is not in lobby state');
+  } else if (session.players.some(x => x.name === name)) {
+    throw new Error('Name has already been taken');
+  }
+
+  const newPlayerId = createDataStoreId();
+  session.players.push({
+    playerId: newPlayerId,
+    name: name,
+    atQuestion: 0,
+    points: 0,
+  });
+
+  return { playerId: newPlayerId };
 }
 
 export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {

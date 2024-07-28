@@ -20,21 +20,6 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 })
 
-/* 400 if
-- autoStartNum is a number greater than 50
-- 10 sessions that are not in END state currently exist for this quiz
-- The quiz does not have any questions in it
-- The quiz is in trash
-*/
-
-/* 401 if
-- token is empty or invalid ( does not refer to a valid logged in user session)
-*/
-
-/* 403 if
-- Valid token is provided, but user is not an owner of this quiz or quiz doesn't exist.
-*/
-
 test('Token is empty or invalid', () => {
   const res = requestCreateSession('invalid token', quizId, 3)
   const data = JSON.parse(res.body.toString());
@@ -119,8 +104,8 @@ test('Correct return object in success case', () => {
 
 // HELPER FUNCTIONS
 const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
-  return (request('POST', SERVER_URL + '/v1/admin/quiz/${quizId}/session/start', {
-    json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
+  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
+    headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
   }))
 }
 

@@ -80,7 +80,7 @@ export interface ErrorResponse {
   error : string
 }
 
-interface Player {
+export interface Player {
   playerId: number,
   name: string,
   numQuestions: number,
@@ -88,14 +88,14 @@ interface Player {
   points: number,
 }
 
-interface Results {
+export interface Results {
   questionId: number,
   playersCorrectList: string[],
   averageAnswerTime: number,
   percentageCorrect: number
 }
 
-interface Game {
+export interface Game {
   sessionId: number,
   status: States,
   quizId: number,

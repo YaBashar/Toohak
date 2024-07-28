@@ -15,6 +15,10 @@ FINAL_RESULTS: This is where the final results are displayed for all players and
 END: The game is now over and inactive.
 */
 
+import { getData } from "./dataStore";
+import { createDataStoreId } from './helper';
+import { Results, Player, Game } from './interface';
+
 export enum States {
   LOBBY,
   QUESTION_COUNTDOWN,
@@ -37,3 +41,49 @@ export enum States {
 //   ACTIVE,
 //   INACTIVE
 // }
+
+
+export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
+  const quiz = getData().quizzes.find(x => x.quizId === quizId);
+  const gameArr = getData().games;
+  const num_active = gameArr.filter(x => (x.quizId === quizId && x.status !== States.END));
+  
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  } else if (quiz.userId !== userId) {
+    throw new Error('User is not an owner of this quiz.');
+  } else if (quiz.questions.length === 0) {
+    throw new Error('Quiz does not have any questions.');
+  } else if (autoStartNum > 50 ) {
+    throw new Error('autoStartNum can not be greater than 50');
+  } else if (num_active.length >= 10 ){
+    throw new Error('10 active sessions for this quiz already exist');
+  } else if (getData().trash.some(x => x.quizId === quizId)) {
+    throw new Error('Quiz is in trash');
+  }
+
+  const newSessId = createDataStoreId();
+  const results: Results[] = [];
+  const players: Player[] = [];
+
+  for (let question of quiz.questions) {
+    results.push({
+      questionId: question.questionId,
+      playersCorrectList: [],
+      averageAnswerTime: 0,
+      percentageCorrect: 0,
+    })
+  }
+
+  const new_session: Game = {
+    sessionId: newSessId,
+    status: States.LOBBY,
+    quizId: quiz.quizId,
+    players: players,
+    activeQuestion: 0,
+    questionResults: results,
+  }
+
+  getData().games.push(new_session);
+  return { sessionId: newSessId };
+}

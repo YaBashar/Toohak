@@ -26,6 +26,10 @@ import {
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
 
+import {
+  adminGameCreateSession
+} from './game';
+
 // Set up app
 const app = express();
 // Use middleware that allows us to access the JSON body of requests
@@ -887,6 +891,31 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
       return res.status(403).json({ error: error.message });
     } else {
       return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+
+//adminGameSessionCreate
+app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const quizid = parseInt(req.params.quizid as string);
+  const { autoStartNum } = req.body;
+  const userId = getUserIdFromToken(token);
+
+  if ( userId === -1) {
+    return res.status(401).json({ error: 'Invalid Token' });
+  }
+  
+  try {
+    const data = adminGameCreateSession(userId, quizid, autoStartNum);
+    res.json(data);
+
+  } catch (error) {
+    if (error.message === 'Quiz does not exist' || error.message === 'User is not an owner of this quiz.') {
+      return res.status(403).json({error: error.message});
+    } else {
+      return res.status(400).json({error: error.message});
     }
   }
 });

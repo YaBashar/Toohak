@@ -14,20 +14,23 @@ const createUser = (email: string, password: string, firstName: string, lastName
 };
 
 const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { name, description }
   });
   return JSON.parse(res.body.toString());
 };
-const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
-  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-    json: {
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, thumbnailUrl: string, answers: object) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
       token,
+    },
+    json: {
       questionBody: {
         question,
         duration,
         points,
-        answers
+        thumbnailUrl,
+        answers,
       }
     }
   });
@@ -58,7 +61,7 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('adminQuizQuestionDuplicate Tests', () => {
+describe('adminGameSessionStatusInfo Tests', () => {
   describe('Error Cases', () => {
     let token : string;
     let quizId : number;
@@ -69,7 +72,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
 
-      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, [
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
       ]);
 
@@ -108,28 +111,21 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
-      console.log('quizId', quizId);
 
-      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, [
+      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
       ]);
 
-      questionId = JSON.parse(question.body.toString()).questionId;
+      const questionResponse = JSON.parse(question.body.toString());
+      questionId = questionResponse.questionId;
 
       const session = requestCreateSession(token, quizId, 3);
-      console.log(JSON.parse(session.body.toString()));
-      sessionId = JSON.parse(session.body.toString()).sessionId;
-      console.log(sessionId);
+      const sessionResponse = JSON.parse(session.body.toString());
+      sessionId = sessionResponse.sessionId;
     });
 
-    // Properties from QuestionCreate Still missing.
-    // Also need to know how to get atQuestion
     test('Successfully Gives Game Session Status Info', () => {
       const res = requestGameSessionInfo(token, quizId, sessionId);
-      console.log('Full Response:', JSON.stringify(res, null, 2));
-
-      // Log questions from response separately
-      console.log('Questions from Response:', JSON.stringify(res.body.metadata.questions, null, 2));
       expect(res.body).toStrictEqual(
         {
           state: expect.any(String),
@@ -148,15 +144,19 @@ describe('adminQuizQuestionDuplicate Tests', () => {
                 questionId: questionId,
                 question: 'Who is the Monarch of England?',
                 duration: 4,
-                // thumbnailUrl: '' Still undefined in question Create,
+                thumbnailUrl: expect.any(String),
                 points: 5,
                 answers: [
                   {
+                    answerId: expect.any(Number),
                     answer: 'Prince Charles',
+                    colour: expect.any(String),
                     correct: true
                   },
                   {
+                    answerId: expect.any(Number),
                     answer: 'Queen Elizabeth',
+                    colour: expect.any(String),
                     correct: false
                   }
                 ]

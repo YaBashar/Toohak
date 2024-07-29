@@ -50,10 +50,9 @@ const requestPlayerJoin = (sessionId: number, name: string) => {
 
 const requestPlayerSessionInfo = (playerId : number) => {
   return (request('GET', SERVER_URL + `/v1/player/${playerId}`, {
-    json: { playerId }, timeout: TIMEOUT_MS
+    qs: { playerId: playerId }, timeout: TIMEOUT_MS
   }));
 };
-
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -87,8 +86,10 @@ describe('adminGameSessionStatusInfo Tests', () => {
     });
 
     test('Player Id does not exist', () => {
-      const res = requestPlayerSessionInfo(playerId);
-      expect(res.body).toStrictEqual({ error: expect.any(String) });
+      const res = requestPlayerSessionInfo(playerId + 1);
+      const parse = JSON.parse(res.body.toString());
+      console.log(parse);
+      expect(parse).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(400);
     });
   });
@@ -117,7 +118,9 @@ describe('adminGameSessionStatusInfo Tests', () => {
 
     test('Gets correct information', () => {
       const res = requestPlayerSessionInfo(playerId);
-      expect(res.body).toStrictEqual(
+      const parse = JSON.parse(res.body.toString());
+      console.log(parse);
+      expect(parse).toStrictEqual(
         {
           state: expect.any(String),
           numQuestions: expect.any(Number),

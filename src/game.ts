@@ -110,3 +110,8 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
   return { playerId: newPlayerId };
 }
+
+export function adminGamePlayerSessionInfo(playerId: number) {
+  const store = getData();
+  const gameArr = store.games;
+}

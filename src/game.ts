@@ -29,18 +29,18 @@ export enum States {
   END
 }
 
-// enum Actions {
-//   NEXT_QUESTION,
-//   SKIP_COUNTDOWN,
-//   GO_TO_ANSWER,
-//   GO_TO_FINAL_RESULTS,
-//   END
-// }
+export enum Actions {
+  NEXT_QUESTION,
+  SKIP_COUNTDOWN,
+  GO_TO_ANSWER,
+  GO_TO_FINAL_RESULTS,
+  END
+}
 
-// enum Status {
-//   ACTIVE,
-//   INACTIVE
-// }
+enum Status {
+  ACTIVE,
+  INACTIVE
+}
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
@@ -110,3 +110,46 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
   return { playerId: newPlayerId };
 }
+
+export function adminQuizQuestionInfo(playerid: number, questionposition: number) {
+  const data = getData();
+  const game = data.games.find(game => game.players.some(player => player.playerId === playerid))
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+  const question = quiz.questions[questionposition];
+  const player = game.players.find(player => player.playerId === playerid);
+
+  if (!player) {
+    throw new Error('player id does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('question position is invalid');
+  }
+
+  if (game.status === States.LOBBY || game.status === States.QUESTION_COUNTDOWN || game.status === States.FINAL_RESULTS || game.status === States.END) {
+    throw new Error('session is not in correct state');
+  }
+
+  if (game.activeQuestion !== question.questionId) {
+    throw new Error('session is not currently on this question');
+  }
+
+  let answers = [];
+  for (let i = 0; i < question.answers.length; i++) {
+    answers.push({
+      answerid: question.answers[i].answerId,
+      answer: question.answers[i].answer,
+      colour: question.answers[i].colour
+    });
+  };
+
+  return {
+    questionId: question.questionId,
+    question: question.question,
+    duration: question.duration,
+    thumbnailUrl: question.thumbnailUrl,
+    points: question.points,
+    answers: answers
+  };
+};
+

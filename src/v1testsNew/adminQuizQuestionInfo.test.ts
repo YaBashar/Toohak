@@ -1,18 +1,17 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
+import { Actions } from '../game';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 let token: string;
-let quiz1Id: string;
-let quiz2Id: string;
-let question1Quiz1Id: string;
-let question1Quiz2Id: string;
-let randomToken: string;
-let randomQuizId: string;
+let quiz1Id: number;
+let question1Quiz1Id: number;
+let sessionId: number;
+let playerId: number;
 
-// wrapper functions
+// Wrapper functions
 const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst, nameLast }
@@ -34,7 +33,7 @@ const createQuiz = (token: string, name: string, description: string) => {
   return JSON.parse(res.body.toString());
 };
 
-const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
+const addQuestion = (token: string, quizId: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
   const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
     json: {
       token,
@@ -50,45 +49,38 @@ const addQuestion = (token: string, quizId: string, question: string, duration: 
   return JSON.parse(res.body.toString());
 };
 
-const questionInfo = (playerid: string, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`, {
-    json: {
-        playerid,
-        questionposition
-    }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+const questionInfo = (playerid: number, questionposition: number) => {
+  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`);
+  return JSON.parse(res.body.toString());
 };
 
-const startSession = (quizid: string, token: string, autoStartNum: number) => {
+const startSession = (quizid: number, token: string, autoStartNum: number) => {
   const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/start`, {
     headers: { token }, json: { autoStartNum }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-}
-
-const joinSession = (sessionid: string, name: string) => {
-  const res = request('POST', `${SERVER_URL}/v1/player/join`, {
-    json: {
-      sessionid,
-      name
-    }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+  });
+  return JSON.parse(res.body.toString());
 };
 
-const sessionState = (quizid: string, sessionid: string, token: string) => {
+const joinSession = (sessionId: number, name: string) => {
+  const res = request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString());
+};
+
+const sessionState = (quizid: number, sessionid: number, token: string) => {
   const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
     headers: { token }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-}
+  });
+  return JSON.parse(res.body.toString());
+};
 
-const updateState = (quizid: string, sessionid: string, token: string, action: string) => {
+const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
   const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
     headers: { token }, json: { action }
-  })
-}
+  });
+  return JSON.parse(res.body.toString());
+};
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -99,71 +91,64 @@ beforeEach(() => {
   userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD');
 
   // create a quiz
-  quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').quizId;
+  quiz1Id = (createQuiz(token, 'quiz 1', 'the first quiz')).quizId;
 
   // add a question to the quiz
-  question1Quiz1Id = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
+  question1Quiz1Id = (addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ],
     'http://google.com/some/image/path.jpg'
-    ).questionId;
-
-  // create a second quiz
-  quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').quizId;
-
-  // add a question to the second quiz
-  question1Quiz2Id = addQuestion(token, quiz2Id, 'What is 1 + 1?', 4, 5,
-    [
-      { answer: '4', correct: false },
-      { answer: '2', correct: true },
-      { answer: '11', correct: false }
-    ],
-    'http://google.com/some/image/path.jpg'
-    ).questionId;
+  )).questionId;
 
   // start session
-  sessionId = startSession(quiz1Id, token, 5).sessionId;
+  sessionId = (startSession(quiz1Id, token, 5)).sessionId;
 
   // join session
-  playerId = joinSession(sessionId, 'amelia').playerId;
+  playerId = (joinSession(sessionId, 'amelia')).playerId;
+  console.log(playerId);
 
   // change state
-  updateState(quiz1Id, sessionId, token, NEXT_QUESTION); // lobby->question countdown
-  updateState(quiz1Id, sessionId, token, SKIP_COUNTDOWN); // question countdown -> question 1 open
+  updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
+  updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
 });
 
 describe('GET /v1/player/:playerid/question/:questionposition', () => {
   test('player id does not exist', () => {
-    const res = questionInfo('999', 1)
+    const res = questionInfo(999, 1);
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('invalid question position', () => {
-    const res = questionInfo(playerId, 5)
+    const res = questionInfo(playerId, 5);
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is on a different question', () => {
-    const res = questionInfo(playerId, 2)
+    const res = questionInfo(playerId, 2);
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is in the wrong state', () => {
-    updateState(quiz1Id, sessionId, token, END)
-    const res = questionInfo(playerId, 1)
+    updateState(quiz1Id, sessionId, token, Actions.END);
+    const res = questionInfo(playerId, 1);
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('success case', () => {
-    const res = questionInfo(playerId, 1)
-    expect(res.body).toStrictEqual({ 
+    const res = questionInfo(playerId, 1);
+    console.log(res.body);
+    expect(res.body).toStrictEqual({
       questionId: question1Quiz1Id,
       question: 'Who is the Monarch of England?',
       duration: 4,
@@ -186,7 +171,7 @@ describe('GET /v1/player/:playerid/question/:questionposition', () => {
           colour: expect.any(String)
         }
       ]
-     });
+    });
     expect(res.statusCode).toBe(200);
   });
 });

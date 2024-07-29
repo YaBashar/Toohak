@@ -993,6 +993,24 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   }
 });
 
+app.get('/v1/player/:playerid/question/:questionposition', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition as string);
+
+  if (!playerid) {
+    return res.status(400).json({ error: 'invalid playerid' });
+  }
+
+  try {
+    const result = adminQuizQuestionInfo(playerid, questionposition);
+    return res.status(200).json(result);
+  } catch (error) {
+    if ('error' in result) {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+})
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

@@ -42,6 +42,12 @@ const requestCreateSession = (token: string, quizid: number, autoStartNum: numbe
   }));
 };
 
+const requestPlayerJoin = (sessionId: number, name: string) => {
+  return (request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name }, timeout: TIMEOUT_MS
+  }));
+};
+
 const requestGameSessionInfo = (token : string, quizid : number, sessionid : number) => {
   const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}`, {
     headers: { token }, json: { quizid, sessionid }
@@ -122,6 +128,10 @@ describe('adminGameSessionStatusInfo Tests', () => {
       const session = requestCreateSession(token, quizId, 3);
       const sessionResponse = JSON.parse(session.body.toString());
       sessionId = sessionResponse.sessionId;
+
+      requestPlayerJoin(sessionId, 'player one');
+      requestPlayerJoin(sessionId, 'player two');
+      requestPlayerJoin(sessionId, 'player three');
     });
 
     test('Successfully Gives Game Session Status Info', () => {

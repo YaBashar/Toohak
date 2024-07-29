@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatuInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
 } from './game';
 
 // Set up app
@@ -940,7 +940,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
   const userId = getUserIdFromToken(token);
 
   try {
-    const result = adminGameQuizSessionStatuInfo(userId, quizId, gameId);
+    const result = adminGameQuizSessionStatusInfo(userId, quizId, gameId);
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {

@@ -112,7 +112,7 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-export function adminGameQuizSessionStatuInfo(userId: number, quizId : number, sessionId : number) {
+export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, sessionId : number) {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -142,7 +142,7 @@ export function adminGameQuizSessionStatuInfo(userId: number, quizId : number, s
   const gameSessionInfo = {
     state: currentState,
     atQuestion: game.activeQuestion, // some number
-    players: game.players,
+    players: game.players.map(player => player.name),
 
     metadata: {
       quizId: quiz.quizId,

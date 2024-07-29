@@ -604,7 +604,8 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     if (userId === -1) {
       return res.status(401).json({ error: 'Invalid Token' });
     }
-    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    const isVersion2 = false;
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody, isVersion2);
     if ('error' in result) {
       throw new Error(result.error);
     }
@@ -875,10 +876,11 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     const { questionBody } = req.body;
     const quizid = parseInt(req.params.quizid as string);
     const userId = getUserIdFromToken(token);
+    const isVersion2 = true;
     if (userId === -1) {
       return res.status(401).json({ error: 'Invalid Token' });
     }
-    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody, isVersion2);
     if ('error' in result) {
       throw new Error(result.error);
     }

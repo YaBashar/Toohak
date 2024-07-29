@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatuInfo
 } from './game';
 
 // Set up app
@@ -926,6 +926,30 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
     res.json(data);
   } catch (error) {
     return res.status(400).json({ error: error.message });
+  }
+});
+
+// adminGameQuizSessionStatusInfo
+app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const gameId = parseInt(req.params.sessionid as string);
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = adminGameQuizSessionStatuInfo(userId, quizId, gameId);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' || error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
   }
 });
 

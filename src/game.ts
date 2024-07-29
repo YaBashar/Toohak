@@ -18,6 +18,7 @@ END: The game is now over and inactive.
 import { getData } from './dataStore';
 import { createDataStoreId } from './helper';
 import { Results, Player, Game } from './interface';
+import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
 
 export enum States {
   LOBBY,
@@ -109,4 +110,53 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   });
 
   return { playerId: newPlayerId };
+}
+
+export function adminGameQuizSessionStatuInfo(userId: number, quizId : number, sessionId : number) {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(userId, userArr);
+  const quizUser = checkQuizOwnership(userId, quizArr);
+
+  const game = findGameSessionId(sessionId, quizId);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!game) {
+    throw new Error('Session Id does not exist');
+  }
+
+  const filteredQuestions = quiz.questions.filter(q => q !== null);
+  const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
+  const currentState = States[game.status];
+
+  const gameSessionInfo = {
+    state: currentState,
+    atQuestion: game.activeQuestion, // some number
+    players: game.players,
+
+    metadata: {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+      thumbnailUrl: quiz.thumbnailUrl
+    }
+  };
+
+  return (gameSessionInfo);
 }

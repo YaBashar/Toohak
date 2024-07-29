@@ -19,6 +19,19 @@ const createQuiz = (token : string, name : string, description : string) => {
   });
   return JSON.parse(res.body.toString());
 };
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
+  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+    json: {
+      token,
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers
+      }
+    }
+  });
+};
 
 const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
   return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
@@ -55,6 +68,11 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
+
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
     });
@@ -84,17 +102,34 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     let token : string;
     let quizId : number;
     let sessionId : number;
+    let questionId : number;
 
     beforeEach(() => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
+      console.log('quizId', quizId);
+
+      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      questionId = JSON.parse(question.body.toString()).questionId;
+
       const session = requestCreateSession(token, quizId, 3);
+      console.log(JSON.parse(session.body.toString()));
       sessionId = JSON.parse(session.body.toString()).sessionId;
+      console.log(sessionId);
     });
 
+    // Properties from QuestionCreate Still missing.
+    // Also need to know how to get atQuestion
     test('Successfully Gives Game Session Status Info', () => {
       const res = requestGameSessionInfo(token, quizId, sessionId);
+      console.log('Full Response:', JSON.stringify(res, null, 2));
+
+      // Log questions from response separately
+      console.log('Questions from Response:', JSON.stringify(res.body.metadata.questions, null, 2));
       expect(res.body).toStrictEqual(
         {
           state: expect.any(String),
@@ -108,9 +143,27 @@ describe('adminQuizQuestionDuplicate Tests', () => {
             timeLastEdited: expect.any(Number),
             description: expect.any(String),
             numQuestions: expect.any(Number),
-            questions: expect.any(Array),
+            questions: [
+              {
+                questionId: questionId,
+                question: 'Who is the Monarch of England?',
+                duration: 4,
+                // thumbnailUrl: '' Still undefined in question Create,
+                points: 5,
+                answers: [
+                  {
+                    answer: 'Prince Charles',
+                    correct: true
+                  },
+                  {
+                    answer: 'Queen Elizabeth',
+                    correct: false
+                  }
+                ]
+              }
+            ],
             duration: expect.any(Number),
-            thumbnail: expect.any(String)
+            thumbnailUrl: expect.any(String)
           }
         }
       );

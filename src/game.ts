@@ -110,3 +110,24 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
   return { playerId: newPlayerId };
 }
+
+export function adminQuizFinalResults (playerid: number) {
+  let data = getData();
+  const game = data.games.find(game => game.players.some(player => player.playerId === playerid))
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+  const question = quiz.questions[questionposition];
+  const player = game.players.find(player => player.playerId === playerid);
+
+  if (!player) {
+    throw new Error('playerid does not exist');
+  }
+
+  if (game.status !== STATES.FINAL_RESULTS) {
+    throw new Error('session not in correct state');
+  }
+
+  let usersRankedByScore = [];
+  let questionResults = [];
+
+  return { usersRankedByScore, questionResults }
+};

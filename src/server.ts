@@ -956,6 +956,21 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   }
 });
 
+app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+
+  if (!playerid) {
+    return res.status(401).json({ error: 'invalid playerid' });
+  }
+
+  try {
+    const result = adminQuizFinalResults(playerid);
+    res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+})
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

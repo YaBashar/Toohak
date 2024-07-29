@@ -1,0 +1,88 @@
+{
+  "users": [
+    {
+      "userId": 473509,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
+      "numSuccessfulLogins": 2,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234!@#$ABCD"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722253566338,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1722253566,
+      "timeLastEdited": 1722253566,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722253566340,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "Prince William",
+              "correct": false
+            },
+            {
+              "answer": "Prince Charles",
+              "correct": true
+            },
+            {
+              "answer": "Prince Beckham",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 473509,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 196114,
+      "userId": 473509
+    },
+    {
+      "sessionId": 770600,
+      "userId": 473509
+    }
+  ],
+  "trash": [],
+  "games": [
+    {
+      "sessionId": 663291,
+      "status": 0,
+      "quizId": 1722253566338,
+      "autoStartNum": 5,
+      "players": [
+        {
+          "playerId": 247114,
+          "name": "amelia",
+          "atQuestion": 0,
+          "points": 0
+        }
+      ],
+      "activeQuestion": 0,
+      "numQuestions": 1,
+      "questionResults": [
+        {
+          "questionId": 1722253566340,
+          "playersCorrectList": [],
+          "averageAnswerTime": 0,
+          "percentageCorrect": 0
+        }
+      ]
+    }
+  ]
+}

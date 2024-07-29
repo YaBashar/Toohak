@@ -110,3 +110,74 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
   return { playerId: newPlayerId };
 }
+
+export function adminQuizSubmitAnswer (answerids: Array, playerid: string, questionposition: number) {
+  const data = getData();
+  const game = data.games.find(game => game.players.some(player => player.playerid === playerid))
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+  const questionid = game.questionResults[questionIndex].questionId;
+
+  if (!doesPlayerIdExist(playerid)) {
+    throw new Error('player id does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('question position is invalid');
+  }
+
+  if (game.status !== QUESTION_OPEN) {
+    throw new Error('session is not in correct state');
+  }
+
+  if (game.activeQuestion !== questionid) {
+    throw new Error('session is not currently on this question');
+  }
+
+  if (!areAnswerIdsValid) {
+    throw new Error('invalid answer id')
+  }
+
+  if (!hasDuplicateAnswerIds(answerids)) {
+    throw new Error('duplicate answers provided')
+  }
+
+  if (answerids.length < 1) {
+    throw new Error('no answer provided');
+  }
+}
+
+function doesPlayerIdExist(playerId) {
+  return data.games.some(game =>
+    game.players.some(player => player.playerId === playerId)
+  );
+}
+
+function areAnswerIdsValid(sessionId, answerIds) {
+  const validAnswerIds = new Set();
+  quiz.questions.forEach(question => {
+    question.answers.forEach(answer => {
+      validAnswerIds.add(answer.answerId);
+    });
+  });
+
+  for (let i = 0; i < answerIds.length; i++) {
+    const answerId = answerIds[i];
+    if (typeof answerId !== 'string' || !validAnswerIds.has(answerId)) {
+      return false; 
+    }
+  }
+  return true; 
+}
+
+function hasDuplicateAnswerIds(answerIds) {
+  const seen = new Set();
+
+  for (let i = 0; i < answerIds.length; i++) {
+    const answerId = answerIds[i];
+    if (seen.has(answerId)) {
+      return true; 
+    }
+    seen.add(answerId);
+  }
+  return false; 
+}

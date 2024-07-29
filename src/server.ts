@@ -956,6 +956,24 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   }
 });
 
+app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
+  const { answerids } = req.body;
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition as number);
+
+  try {
+    if (!playerid) {
+      return res.status(400).json({ error: 'invalid playerid' });
+    }
+    const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+})
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

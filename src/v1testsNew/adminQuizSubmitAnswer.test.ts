@@ -88,16 +88,19 @@ const updateState = (quizid: string, sessionid: string, token: string, action: s
   const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
     headers: { token }, json: { action }
   })
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
 const questionResult = (playerid: string, questionposition: number) => {
   const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`)
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
-const submitAnswer = (answerids: Array, playerid: string, questionposition: number) => {
+const submitAnswer = (answerids: Array[], playerid: string, questionposition: number) => {
   const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
     json: { answerids }
   })
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 }
 
 beforeEach(() => {

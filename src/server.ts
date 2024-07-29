@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
 } from './game';
 
 // Set up app
@@ -641,7 +641,8 @@ app.post('/v1/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     if (userId === -1) {
       return res.status(401).json({ error: 'Invalid Token' });
     }
-    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    const isVersion2 = false;
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody, isVersion2);
     if ('error' in result) {
       throw new Error(result.error);
     }
@@ -912,10 +913,11 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
     const { questionBody } = req.body;
     const quizid = parseInt(req.params.quizid as string);
     const userId = getUserIdFromToken(token);
+    const isVersion2 = true;
     if (userId === -1) {
       return res.status(401).json({ error: 'Invalid Token' });
     }
-    const result = adminQuizQuestionCreate(userId, quizid, questionBody);
+    const result = adminQuizQuestionCreate(userId, quizid, questionBody, isVersion2);
     if ('error' in result) {
       throw new Error(result.error);
     }
@@ -966,6 +968,33 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   }
 });
 
+// adminGameQuizSessionStatusInfo
+app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const gameId = parseInt(req.params.sessionid as string);
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = adminGameQuizSessionStatusInfo(userId, quizId, gameId);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' || error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
+});
+
+/// ////////////////////////////////////////////////////////////////////////////
+
+/// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
 // adminQuizUpdateThumbnail
 app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   try {

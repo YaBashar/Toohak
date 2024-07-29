@@ -36,7 +36,7 @@ import { findUserByToken, checkQuizOwnership, findQuizIndexFromQuizId, findQuest
   * @returns {number} questionId
   *
 */
-export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): ErrorResponse | { questionId: number } {
+export function adminQuizQuestionCreate(token: number, quizid: number, question: Question, isVersion2: boolean): ErrorResponse | { questionId: number } {
   const data = getData();
   const quizArr = data.quizzes;
   const userArr = data.users;
@@ -104,22 +104,36 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
       throw new Error('The thumbnailUrl does not begin with http:// or https://');
     }
   }
-  const id = uniqueQuestionId(quiz.questions);
-  // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+  const id = uniqueId(quiz.questions);
+  const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'];
 
-  // // add the color and answerId here
-  // question.answers.forEach((answer, index) => {
-  //   answer.answerId = index;
-  //   answer.colour = colourArray[index];
-  // });
-  const questionBody = {
-    questionId: id,
-    question: question.question,
-    duration: question.duration,
-    points: question.points,
-    answers: question.answers,
-    thumbnailUrl: question.thumbnailUrl
-  };
+  // add the color and answerId here
+  const answerBody = question.answers.map((answer, index) => ({
+    answerId: uniqueAnswerId(question.answers),
+    answer: answer.answer,
+    colour: colourArray[index % colourArray.length],
+    correct: answer.correct
+  }));
+
+  let questionBody;
+  if (isVersion2) {
+    questionBody = {
+      questionId: id,
+      question: question.question,
+      duration: question.duration,
+      thumbnailUrl: question.thumbnailUrl,
+      points: question.points,
+      answers: answerBody,
+    };
+  } else {
+    questionBody = {
+      questionId: id,
+      question: question.question,
+      duration: question.duration,
+      points: question.points,
+      answers: answerBody,
+    };
+  }
 
   quiz.questions.push(questionBody);
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
@@ -127,6 +141,23 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   return { questionId: id };
 }
 
+// function to create a random id everytime
+function uniqueId(questArr: Question[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (questArr.find(quiz => (quiz.questionId === uId)));
+  return uId;
+}
+
+// function to create a random answerId everytime
+function uniqueAnswerId(answerArr: Answer[]): number {
+  let uId: number;
+  do {
+    uId = Math.floor(Math.random() * 5001);
+  } while (answerArr.find(answer => answer.answerId === uId));
+  return uId;
+}
 /** [2] adminQuizQuestion Duplicate
   *
   * Duplicates a question within the same Quiz
@@ -225,15 +256,6 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   quiz.questions.splice(index, 1);
   setData(store);
   return {};
-}
-
-// function to create a random id everytime
-function uniqueQuestionId(questArr: Question[]): number {
-  let uId: number;
-  do {
-    uId = Date.now();
-  } while (questArr.find(quiz => (quiz.questionId === uId)));
-  return uId;
 }
 
 /** [4] adminQuizQuestionUpdate

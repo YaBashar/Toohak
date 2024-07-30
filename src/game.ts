@@ -29,13 +29,13 @@ export enum States {
   END
 }
 
-// enum Actions {
-//   NEXT_QUESTION,
-//   SKIP_COUNTDOWN,
-//   GO_TO_ANSWER,
-//   GO_TO_FINAL_RESULTS,
-//   END
-// }
+export enum Actions {
+  NEXT_QUESTION,
+  SKIP_COUNTDOWN,
+  GO_TO_ANSWER,
+  GO_TO_FINAL_RESULTS,
+  END
+}
 
 // enum Status {
 //   ACTIVE,
@@ -111,73 +111,82 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-export function adminQuizSubmitAnswer (answerids: Array, playerid: string, questionposition: number) {
+export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
   const data = getData();
-  const game = data.games.find(game => game.players.some(player => player.playerid === playerid))
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
   const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-  const questionid = game.questionResults[questionIndex].questionId;
 
-  if (!doesPlayerIdExist(playerid)) {
-    throw new Error('player id does not exist');
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
   }
 
-  if (questionposition > game.numQuestions) {
-    throw new Error('question position is invalid');
+  if (questionposition >= game.numQuestions) {
+    throw new Error('Question position is invalid');
   }
 
-  if (game.status !== QUESTION_OPEN) {
-    throw new Error('session is not in correct state');
+  const question = quiz.questions[questionposition];
+
+  if (!question) {
+    throw new Error('Question does not exist');
   }
 
-  if (game.activeQuestion !== questionid) {
-    throw new Error('session is not currently on this question');
+  if (game.status !== States.QUESTION_OPEN) {
+    throw new Error('Session is not in the correct state');
   }
 
-  if (!areAnswerIdsValid) {
-    throw new Error('invalid answer id')
+  if (game.activeQuestion !== question.questionId) {
+    throw new Error('Session is not currently on this question');
   }
 
-  if (!hasDuplicateAnswerIds(answerids)) {
-    throw new Error('duplicate answers provided')
+  if (!areAnswerIdsValid(question.questionId, answerids)) {
+    throw new Error('Invalid answer ID');
+  }
+
+  if (hasDuplicateAnswerIds(answerids)) {
+    throw new Error('Duplicate answers provided');
   }
 
   if (answerids.length < 1) {
-    throw new Error('no answer provided');
+    throw new Error('No answer provided');
   }
+
+  // Process the answer submission logic here
 }
 
-function doesPlayerIdExist(playerId) {
-  return data.games.some(game =>
-    game.players.some(player => player.playerId === playerId)
-  );
-}
+function areAnswerIdsValid(questionid: number, answerIds: number[]): boolean {
+  const data = getData();
+  const question = data.quizzes
+    .flatMap(quiz => quiz.questions)
+    .find(q => q.questionId === questionid);
 
-function areAnswerIdsValid(sessionId, answerIds) {
-  const validAnswerIds = new Set();
-  quiz.questions.forEach(question => {
-    question.answers.forEach(answer => {
-      validAnswerIds.add(answer.answerId);
-    });
-  });
-
-  for (let i = 0; i < answerIds.length; i++) {
-    const answerId = answerIds[i];
-    if (typeof answerId !== 'string' || !validAnswerIds.has(answerId)) {
-      return false; 
-    }
+  if (!question) {
+    throw new Error('Question does not exist');
   }
-  return true; 
+
+  const validAnswerIds = question.answers.map(answer => answer.answerId);
+
+  return answerIds.every(id => validAnswerIds.includes(id));
 }
 
-function hasDuplicateAnswerIds(answerIds) {
-  const seen = new Set();
+function hasDuplicateAnswerIds(answerIds: number[]): boolean {
+  const seen = new Set<number>();
 
-  for (let i = 0; i < answerIds.length; i++) {
-    const answerId = answerIds[i];
+  for (const answerId of answerIds) {
     if (seen.has(answerId)) {
-      return true; 
+      return true;
     }
     seen.add(answerId);
   }
-  return false; 
+  return false;
 }

@@ -1,0 +1,97 @@
+{
+  "users": [
+    {
+      "userId": 963776,
+      "name": "amelia su",
+      "email": "amelia@unsw.edu.au",
+      "password": "abcd1234!@#$ABCD",
+      "numSuccessfulLogins": 2,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "abcd1234!@#$ABCD"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722339453422,
+      "name": "quiz 1",
+      "description": "the first quiz",
+      "timeCreated": 1722339453,
+      "timeLastEdited": 1722339453,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722339453424,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "Prince William",
+              "correct": false
+            },
+            {
+              "answer": "Prince Charles",
+              "correct": true
+            },
+            {
+              "answer": "Prince Beckham",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 963776,
+      "thumbnailUrl": ""
+    },
+    {
+      "quizId": 1722339453426,
+      "name": "quiz 2",
+      "description": "the second quiz",
+      "timeCreated": 1722339453,
+      "timeLastEdited": 1722339453,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722339453428,
+          "question": "What is 1 + 1?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answer": "4",
+              "correct": false
+            },
+            {
+              "answer": "2",
+              "correct": true
+            },
+            {
+              "answer": "11",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 963776,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 999670,
+      "userId": 963776
+    },
+    {
+      "sessionId": 234218,
+      "userId": 963776
+    }
+  ],
+  "trash": [],
+  "games": []
+}

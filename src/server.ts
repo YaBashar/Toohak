@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin
+  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer
 } from './game';
 
 // Set up app

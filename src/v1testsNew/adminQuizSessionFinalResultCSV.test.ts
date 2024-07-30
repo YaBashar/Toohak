@@ -1,6 +1,7 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
 import { Actions } from '../game';
+import { adminQuizSessionFinalResultCsv } from '../quiz';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -138,7 +139,11 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 	// Get the a link to the final results (in CSV format) for all players for a completed quiz session
 	// "url": "http://google.com/some/image/path.csv"
 	test('Success Case', () => {
-		
-	})
+		// Assuming that the session is in FINAL_RESULTS state
+		updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
 
+		const res = quizSessionFinalResultCSV(token, quizId, sessionId);
+		expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
+		expect(res.statusCode).toStrictEqual(200);
+	});
 });

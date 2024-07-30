@@ -87,6 +87,22 @@ export interface Player {
   points: number,
 }
 
+export interface PlayerScore {
+  name: string;
+  score: number;
+}
+
+export interface QuestionResult {
+  questionId: number;
+  playersCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface QuizSessionFinalResult {
+  usersRankedByScore: PlayerScore[];
+  questionResults: QuestionResult[];
+}
 export interface Results {
   questionId: number,
   playersCorrectList: string[],

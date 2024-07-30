@@ -24,7 +24,7 @@ const requestCreateSession = (token: string, quizid: number, autoStartNum: numbe
 	const sessId = (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
 		headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
 	}));
-	return JSON.parse(sessId.body.toString());
+	return JSON.parse(sessId.body.toString()).sessionId;
 };
 
 
@@ -48,25 +48,25 @@ const createQuizQuestion = (token: string, quizid: number, question: string, dur
 	});	
 };
 
-const sessionState = (quizid: number, sessionid: number, token: string) => {
-  const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-    headers: { token }
-  })
-return JSON.parse(res.body.toString());};
+ const sessionState = (quizid: number, sessionid: number, token: string) => {
+   const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
+     headers: { token }
+   })
+ return JSON.parse(res.body.toString());};
 
 
-const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
-  const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-    headers: { token }, json: { action }
-  })
-return JSON.parse(res.body.toString());};
+  const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
+    const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
+      headers: { token }, json: { action }
+    })
+  return JSON.parse(res.body.toString());};
 
-const submitAnswer = (answerids: [number], playerid: number, questionposition: number) => {
-  const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
-    json: { answerids }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-}
+ const submitAnswer = (answerids: [number], playerid: number, questionposition: number) => {
+   const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
+     json: { answerids }
+   })
+   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+ }
 
 const quizSessionFinalResult = (token: string, quizid: number, sessionid: number) => {
 	return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {
@@ -93,7 +93,7 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 		sessionId = requestCreateSession(token, quizId, 3);
 	});
 
-	// Session Id does not refer to a valid session within this quiz
+	//  Session Id does not refer to a valid session within this quiz
 	test('SessionId does not refer to a valid session', () => {
 		const res = quizSessionFinalResult(token, quizId, sessionId + 1);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
@@ -133,42 +133,53 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(403);
 	});
-
 	// success case
-	test('Success Case', () => {
-		const player1 = requestPlayerJoin(sessionId, 'Hayden');
-		const player2 = requestPlayerJoin(sessionId, 'Sidak');
-		const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, [
-			{ answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
-		]);
-		const questionId = JSON.parse(question.body.toString()).questionId;
-		// answer 1
-		const res1 = submitAnswer([1], JSON.parse(player1.body.toString()).playerId, 1);
-		// answer 2
-		const res2 = submitAnswer([1], JSON.parse(player2.body.toString()).playerId, 1);
-		// update to end
-		updateState(quizId, sessionId, token, 'END');
+	test('Success case', () => {
+		const playerName = 'Hayden';
+		const question = 'What is the capital of Australia?';
+		const duration = 30;
+		const points = 10;
+		const answers = [
+			{ answer: 'Sydney', isCorrect: false },
+			{ answer: 'Melbourne', isCorrect: false },
+			{ answer: 'Canberra', isCorrect: true },
+			{ answer: 'Brisbane', isCorrect: false }
+		];
+
+		// Register a new player and let them join the session
+		const playerRes = requestPlayerJoin(sessionId, playerName);
+		const playerId = JSON.parse(playerRes.body.toString()).playerId;
+
+		// Create a new quiz question
+		createQuizQuestion(token, quizId, question, duration, points, answers);
+
+		// Update the session state to QUESTION_OPEN
+		updateState(quizId, sessionId, token, Actions.NEXT_QUESTION);
+
+		// Submit an answer for the player
+		submitAnswer([2], playerId, 0);
+
+		// Update the session state to ANSWER_SHOW
+		updateState(quizId, sessionId, token, Actions.GO_TO_ANSWER);
+
+		// Update the session state to FINAL_RESULTS
+		updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
+
+		// Call the adminQuizSessionFinalResult function and check the returned result
 		const res = quizSessionFinalResult(token, quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({
-			usersRankedByScore: [
-				{
-					name: 'Hayden',
-					score: 100
-				},
-				{
-					name: 'Sidak',
-					score: 0
-				}
-			],
-			questionResults: [
-				{
-					questionId: questionId,
-					playersCorrectList: ['Hayden'],
-					averageAnswerTime: 0,
-					percentCorrect: 100
-				}
-			]
-		});
+		const result = JSON.parse(res.body.toString());
+		expect(result.usersRankedByScore).toEqual([
+			{ name: playerName, score: points }
+		]);
+		expect(result.questionResults).toEqual([
+			{
+				questionId: expect.any(Number),
+				playersCorrectList: [playerName],
+				averageAnswerTime: expect.any(Number),
+				percentCorrect: 100
+			}
+		]);
 		expect(res.statusCode).toStrictEqual(200);
 	});
+
 });

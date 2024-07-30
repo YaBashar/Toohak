@@ -30,18 +30,18 @@ export enum States {
   END
 }
 
-// enum Actions {
-//   NEXT_QUESTION,
-//   SKIP_COUNTDOWN,
-//   GO_TO_ANSWER,
-//   GO_TO_FINAL_RESULTS,
-//   END
-// }
+export enum Actions {
+  NEXT_QUESTION,
+  SKIP_COUNTDOWN,
+  GO_TO_ANSWER,
+  GO_TO_FINAL_RESULTS,
+  END
+}
 
-// enum Status {
-//   ACTIVE,
-//   INACTIVE
-// }
+export enum Status {
+  ACTIVE,
+  INACTIVE
+}
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);

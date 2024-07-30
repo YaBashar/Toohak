@@ -150,22 +150,16 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 		const playerRes = requestPlayerJoin(sessionId, playerName);
 		const playerId = JSON.parse(playerRes.body.toString()).playerId;
 
-		// Create a new quiz question
 		createQuizQuestion(token, quizId, question, duration, points, answers);
 
-		// Update the session state to QUESTION_OPEN
 		updateState(quizId, sessionId, token, Actions.NEXT_QUESTION);
 
-		// Submit an answer for the player
 		submitAnswer([2], playerId, 0);
 
-		// Update the session state to ANSWER_SHOW
 		updateState(quizId, sessionId, token, Actions.GO_TO_ANSWER);
 
-		// Update the session state to FINAL_RESULTS
 		updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
 
-		// Call the adminQuizSessionFinalResult function and check the returned result
 		const res = quizSessionFinalResult(token, quizId, sessionId);
 		const result = JSON.parse(res.body.toString());
 		expect(result.usersRankedByScore).toEqual([

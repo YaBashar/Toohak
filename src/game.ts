@@ -110,3 +110,16 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 
   return { playerId: newPlayerId };
 }
+
+export function adminQuizQuestionResults(playerid: number, questionposition: number) {
+  // find game index containing the playerid
+  // find the active quiz in the game
+  // find question[questionposition] in the quiz
+  const questionResults = {
+    questionid: question.questionid,
+    playersCorrectList: question.playersCorrectList,
+    averageAnswerTime: question.averageAnswerTime,
+    percentCorrect: question.percentCorrect
+  }
+  return (questionResults)
+}

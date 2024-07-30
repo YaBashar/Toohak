@@ -50,6 +50,22 @@ const updateQuizSessionStatus = (token : string, quizId : number, sessionId : nu
   };
 };
 
+const requestGameSessionInfo = (token : string, quizid : number, sessionid : number) => {
+  const res = request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}`, {
+    headers: { token }, json: { quizid, sessionid }
+  });
+  return {
+    body: JSON.parse(res.body.toString()),
+    statusCode: res.statusCode
+  };
+};
+
+const requestPlayerJoin = (sessionId: number, name: string) => {
+  return (request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name }, timeout: TIMEOUT_MS
+  }));
+};
+
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
@@ -91,6 +107,10 @@ describe('adminQuizQuestionDuplicate Tests', () => {
         });
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
+
+      requestPlayerJoin(sessionId, 'player one');
+      requestPlayerJoin(sessionId, 'player two');
+      requestPlayerJoin(sessionId, 'player three');
     });
 
     test('Token is empty or invalid', () => {
@@ -131,8 +151,72 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     });
 
     // Action enum cannot be applied in the current state (see spec for details)
-    test('Invalid state for Action Next_Question', () => {
-      
+    test('Invalid Actions From State Lobby', () => {
+      const res = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res.body);
+
+      const result1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      console.log(result1.body);
+      expect(result1.body).toStrictEqual({ error: expect.any(String) });
+      expect(result1.statusCode).toStrictEqual(400);
+
+      const result2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      console.log(result2.body);
+      expect(result2.body).toStrictEqual({ error: expect.any(String) });
+      expect(result2.statusCode).toStrictEqual(400);
+
+      const result3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      console.log(result3.body);
+      expect(result3.body).toStrictEqual({ error: expect.any(String) });
+      expect(result3.statusCode).toStrictEqual(400);
+    });
+
+    test.only('Invalid Actions from State Question_Countdown', () => {
+      // Start at lobby
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      // console.log(result1.body);
+
+      const res2 = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res2.body);
+
+      // Now update using wrong Actions
+      // const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      // console.log(update1.body);
+      // expect(update1).toStrictEqual({ error: expect.any(String) });
+      // // expect(update1.statusCode).toStrictEqual(400);
+
+      // const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      // console.log(update2.body);
+      // expect(update2).toStrictEqual({ error: expect.any(String) });
+      // // expect(update2.statusCode).toStrictEqual(400);
+
+      // const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      // console.log(update3.body);
+      // expect(update3).toStrictEqual({ error: expect.any(String) });
+      // // expect(update3.statusCode).toStrictEqual(400);
+    });
+
+    test('Invalid Actions from State Question_Open', () => {
+
+    });
+
+    test('Invalid Actions from State Question_Close', () => {
+
+    });
+
+    test('Invalid Actions from State Final_Results', () => {
+
+    });
+
+    test('Invalid Actions from State Answer_Show', () => {
+
+    });
+
+    test('Invalid Actions from State End', () => {
+
     });
   });
 

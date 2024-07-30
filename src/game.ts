@@ -114,7 +114,9 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
+const timerMap = new Map();
+
+export async function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -137,46 +139,63 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
     throw new Error('Session Id does not exist');
   }
 
-  const currentState = game.status;
-  if (Actions.NEXT_QUESTION) {
-    if (currentState === States.LOBBY || currentState === States.ANSWER_SHOW || currentState === States.QUESTION_CLOSE) {
+  if (action === Actions.NEXT_QUESTION) {
+    if (game.status === States.LOBBY || game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
+
+      // Clear any existing timer
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
+        game.status = States.QUESTION_OPEN;
+      }, 3000);
+
+      timerMap.set(sessionId, interval);
+
+      const timeId = timerMap.get(sessionId);
+      console.log('TimeId', timeId);
     } else {
       throw new Error('Action Next Question not applicable in this state');
     }
   }
 
-  if (Actions.SKIP_COUNTDOWN) {
-    if (currentState === States.QUESTION_COUNTDOWN) {
+  if (action === Actions.SKIP_COUNTDOWN) {
+    if (game.status === States.QUESTION_COUNTDOWN) {
       game.status = States.QUESTION_OPEN;
     } else {
       throw new Error('Action Skip Countdown not applicable in this state');
     }
   }
 
-  if (Actions.GO_TO_ANSWER) {
-    if (currentState === States.QUESTION_OPEN || currentState === States.QUESTION_CLOSE) {
+  if (action === Actions.GO_TO_ANSWER) {
+    if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
       game.status = States.ANSWER_SHOW;
     } else {
       throw new Error('Action Go to answer is not applicable in this state');
     }
   }
 
-  if (Actions.GO_TO_FINAL_RESULTS) {
-    if (currentState === States.ANSWER_SHOW || currentState === States.QUESTION_CLOSE) {
+  if (action === Actions.GO_TO_FINAL_RESULTS) {
+    if (game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.FINAL_RESULTS;
     } else {
       throw new Error('Action Go to final results is not applicable in this state');
     }
   }
 
-  if (Actions.END) {
+  if (action === Actions.END) {
     game.status = States.END;
   }
 
-  if (!Actions.NEXT_QUESTION && !Actions.SKIP_COUNTDOWN && !Actions.GO_TO_ANSWER && !Actions.GO_TO_FINAL_RESULTS && !Actions.END) {
+  if (action !== Actions.NEXT_QUESTION && action !== Actions.SKIP_COUNTDOWN &&
+    action !== Actions.GO_TO_ANSWER && action !== Actions.GO_TO_FINAL_RESULTS && action !== Actions.END) {
     throw new Error('Action not a valid enum');
   }
+
+  console.log(States[game.status]);
 }
 
 export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, sessionId : number) {

@@ -952,7 +952,6 @@ app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
 
   try {
     const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
-    console.log('result', result);
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {

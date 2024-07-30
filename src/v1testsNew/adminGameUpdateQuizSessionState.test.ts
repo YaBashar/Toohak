@@ -202,6 +202,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     let quizId : number;
     let sessionId : number;
     let questionId : number;
+    let questionDuration : number;
 
     beforeEach(() => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
@@ -213,6 +214,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       ]);
 
       questionId = JSON.parse(question.body.toString()).questionId;
+      questionDuration = JSON.parse(question.body.toString()).duration;
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
@@ -274,12 +276,35 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       }, 3000);
     });
 
-    test('Successfully Skips Question_Countdown', () => {
+    test('Successfully Skips Question_Countdown', (done) => {
       // Start at lobby
       requestGameSessionInfo(token, quizId, sessionId);
       // Update to Next_Question
       updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
       // Do Skip Question
+    });
+
+    test.only('Successfully Moves from Question_Open to Question_Close', (done) => {
+      // Start at lobby
+      requestGameSessionInfo(token, quizId, sessionId);
+      // Update to Next_Question
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      //
+      const res = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res.body);
+
+      setTimeout(() => {
+        const res3 = requestGameSessionInfo(token, quizId, sessionId);
+        console.log(res3.body);
+        done();
+      }, 3000);
+
+      setTimeout(() => {
+        const res4 = requestGameSessionInfo(token, quizId, sessionId);
+        console.log(res4.body);
+        done();
+      }, questionDuration);
     });
   });
 });

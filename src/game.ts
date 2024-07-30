@@ -123,9 +123,8 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   const quiz = findQuizById(quizId, quizArr);
   const user = findUserByToken(token, userArr);
   const quizUser = checkQuizOwnership(token, quizArr);
-
   const game = findGameSessionId(sessionId, quizId);
-  console.log('game', game);
+  // console.log('game', game);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -143,6 +142,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.NEXT_QUESTION) {
     if (game.status === States.LOBBY || game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
+      game.activeQuestion = game.activeQuestion + 1;
 
       // Clear any existing timer
       const existingTimer = timerMap.get(sessionId);
@@ -154,14 +154,13 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
         game.status = States.QUESTION_OPEN;
         // console.log('Updating state to QUESTION_OPEN');
         // console.log(States[game.status]);
-        // Update the data store with the new state
         setData(store);
       }, 3000);
 
       timerMap.set(sessionId, interval);
 
       // const timeId = timerMap.get(sessionId);
-      console.log(States[game.status]);
+      // console.log('game when question_open', game);
     } else {
       throw new Error('Action Next Question not applicable in this state');
     }
@@ -182,7 +181,22 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
 
   // Keeps the question open for the duration in question body
   if (game.status === States.QUESTION_OPEN) {
+    // Clear any existing timer
+    const existingTimer = timerMap.get(sessionId);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
+    }
 
+    const time = quiz.questions[game.activeQuestion].duration;
+    console.log('questiontime', time);
+    const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
+      game.status = States.QUESTION_CLOSE;
+      console.log('Updating state to Question_CLOSE');
+      console.log(States[game.status]);
+      setData(store);
+    }, time * 1000);
+
+    timerMap.set(sessionId, interval);
   }
 
   if (action === Actions.GO_TO_ANSWER) {

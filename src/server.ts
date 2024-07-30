@@ -18,7 +18,8 @@ import {
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
   adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
-  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult
+  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult,
+  adminQuizSessionFinalResultCsv
 } from './quiz';
 
 import {
@@ -1048,6 +1049,34 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res:
     }
   }
 });
+
+// adminQuizSessionFinalResultCsv
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const quizid = parseInt(req.params.quizid as string);
+    const sessionid = parseInt(req.params.sessionid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    const result = adminQuizSessionFinalResultCsv(userId, quizid, sessionid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch(error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Invalid Quiz id') {
+      return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

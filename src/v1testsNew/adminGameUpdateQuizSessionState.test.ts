@@ -28,13 +28,21 @@ const createQuiz = (token : string, name : string, description : string) => {
   return JSON.parse(res.body.toString());
 };
 
-const createQuizQuestion = (token : string, quizId : number, questionBody : object) => {
-  const res = request(
-    'POST',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/question`,
-    { json: { token: token, questionBody: questionBody }, timeout: TIMEOUT_MS }
-  );
-  return JSON.parse(res.body.toString());
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, thumbnailUrl: string, answers: object) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
+      token,
+    },
+    json: {
+      questionBody: {
+        question,
+        duration,
+        points,
+        thumbnailUrl,
+        answers,
+      }
+    }
+  });
 };
 
 const updateQuizSessionStatus = (token : string, quizId : number, sessionId : number, action : Actions) => {
@@ -85,26 +93,9 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
 
-      createQuizQuestion(token, quizId,
-        {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: false,
-            },
-            {
-              answer: 'Prince is not Charles',
-              correct: true,
-            },
-            {
-              answer: 'Prince is Beckham',
-              correct: false,
-            }
-          ]
-        });
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
@@ -115,7 +106,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     test('Token is empty or invalid', () => {
       const res = updateQuizSessionStatus('invalid token', quizId, sessionId, Actions.NEXT_QUESTION);
-      console.log(res);
       expect(res.body).toStrictEqual({ error: expect.any(String) });
       expect(res.statusCode).toStrictEqual(401);
     });
@@ -152,51 +142,38 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
     // Action enum cannot be applied in the current state (see spec for details)
     test('Invalid Actions From State Lobby', () => {
-      const res = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res.body);
-
       const result1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
-      console.log(result1.body);
       expect(result1.body).toStrictEqual({ error: expect.any(String) });
       expect(result1.statusCode).toStrictEqual(400);
 
       const result2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
-      console.log(result2.body);
       expect(result2.body).toStrictEqual({ error: expect.any(String) });
       expect(result2.statusCode).toStrictEqual(400);
 
       const result3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
-      console.log(result3.body);
       expect(result3.body).toStrictEqual({ error: expect.any(String) });
       expect(result3.statusCode).toStrictEqual(400);
     });
 
-    test.only('Invalid Actions from State Question_Countdown', () => {
-      // Start at lobby
+    test('Invalid Actions from State Question_Countdown', () => {
+      // Start with State at LOBBY
       requestGameSessionInfo(token, quizId, sessionId);
 
-      // Update to Next_Question
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
       updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
-      // console.log(result1.body);
 
-      const res2 = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res2.body);
+      // Now update using invalid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
 
-      // Now update using wrong Actions
-      // const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
-      // console.log(update1.body);
-      // expect(update1).toStrictEqual({ error: expect.any(String) });
-      // // expect(update1.statusCode).toStrictEqual(400);
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update2.body).toStrictEqual({ error: expect.any(String) });
+      expect(update2.statusCode).toStrictEqual(400);
 
-      // const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
-      // console.log(update2.body);
-      // expect(update2).toStrictEqual({ error: expect.any(String) });
-      // // expect(update2.statusCode).toStrictEqual(400);
-
-      // const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
-      // console.log(update3.body);
-      // expect(update3).toStrictEqual({ error: expect.any(String) });
-      // // expect(update3.statusCode).toStrictEqual(400);
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(update3.body).toStrictEqual({ error: expect.any(String) });
+      expect(update3.statusCode).toStrictEqual(400);
     });
 
     test('Invalid Actions from State Question_Open', () => {
@@ -221,6 +198,88 @@ describe('adminQuizQuestionDuplicate Tests', () => {
   });
 
   describe('Success Cases', () => {
-    //
+    let token : string;
+    let quizId : number;
+    let sessionId : number;
+    let questionId : number;
+
+    beforeEach(() => {
+      const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
+      token = JSON.parse(user.body.toString()).token;
+      quizId = createQuiz(token, 'quizName', 'description').quizId;
+
+      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      questionId = JSON.parse(question.body.toString()).questionId;
+      const session = requestCreateSession(token, quizId, 3);
+      sessionId = JSON.parse(session.body.toString()).sessionId;
+
+      requestPlayerJoin(sessionId, 'player one');
+      requestPlayerJoin(sessionId, 'player two');
+      requestPlayerJoin(sessionId, 'player three');
+    });
+
+    test('Successfully Move from Question_Countdown to Question_Open', (done) => {
+      // Start at lobby
+      requestGameSessionInfo(token, quizId, sessionId);
+      // Update to Next_Question
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      // Wait for 3 seconds and then check if state has been changed to QUESTION_OPEN
+      setTimeout(() => {
+        const res3 = requestGameSessionInfo(token, quizId, sessionId);
+        console.log(res3.body);
+        expect(res3.body).toStrictEqual(
+          {
+            state: 'QUESTION_OPEN',
+            atQuestion: expect.any(Number),
+            players: expect.any(Array),
+            metadata: {
+              quizId: expect.any(Number),
+              name: expect.any(String),
+              timeCreated: expect.any(Number),
+              timeLastEdited: expect.any(Number),
+              description: expect.any(String),
+              numQuestions: expect.any(Number),
+              questions: [
+                {
+                  questionId: questionId,
+                  question: 'Who is the Monarch of England?',
+                  duration: 4,
+                  thumbnailUrl: expect.any(String),
+                  points: 5,
+                  answers: [
+                    {
+                      answerId: expect.any(Number),
+                      answer: 'Prince Charles',
+                      colour: expect.any(String),
+                      correct: true
+                    },
+                    {
+                      answerId: expect.any(Number),
+                      answer: 'Queen Elizabeth',
+                      colour: expect.any(String),
+                      correct: false
+                    }
+                  ]
+                }
+              ],
+              duration: expect.any(Number),
+              thumbnailUrl: expect.any(String)
+            }
+          }
+        );
+        done();
+      }, 3000);
+    });
+
+    test('Successfully Skips Question_Countdown', () => {
+      // Start at lobby
+      requestGameSessionInfo(token, quizId, sessionId);
+      // Update to Next_Question
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      // Do Skip Question
+    });
   });
 });

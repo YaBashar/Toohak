@@ -30,6 +30,7 @@ import { gameUpdateQuizSessionState } from './game';
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
 } from './game';
+import { setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -41,6 +42,11 @@ app.use(cors());
 app.use(morgan('dev'));
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
+// Load data from file on startup
+if (fs.existsSync('../data.json')) {
+  const rawData = fs.readFileSync('data.json', 'utf-8');
+  setData(JSON.parse(rawData));
+}
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
 app.use('/docs', sui.serve, sui.setup(YAML.parse(file),
   { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
@@ -936,7 +942,7 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 });
 
 // gameQuizSessionUpdate
-app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+app.put('/v1/admin/quiz/:quizid/session/:sessionid', async (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid as string);
   const gameId = parseInt(req.params.sessionid as string);

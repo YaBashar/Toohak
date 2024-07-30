@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "test": "jest",
+        "test": "jest --detectOpenHandles",
         "test:coverage": "jest --coverage",
         "tsc": "tsc --project tsconfig.json",
         "lint": "eslint 'src/**/*.{ts,js}'",

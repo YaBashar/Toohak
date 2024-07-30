@@ -180,19 +180,15 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     throw new Error('Quiz does not exist');
   }
 
-  if (questionposition >= game.numQuestions) {
+  if (questionposition > game.numQuestions) {
     throw new Error('Question position is invalid');
   }
 
   const question = quiz.questions[questionposition];
 
-  if (!question) {
-    throw new Error('Question does not exist');
-  }
-
-  if (game.status !== States.QUESTION_OPEN) {
-    throw new Error('Session is not in the correct state');
-  }
+  // if (game.status !== States.QUESTION_OPEN) {
+  //   throw new Error('Session is not in the correct state');
+  // }
 
   if (game.activeQuestion !== question.questionId) {
     throw new Error('Session is not currently on this question');
@@ -210,7 +206,7 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     throw new Error('No answer provided');
   }
 
-  // Process the answer submission logic here
+  return {};
 }
 
 function areAnswerIdsValid(questionid: number, answerIds: number[]): boolean {

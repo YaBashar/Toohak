@@ -1,7 +1,7 @@
 {
   "users": [
     {
-      "userId": 963776,
+      "userId": 293487,
       "name": "amelia su",
       "email": "amelia@unsw.edu.au",
       "password": "abcd1234!@#$ABCD",
@@ -14,82 +14,79 @@
   ],
   "quizzes": [
     {
-      "quizId": 1722339453422,
+      "quizId": 1722342611106,
       "name": "quiz 1",
       "description": "the first quiz",
-      "timeCreated": 1722339453,
-      "timeLastEdited": 1722339453,
+      "timeCreated": 1722342611,
+      "timeLastEdited": 1722342611,
       "numQuestions": 0,
       "questions": [
         {
-          "questionId": 1722339453424,
+          "questionId": 1722342611108,
           "question": "Who is the Monarch of England?",
           "duration": 4,
           "points": 5,
           "answers": [
             {
+              "answerId": 4227,
               "answer": "Prince William",
+              "colour": "red",
               "correct": false
             },
             {
+              "answerId": 2924,
               "answer": "Prince Charles",
+              "colour": "blue",
               "correct": true
             },
             {
+              "answerId": 15,
               "answer": "Prince Beckham",
+              "colour": "green",
               "correct": false
             }
-          ],
-          "thumbnailUrl": "http://google.com/some/image/path.jpg"
-        }
-      ],
-      "duration": 0,
-      "userId": 963776,
-      "thumbnailUrl": ""
-    },
-    {
-      "quizId": 1722339453426,
-      "name": "quiz 2",
-      "description": "the second quiz",
-      "timeCreated": 1722339453,
-      "timeLastEdited": 1722339453,
-      "numQuestions": 0,
-      "questions": [
+          ]
+        },
         {
-          "questionId": 1722339453428,
+          "questionId": 1722342611110,
           "question": "What is 1 + 1?",
           "duration": 4,
           "points": 5,
           "answers": [
             {
+              "answerId": 2661,
               "answer": "4",
+              "colour": "red",
               "correct": false
             },
             {
+              "answerId": 2833,
               "answer": "2",
+              "colour": "blue",
               "correct": true
             },
             {
+              "answerId": 2898,
               "answer": "11",
+              "colour": "green",
               "correct": false
             }
-          ],
-          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+          ]
         }
       ],
       "duration": 0,
-      "userId": 963776,
+      "userId": 293487,
       "thumbnailUrl": ""
     }
   ],
   "sessions": [
     {
-      "sessionId": 999670,
-      "userId": 963776
+      "sessionId": 913339,
+      "userId": 293487
     },
     {
-      "sessionId": 234218,
-      "userId": 963776
+      "sessionId": 240564,
+      "userId": 293487
     }
   ],
   "trash": [],

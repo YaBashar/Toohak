@@ -31,8 +31,19 @@ import { getData, setData } from './dataStore';
   * @returns {} - empty object
   *
 */
+
+import { timerMap } from './game';
+
 export function clear (): Record<string, never> {
   const store = getData();
+
+  console.log('hiiiiii');
+  // Clear all timers
+  timerMap.forEach((timer) => {
+    clearTimeout(timer);
+  });
+  timerMap.clear();
+  console.log('hiiiiii2');
 
   const fs = require('fs');
   fs.truncate('./data.json', 0, function() {});
@@ -42,7 +53,6 @@ export function clear (): Record<string, never> {
   store.sessions = [];
   store.trash = [];
   store.games = [];
-
   setData(store);
   return {};
 }

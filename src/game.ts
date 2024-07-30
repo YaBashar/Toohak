@@ -15,7 +15,7 @@ FINAL_RESULTS: This is where the final results are displayed for all players and
 END: The game is now over and inactive.
 */
 
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
 import { Results, Player, Game } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
@@ -114,9 +114,9 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-const timerMap = new Map();
+export const timerMap = new Map();
 
-export async function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
+export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -125,6 +125,7 @@ export async function gameUpdateQuizSessionState(token : number, quizId : number
   const quizUser = checkQuizOwnership(token, quizArr);
 
   const game = findGameSessionId(sessionId, quizId);
+  console.log('game', game);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -151,12 +152,16 @@ export async function gameUpdateQuizSessionState(token : number, quizId : number
 
       const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
         game.status = States.QUESTION_OPEN;
+        // console.log('Updating state to QUESTION_OPEN');
+        // console.log(States[game.status]);
+        // Update the data store with the new state
+        setData(store);
       }, 3000);
 
       timerMap.set(sessionId, interval);
 
-      const timeId = timerMap.get(sessionId);
-      console.log('TimeId', timeId);
+      // const timeId = timerMap.get(sessionId);
+      console.log(States[game.status]);
     } else {
       throw new Error('Action Next Question not applicable in this state');
     }
@@ -164,16 +169,27 @@ export async function gameUpdateQuizSessionState(token : number, quizId : number
 
   if (action === Actions.SKIP_COUNTDOWN) {
     if (game.status === States.QUESTION_COUNTDOWN) {
-      game.status = States.QUESTION_OPEN;
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+        timerMap.delete(sessionId);
+        game.status = States.QUESTION_OPEN;
+      }
     } else {
       throw new Error('Action Skip Countdown not applicable in this state');
     }
+  }
+
+  // Keeps the question open for the duration in question body
+  if (game.status === States.QUESTION_OPEN) {
+
   }
 
   if (action === Actions.GO_TO_ANSWER) {
     if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
       game.status = States.ANSWER_SHOW;
     } else {
+      console.log('throwing error');
       throw new Error('Action Go to answer is not applicable in this state');
     }
   }
@@ -196,6 +212,7 @@ export async function gameUpdateQuizSessionState(token : number, quizId : number
   }
 
   console.log(States[game.status]);
+  return {};
 }
 
 export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, sessionId : number) {

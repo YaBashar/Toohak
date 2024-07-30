@@ -942,7 +942,7 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 });
 
 // gameQuizSessionUpdate
-app.put('/v1/admin/quiz/:quizid/session/:sessionid', async (req: Request, res: Response) => {
+app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid as string);
   const gameId = parseInt(req.params.sessionid as string);
@@ -952,6 +952,7 @@ app.put('/v1/admin/quiz/:quizid/session/:sessionid', async (req: Request, res: R
 
   try {
     const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
+    console.log('result', result);
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {

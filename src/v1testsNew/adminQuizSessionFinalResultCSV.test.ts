@@ -100,38 +100,38 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 	});
 
 	test('SessionId does not refer to a valid session', () => {
-		const res = quizSessionFinalResult(token, quizId, sessionId + 1);
+		const res = quizSessionFinalResultCSV(token, quizId, sessionId + 1);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(400);
 	});
 
 	test('Session is not in FINAL_RESULTS state', () => {
-		const res = quizSessionFinalResult(token, quizId, sessionId);
+		const res = quizSessionFinalResultCSV(token, quizId, sessionId);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(400);
 	});
 
 	test('Token is empty', () => {
-		const res = quizSessionFinalResult('', quizId, sessionId);
+		const res = quizSessionFinalResultCSV('', quizId, sessionId);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(401);
 	});
 
 	test('Token is invalid', () => {
-		const res = quizSessionFinalResult('invalid token', quizId, sessionId);
+		const res = quizSessionFinalResultCSV('invalid token', quizId, sessionId);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(401);
 	});
 	
 	test('Quiz does not exist', () => {
-		const res = quizSessionFinalResult(token, quizId + 1, sessionId);
+		const res = quizSessionFinalResultCSV(token, quizId + 1, sessionId);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(403);
 	});
 
 	test('User is not the owner of the quiz', () => {
 		const token2 = requestAuthRegister('z5555555@unsw.edu.au', 'AAA123!@#b', 'veer', 'sheth');
-		const res = quizSessionFinalResult(token2, quizId, sessionId);
+		const res = quizSessionFinalResultCSV(token2, quizId, sessionId);
 		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
 		expect(res.statusCode).toStrictEqual(403);
 	});

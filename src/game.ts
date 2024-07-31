@@ -142,7 +142,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.NEXT_QUESTION) {
     if (game.status === States.LOBBY || game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
-      game.activeQuestion = game.activeQuestion + 1;
+      game.activeQuestion += 1;
 
       // Clear any existing timer
       const existingTimer = timerMap.get(sessionId);
@@ -150,54 +150,65 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
         clearTimeout(existingTimer);
       }
 
-      const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
+      //  // Set the timer to move from QUESTION_COUNTDOWN to QUESTION_OPEN
+      //   console.log('Setting countdown timer...');
+      //
+      //     console.log('Countdown timer fired');
+      //     setData(store);
+      //     game.status = States.QUESTION_CLOSE;
+      //     const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+
+      //     console.log('Inner timeout will fire after', testTime, 'milliseconds');
+      //     const innerTimeout: ReturnType<typeof seconst countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {tTimeout> = setTimeout(() => {
+      //       console.log('Inner timeout fired');
+      //       game.status = States.QUESTION_CLOSE;
+      //       console.log('Closing question', game);
+      //       setData(store);
+      //     }, testTime);
+
+      //     timerMap.set(sessionId, innerTimeout);
+      //   }, 3000);
+
+      //   timerMap.set(sessionId, countdownInterval);
+
+      // THIS WORKS
+      const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
+        console.log('Outer timeout fired');
         game.status = States.QUESTION_OPEN;
-        // console.log('Updating state to QUESTION_OPEN');
-        // console.log(States[game.status]);
-        setData(store);
+
+        const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+        console.log('Inner timeout will fire after', testTime, 'milliseconds');
+        setTimeout(() => {
+          console.log('Inner timeout fired');
+          game.status = States.QUESTION_CLOSE;
+          console.log('Closing question', States[game.status]);
+          setData(store);
+        }, testTime);
       }, 3000);
-
-      timerMap.set(sessionId, interval);
-
-      // const timeId = timerMap.get(sessionId);
-      // console.log('game when question_open', game);
+      timerMap.set(sessionId, countdownInterval);
     } else {
       throw new Error('Action Next Question not applicable in this state');
     }
   }
 
-  if (action === Actions.SKIP_COUNTDOWN) {
-    if (game.status === States.QUESTION_COUNTDOWN) {
-      const existingTimer = timerMap.get(sessionId);
-      if (existingTimer) {
-        clearTimeout(existingTimer);
-        timerMap.delete(sessionId);
-        game.status = States.QUESTION_OPEN;
-      }
-    } else {
-      throw new Error('Action Skip Countdown not applicable in this state');
-    }
-  }
+  // // Keeps the question open for the duration in question body
+  // if (game.status === States.QUESTION_OPEN) {
+  //   // Clear any existing timer
+  //   const existingTimer = timerMap.get(sessionId);
+  //   if (existingTimer) {
+  //     clearTimeout(existingTimer);
+  //   }
 
-  // Keeps the question open for the duration in question body
-  if (game.status === States.QUESTION_OPEN) {
-    // Clear any existing timer
-    const existingTimer = timerMap.get(sessionId);
-    if (existingTimer) {
-      clearTimeout(existingTimer);
-    }
+  //   const time = quiz.questions[game.activeQuestion - 1].duration * 1000;
+  //   const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
+  //     game.status = States.QUESTION_CLOSE;
+  //     console.log('closing question', States[game.status]);
+  //     // Update the data store with the new state
+  //     setData(store);
+  //   }, time * 1000);
 
-    const time = quiz.questions[game.activeQuestion].duration;
-    console.log('questiontime', time);
-    const interval: ReturnType<typeof setTimeout> = setTimeout(() => {
-      game.status = States.QUESTION_CLOSE;
-      console.log('Updating state to Question_CLOSE');
-      console.log(States[game.status]);
-      setData(store);
-    }, time * 1000);
-
-    timerMap.set(sessionId, interval);
-  }
+  //   timerMap.set(sessionId, interval);
+  // }
 
   if (action === Actions.GO_TO_ANSWER) {
     if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
@@ -225,7 +236,6 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
     throw new Error('Action not a valid enum');
   }
 
-  console.log(States[game.status]);
   return {};
 }
 

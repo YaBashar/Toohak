@@ -3,7 +3,7 @@ import { port, url } from '../config.json';
 import { Actions } from '../game';
 
 const SERVER_URL = `${url}:${port}`;
-const TIMEOUT_MS = 5 * 1000;
+const TIMEOUT_MS = 9 * 1000;
 
 // Helper Functions
 /// //////////////////////////////////////////////
@@ -72,6 +72,10 @@ const requestPlayerJoin = (sessionId: number, name: string) => {
   return (request('POST', SERVER_URL + '/v1/player/join', {
     json: { sessionId, name }, timeout: TIMEOUT_MS
   }));
+};
+
+const requestQuizInfo = (token : string, quizId : number) => {
+  return (request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } }));
 };
 
 beforeEach(() => {
@@ -214,7 +218,10 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       ]);
 
       questionId = JSON.parse(question.body.toString()).questionId;
-      questionDuration = JSON.parse(question.body.toString()).duration;
+      const res = requestQuizInfo(token, quizId);
+      console.log(res.body.toString(), 'question');
+      questionDuration = JSON.parse(res.body.toString()).duration;
+      console.log(questionDuration);
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
@@ -294,17 +301,17 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const res = requestGameSessionInfo(token, quizId, sessionId);
       console.log(res.body);
 
+      console.log(questionDuration, 'duration');
       setTimeout(() => {
         const res3 = requestGameSessionInfo(token, quizId, sessionId);
         console.log(res3.body);
-        done();
-      }, 3000);
 
-      setTimeout(() => {
-        const res4 = requestGameSessionInfo(token, quizId, sessionId);
-        console.log(res4.body);
-        done();
-      }, questionDuration);
+        setTimeout(() => {
+          const res4 = requestGameSessionInfo(token, quizId, sessionId);
+          console.log(res4.body);
+          done();
+        }, questionDuration * 1000);
+      }, 3000);
     });
   });
 });

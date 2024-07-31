@@ -20,7 +20,7 @@ and update information regarding quizzes.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
-import { Quiz, QuizInfo, QuizList } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 
 /// ////////////////////////////////////////////////////////////////////////////
@@ -43,23 +43,26 @@ import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, is
   * } - an array containing the names of all quizzes and their quizIds
   *
 */
-export function adminQuizList(token: number): {quizzes: QuizList[]} | {error: string} {
+export function adminQuizList(token: number): { quizzes: QuizList[] } | ErrorResponse {
   const data = getData();
-  const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    return { error: 'invalid user id' };
-  }
-  const result: QuizList[] = [];
+  try {
+    const user = data.users.find(user => user.userId === token);
 
-  const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
-  for (const item of userQuizzes) {
-    result.push({
+    if (!user) {
+      throw new Error('invalid user id');
+    }
+
+    const userQuizzes = data.quizzes.filter(quiz => quiz.userId === token);
+    const result: QuizList[] = userQuizzes.map(item => ({
       quizId: item.quizId,
       name: item.name
-    });
+    }));
+
+    return { quizzes: result };
+  } catch (error) {
+    return { error: (error as Error).message };
   }
-  return { quizzes: result };
 }
 
 /** [2] adminQuizCreate
@@ -76,7 +79,7 @@ export function adminQuizList(token: number): {quizzes: QuizList[]} | {error: st
   *                             identifier for the quiz
   *
 */
-export function adminQuizCreate(token: number, name: string, description: string): { quizId: number } | { error: string } {
+export function adminQuizCreate(token: number, name: string, description: string): { quizId: number } | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -90,20 +93,20 @@ export function adminQuizCreate(token: number, name: string, description: string
     ':', ';', '-', '"', "'", '<', '>', '.', '?', '/', '|', '\\'];
   for (let i = 0; i < specialChars.length; i++) {
     if (name.includes(specialChars[i])) {
-      return { error: 'Name contains invalid characters' };
+      throw new Error('Name contains invalid characters');
     }
   }
   if (name.length < 3) {
-    return { error: 'name is less than 3 characters' };
+    throw new Error('name is less than 3 characters');
   }
   if (name.length > 30) {
-    return { error: 'name is more than 30 characters' };
+    throw new Error('name is more than 30 characters');
   }
   if (description.length > 100) {
-    return { error: 'Description is more than 100 characters in length' };
+    throw new Error('Description is more than 100 characters in length');
   }
   if (quizArr.find((quiz) => quiz.name === name && quiz.userId === token)) {
-    return { error: 'Name is already used by current logged in user' };
+    throw new Error('Name is already used by current logged in user');
   }
 
   const id = uniqueQuizId(quizArr);
@@ -117,6 +120,7 @@ export function adminQuizCreate(token: number, name: string, description: string
     questions: [],
     duration: 0,
     userId: token,
+    thumbnailUrl: ''
   };
   store.quizzes.push(quiz);
   setData(store);
@@ -144,20 +148,20 @@ function uniqueQuizId(quizArr: Quiz[]): number {
   * @returns {} - empty object
   *
 */
-export function adminQuizRemove(token: number, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
   const user = userArray.find((user) => { return user.userId === token; });
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
   if (!user) {
-    return { error: 'Invalid user id' };
+    throw new Error('Invalid user id');
   }
   if (!quiz) {
-    return { error: 'Invalid quiz Id entered' };
+    throw new Error('Invalid quiz Id entered');
   }
   if (quiz.userId !== token) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
 
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
@@ -168,7 +172,6 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   setData(store);
   return {};
 }
-
 /** [4] adminQuizInfo
   *
   * Gets all of the relevant information about the current quiz.
@@ -187,7 +190,7 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   * } - an object with information about the quiz based on the quizId
   *
 */
-export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error: string} {
+export function adminQuizInfo(token: number, quizId: number, isVersion2: boolean): QuizInfo | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -208,18 +211,34 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   const filteredQuestions = quiz.questions.filter(q => q !== null);
   const totalDuration = quiz.questions.reduce((acc, question) => acc + question.duration, 0);
 
-  const quizInfo: QuizInfo = {
-    quizId: quiz.quizId,
-    name: quiz.name,
-    timeCreated: quiz.timeCreated,
-    timeLastEdited: quiz.timeLastEdited,
-    description: quiz.description,
-    // Update numQuestions based on filtered questions
-    numQuestions: filteredQuestions.length,
-    questions: filteredQuestions,
-    duration: totalDuration
-  };
+  let quizInfo: QuizInfo;
 
+  if (isVersion2) {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+      thumbnailUrl: quiz.thumbnailUrl
+    };
+  } else {
+    quizInfo = {
+      quizId: quiz.quizId,
+      name: quiz.name,
+      timeCreated: quiz.timeCreated,
+      timeLastEdited: quiz.timeLastEdited,
+      description: quiz.description,
+      // Update numQuestions based on filtered questions
+      numQuestions: filteredQuestions.length,
+      questions: filteredQuestions,
+      duration: totalDuration,
+    };
+  }
   return quizInfo;
 }
 
@@ -237,7 +256,7 @@ export function adminQuizInfo(token: number, quizId: number): QuizInfo | { error
   *
 */
 
-export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | { error: string} {
+export function adminQuizNameUpdate(token: number, quizId: number, name: string): Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -284,43 +303,37 @@ export function adminQuizNameUpdate(token: number, quizId: number, name: string)
 // My constant define for the 'Description is more than 100 characters' test case
 const MAX_DESCRIPTION_LENGTH = 100;
 
-export function adminQuizDescriptionUpdate(token: number, quizId: number, description: string): Record<string, never> | { error: string } {
+export function adminQuizDescriptionUpdate(token: number, quizId: number, description: string): Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-
-  // These two lines finds the Tahook user with both a valid userId and quidId
   const user = userArr.find((user) => user.userId === token);
-  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
-
-  // Check if the quiz is owned by the user with the given UserId
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
-
-  // Error messages returned if the error tests cases are activated within the program
-  // If a person's Tahook quiz does not match the userId, an error will then be returned
-  if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
-  }
-
-  // Check if description is empty
-  if (description.length === 0) {
-    return { error: 'Quiz description cannot be empty' };
-  }
-  // If the description length exceeds 100 characters, return an error
-  if (description.length > MAX_DESCRIPTION_LENGTH) {
-    return { error: 'Quiz description is more than 100 characters in length' };
-  }
-
   if (!user) {
-    return { error: 'userId does not exist' };
-  } else if (!quiz) {
-    return { error: 'Quiz Id not found' };
-  } else {
-    quiz.description = description;
-    quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
-    setData(store);
-    return {};
+    throw new Error('Invalid User id');
   }
+
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  if (!quiz) {
+    throw new Error('Quiz Id not found');
+  }
+
+  if (quiz.userId !== token) {
+    throw new Error('This Quiz Id does not refer to a quiz that this user owns');
+  }
+
+  if (description.length === 0) {
+    throw new Error('Quiz description cannot be empty');
+  }
+
+  if (description.length > MAX_DESCRIPTION_LENGTH) {
+    throw new Error('Quiz description is more than 100 characters in length');
+  }
+
+  quiz.description = description;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+
+  setData(store);
+  return {};
 }
 
 /** [7] adminQuizTransfer
@@ -336,7 +349,7 @@ export function adminQuizDescriptionUpdate(token: number, quizId: number, descri
   * @returns {} - empty object if successful
   *
 */
-export function adminQuizTransfer(token: number, quizId : number, userEmail : string) : Record<string, never> | { error: string } {
+export function adminQuizTransfer(token: number, quizId : number, userEmail : string) : Record<string, never> | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
@@ -369,7 +382,7 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   return {};
 }
 
-/** [11] adminQuizTrashView.test.ts
+/** [8] adminQuizTrashView.test.ts
   *
   * Returns list of quizzes in trash with basic info
   *
@@ -393,7 +406,7 @@ export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
   return ({ quizzes: result });
 }
 
-/** [14] adminQuizTrashEmpty
+/** [9] adminQuizTrashEmpty
   *
   * Duplicates a question within the same Quiz
   *
@@ -405,8 +418,16 @@ export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
   * @returns {} - empty object
   *
 */
-export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | { error: string } {
+export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | ErrorResponse {
   const store = getData();
+
+  // checking if all quizzes exist in the system
+  for (const item of quizIds) {
+    const quiz = store.quizzes.find(x => x.quizId === item) || store.trash.find(x => x.quizId === item);
+    if (!quiz) {
+      return { error: 'Some quizzes do not exist' };
+    }
+  }
 
   // checking if all quizzes are in trash
   for (const item of quizIds) {
@@ -428,7 +449,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   return {};
 }
 
-/** [15] adminQuizTrashRestore
+/** [10] adminQuizTrashRestore
   *
   * Restores a quiz from the trash
   *
@@ -439,7 +460,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   * @returns {} - empty object if successful
   *
 */
-export function adminQuizTrashRestore(token: number, quizId: number): Record<string, never> | { error: string } {
+export function adminQuizTrashRestore(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const trashArray = store.trash;
@@ -470,5 +491,44 @@ export function adminQuizTrashRestore(token: number, quizId: number): Record<str
   store.trash = trashArray;
   setData(store);
 
+  return {};
+}
+
+/** [11] adminQuizUpdateThumbnail
+ *
+ *  Updates the thumbnial of a quiz
+ *
+ * @param {number} token
+ * @param {number} quizId
+ * @param {string} thumbnailUrl
+ * @returns {} - empty object if successfull
+ */
+export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnailUrl: string): Record<string, never> | ErrorResponse {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz Id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+    throw new Error('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+  }
+  if (!thumbnailUrl.match(/^https?:\/\//)) {
+    throw new Error('The thumbnailUrl does not begin with http:// or https://');
+  }
+  quiz.thumbnailUrl = thumbnailUrl;
+  quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
+  setData(store);
   return {};
 }

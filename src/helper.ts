@@ -1,6 +1,6 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
-import { Question, User, Quiz } from './interface';
+import { Question, User, Quiz, Game, Store } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -49,6 +49,42 @@ export function findSessionIndexFromSessionId(target: number): number {
 export function findQuizIndexFromQuizId(target: number): number {
   const quizArr = getData().quizzes;
   return (quizArr.findIndex(quiz => (quiz.quizId === target)));
+}
+
+// returns the index of a question with question id in quiz or -1 if not found
+export function findQuestionIndex(quizArray: Quiz[], quizId: number, questionId: number): number {
+  const quiz = quizArray.find(quiz => quiz.quizId === quizId);
+  return quiz ? quiz.questions.findIndex(question => question.questionId === questionId) : -1;
+}
+
+// Checks whether sessionId exists from a game for a valid quiz.
+export function findGameSessionId(data: Store, sessionId: number, quizId: number): Game | null {
+  const game = data.games.find(game => game.sessionId === sessionId && game.quizId === quizId);
+  return game || null;
+}
+
+// Checks whether a userid exists with an associated token
+export function findUserByToken(token: number, users: Array<User>): User | null {
+  return users.find(user => user.userId === token) || null;
+}
+
+export function findUserByEmail(userEmail: string, users: Array<User>): User | null {
+  return users.find(user => user.email === userEmail) || null;
+}
+
+// Checks whether quiz exists with associated quizId
+export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
+  return quizzes.find(quiz => quiz.quizId === quizId) || null;
+}
+
+// Checks whether a quiz is owned by a partiuclar
+export function checkQuizOwnership(token: number, quizzes: Array<Quiz>): boolean {
+  return quizzes.some(quiz => quiz.userId === token);
+}
+
+// Checks whether a name for a quiz already exists or not
+export function isQuizNameAvailable(name: string, token: number, quizzes: Array<Quiz>): boolean {
+  return !quizzes.some(quiz => quiz.name === name && quiz.userId === token);
 }
 
 // returns the index of quiz with quizId in trash
@@ -143,26 +179,8 @@ export function checkAdminAuthLogin(email: string, password: string) {
 }
 
 /// ///////////////////////////////////////////////////////////
-export function findUserByToken(token: number, users: Array<User>): User | null {
-  return users.find(user => user.userId === token) || null;
-}
 
-export function findUserByEmail(userEmail: string, users: Array<User>): User | null {
-  return users.find(user => user.email === userEmail) || null;
-}
-
-export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
-  return quizzes.find(quiz => quiz.quizId === quizId) || null;
-}
-
-export function checkQuizOwnership(token: number, quizzes: Array<Quiz>): boolean {
-  return quizzes.some(quiz => quiz.userId === token);
-}
-
-export function isQuizNameAvailable(name: string, token: number, quizzes: Array<Quiz>): boolean {
-  return !quizzes.some(quiz => quiz.name === name && quiz.userId === token);
-}
-
+// Validates a quiz name for adminQuizNameUpdate
 export function validateQuizName(name: string): string | null {
   if (name.trim() === '') {
     throw new Error('Name cannot be empty');

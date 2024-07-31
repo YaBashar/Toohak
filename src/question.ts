@@ -21,6 +21,7 @@ and update information regarding questions within a quiz.
 
 import { getData, setData } from './dataStore';
 import { Answer, Question, QuestionId, ErrorResponse } from './interface';
+import { findUserByToken, checkQuizOwnership, findQuizIndexFromQuizId, findQuestionIndex, createQuestionId } from './helper';
 
 /** [1] adminQuizQuestionCreate
   *
@@ -35,7 +36,7 @@ import { Answer, Question, QuestionId, ErrorResponse } from './interface';
   * @returns {number} questionId
   *
 */
-export function adminQuizQuestionCreate(token: number, quizid: number, question: Question): ErrorResponse | { questionId: number } {
+export function adminQuizQuestionCreate(token: number, quizid: number, question: Question, isVersion2: boolean): ErrorResponse | { questionId: number } {
   const data = getData();
   const quizArr = data.quizzes;
   const userArr = data.users;
@@ -43,78 +44,120 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   const user = userArr.find((user) => user.userId === token);
 
   if (!user) {
-    return { error: 'Invalid Token' };
+    throw new Error('Invalid Token');
   }
   if (question.question.length < 5) {
-    return { error: 'Question is less than 5 characters' };
+    throw new Error('Question is less than 5 characters');
   }
   if (question.question.length > 50) {
-    return { error: 'Question is more than 50 characters' };
+    throw new Error('Question is more than 50 characters');
   }
   if (question.answers.length > 6) {
-    return { error: 'Question has more than 6 answers' };
+    throw new Error('Question has more than 6 answers');
   }
   if (question.answers.length < 2) {
-    return { error: 'Question has less than 2 answers' };
+    throw new Error('Question has less than 2 answers');
   }
   if (question.duration < 0) {
-    return { error: 'Question duration is not a positive number' };
+    throw new Error('Question duration is not a positive number');
   }
   if (question.duration === 0) {
-    return { error: 'Question duration is 0' };
+    throw new Error('Question duration is 0');
   }
   if (question.duration > 180) {
-    return { error: 'Sum of question durations in quiz exceeds 3 minutes' };
+    throw new Error('Sum of question durations in quiz exceeds 3 minutes');
   }
   if (question.points < 1) {
-    return { error: 'Question points are less than 1' };
+    throw new Error('Question points are less than 1');
   }
   if (question.points > 10) {
-    return { error: 'Question points are more than 10' };
+    throw new Error('Question points are more than 10');
   }
   // in answers array there are 2 answers, we need to check every answer and
   // check its length if its less than 1 or not
   if (question.answers.some((answer) => answer.answer.length < 1)) {
-    return { error: 'Answer is less than 1 character' };
+    throw new Error('Answer is less than 1 character');
   }
-
   if (question.answers.some((answer) => answer.answer.length > 30)) {
-    return { error: 'Answer is more than 30 characters' };
+    throw new Error('Answer is more than 30 characters');
   }
   if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
-    return { error: 'Answers are duplicates' };
+    throw new Error('Answers are duplicates');
   }
   if (!question.answers.some(answer => answer.correct)) {
-    return { error: 'No correct answers' };
+    throw new Error('No correct answers');
   }
   if (!quiz) {
-    return { error: 'Quiz does not exist' };
+    throw new Error('Quiz does not exist');
   }
   if (quiz.userId !== token) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
-
-  const id = uniqueQuestionId(quiz.questions);
-  // const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange'];
+  if (question.thumbnailUrl === '') {
+    throw new Error('ThumbnailUrl is empty');
+  }
+  if (question.thumbnailUrl) {
+    if (!question.thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+      throw new Error('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png');
+    }
+    if (!question.thumbnailUrl.match(/^https?:\/\//)) {
+      throw new Error('The thumbnailUrl does not begin with http:// or https://');
+    }
+  }
+  const id = uniqueId(quiz.questions);
+  const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'];
 
   // add the color and answerId here
-  // question.answers.forEach((answer, index) => {
-  //   answer.answerId = index;
-  //   answer.colour = colourArray[index];
-  // });
-  const questionBody = {
-    questionId: id,
-    question: question.question,
-    duration: question.duration,
-    points: question.points,
-    answers: question.answers
-  };
+  const answerBody = question.answers.map((answer, index) => ({
+    answerId: uniqueAnswerId(question.answers),
+    answer: answer.answer,
+    colour: colourArray[index % colourArray.length],
+    correct: answer.correct
+  }));
+
+  let questionBody;
+  if (isVersion2) {
+    questionBody = {
+      questionId: id,
+      question: question.question,
+      duration: question.duration,
+      thumbnailUrl: question.thumbnailUrl,
+      points: question.points,
+      answers: answerBody,
+    };
+  } else {
+    questionBody = {
+      questionId: id,
+      question: question.question,
+      duration: question.duration,
+      points: question.points,
+      answers: answerBody,
+    };
+  }
+
   quiz.questions.push(questionBody);
   quiz.timeLastEdited = Math.floor(Date.now() / 1000);
   setData(data);
   return { questionId: id };
 }
 
+// function to create a random id everytime
+function uniqueId(questArr: Question[]): number {
+  let uId: number;
+  do {
+    uId = Date.now();
+  } while (questArr.find(quiz => (quiz.questionId === uId)));
+  return uId;
+}
+
+// function to create a random answerId everytime
+function uniqueAnswerId(answerArr: Answer[]): number {
+  let uId: number;
+  do {
+    uId = Math.floor(Math.random() * 5001);
+  } while (answerArr.find(answer => answer.answerId === uId));
+  return uId;
+}
 /** [2] adminQuizQuestion Duplicate
   *
   * Duplicates a question within the same Quiz
@@ -130,34 +173,34 @@ export function adminQuizQuestionCreate(token: number, quizid: number, question:
   *
 */
 
-export function adminQuizQuestionDuplicate(token : number, quizId: number, questionId: number): QuestionId | ErrorResponse {
+export function adminQuizQuestionDuplicate(token: number, quizId: number, questionId: number): QuestionId | ErrorResponse {
   const store = getData();
 
   const userArr = store.users;
   const quizArr = store.quizzes;
 
-  const user = userArr.find(user => user.userId === token);
+  const findQuiz = findQuizIndexFromQuizId(quizId);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+
   if (!user) {
-    return { error: 'Invalid User id' };
+    throw new Error('Invalid User id');
   }
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
-  if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
-  }
-
-  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
   if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
+    throw new Error('Invalid Quiz id');
   }
-  const quiz = store.quizzes[findQuiz];
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
 
-  const findQuestion = store.quizzes[findQuiz].questions.findIndex(question => question.questionId === questionId);
+  const findQuestion = findQuestionIndex(quizArr, quizId, questionId);
   if (findQuestion === -1) {
-    return { error: 'Question id does not refer to valid question in quiz' };
+    throw new Error('Question id does not refer to valid question in quiz');
   }
 
-  const question = quizArr[findQuiz].questions[findQuestion];
-  const newQuestionId = uniqueQuestionId(quiz.questions);
+  const quiz = quizArr[findQuiz];
+  const question = quiz.questions[findQuestion];
+  const newQuestionId = createQuestionId(quiz.questions);
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
@@ -166,12 +209,13 @@ export function adminQuizQuestionDuplicate(token : number, quizId: number, quest
     question: question.question,
     duration: question.duration,
     points: question.points,
-    answers: question.answers
+    answers: question.answers,
+    thumbnailUrl: question.thumbnailUrl
   };
 
   quiz.questions.push(duplicatedQuestion);
   setData(store);
-  return { questionId: newQuestionId };
+  return { newQuestionId: newQuestionId };
 }
 
 /** [3] adminQuizQuestionDelete
@@ -196,31 +240,22 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   const user = userArr.find((user) => user.userId === token);
 
   if (!user) {
-    return { error: 'Invalid Token' };
+    throw new Error('Invalid Token');
   }
   if (!quiz) {
-    return { error: 'Invalid Quiz Id' };
+    throw new Error('Invalid Quiz Id');
   }
   if (quiz.userId !== token) {
-    return { error: 'Quiz Id not owned by the user' };
+    throw new Error('Quiz Id not owned by the user');
   }
   const question = quiz.questions.find((question: Question) => question.questionId === questionId);
   if (!question) {
-    return { error: 'Invalid Question Id' };
+    throw new Error('Invalid Question Id');
   }
   const index = quiz.questions.indexOf(question);
   quiz.questions.splice(index, 1);
   setData(store);
   return {};
-}
-
-// function to create a random id everytime
-function uniqueQuestionId(questArr: Question[]): number {
-  let uId: number;
-  do {
-    uId = Date.now();
-  } while (questArr.find(quiz => (quiz.questionId === uId)));
-  return uId;
 }
 
 /** [4] adminQuizQuestionUpdate
@@ -243,52 +278,53 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
       question: string,
       duration: number,
       points: number,
-      answers:Answer[]
+      answers:Answer[],
+      thumbnailUrl: string
     }
 ) : Record<string, never> | { error: string } {
   const data = getData();
   const user = data.users.find(user => user.userId === token);
 
   if (!user) {
-    return { error: 'invalid token' };
+    throw new Error('invalid token');
   }
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
   if (quizIndex === -1) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
   const quiz = data.quizzes[quizIndex];
   if (!quiz) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (quiz.userId !== token) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   const question = quiz.questions.find(question => question.questionId === questionId);
   const questionIndex = quiz.questions.findIndex(question => question.questionId === questionId);
   if (!question) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   if (questionBody.question.length < 5) {
-    return { error: 'question is too short' };
+    throw new Error('question is too short');
   }
   if (questionBody.question.length > 50) {
-    return { error: 'question is too long' };
+    throw new Error('question is too long');
   }
   if (questionBody.answers.length > 6) {
-    return { error: 'question has too many answers' };
+    throw new Error('question has too many answers');
   }
   if (questionBody.answers.length < 2) {
-    return { error: 'question does not have enough answers' };
+    throw new Error('question does not have enough answers');
   }
-  if (questionBody.duration < 0 || typeof (questionBody.duration) !== 'number') {
-    return { error: 'duration is not a positive number' };
+  if (questionBody.duration <= 0 || typeof (questionBody.duration) !== 'number') {
+    throw new Error('duration is not a positive number');
   }
   let duration = 0;
 
@@ -300,25 +336,37 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   duration += questionBody.duration;
 
   if (duration > 180) {
-    return { error: 'total duration of quiz is too long' };
+    throw new Error('total duration of quiz is too long');
   }
   if (questionBody.points < 1 || typeof (questionBody.points) !== 'number') {
-    return { error: 'points is not a positive number' };
+    throw new Error('points is not a positive number');
   }
   if (questionBody.points > 10) {
-    return { error: 'points awarded is too big' };
+    throw new Error('points awarded is too big');
   }
   if (questionBody.answers.some((answer) => answer.answer.length < 1)) {
-    return { error: 'answer is too short' };
+    throw new Error('answer is too short');
   }
   if (questionBody.answers.some((answer) => answer.answer.length > 30)) {
-    return { error: 'answer is too long' };
+    throw new Error('answer is too long');
   }
   if (questionBody.answers.some((answer) => questionBody.answers.filter((a) => a.answer === answer.answer).length > 1)) {
-    return { error: 'question contains a duplicate answer' };
+    throw new Error('question contains a duplicate answer');
   }
   if (!questionBody.answers.some(answer => answer.correct)) {
-    return { error: 'no correct answer for this question' };
+    throw new Error('no correct answer for this question');
+  }
+
+  if (questionBody.thumbnailUrl === '') {
+    throw new Error('thumbnail is empty');
+  }
+  if (questionBody.thumbnailUrl) {
+    if (!questionBody.thumbnailUrl.match(/\.(jpeg|jpg|png)$/i)) {
+      throw new Error('thumbnail is the wrong type');
+    }
+    if (!questionBody.thumbnailUrl.match(/^https?:\/\//)) {
+      throw new Error('thumbnailUrl is not a url');
+    }
   }
 
   const quest: Question = quiz.questions[questionIndex];
@@ -326,6 +374,7 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   quest.duration = questionBody.duration;
   quest.points = questionBody.points;
   quest.answers = questionBody.answers;
+  quest.thumbnailUrl = questionBody.thumbnailUrl;
   quiz.timeLastEdited = Math.round(Date.now() / 1000);
 
   setData(data);
@@ -351,41 +400,42 @@ export function adminQuizQuestionMove(token: number, quizId: number, questionId:
   const user = data.users.find(user => user.userId === token);
 
   if (!user) {
-    return { error: 'invalid token' };
+    throw new Error('invalid token');
   }
+
   const quizIndex = data.quizzes.findIndex(quiz => quiz.quizId === quizId);
   if (quizIndex === -1) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   const quiz = data.quizzes[quizIndex];
   if (!quiz) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (quiz.userId !== token) {
-    return { error: 'quiz does not exist for this user' };
+    throw new Error('quiz does not exist for this user');
   }
 
   if (!doesQuestionExistInQuiz(quiz.questions, questionId)) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   const question = quiz.questions.find(question => question.questionId === questionId);
   if (!question) {
-    return { error: 'question id does not exist in this quiz' };
+    throw new Error('question id does not exist in this quiz');
   }
 
   if (newPosition < 0) {
-    return { error: 'position value is less than zero' };
+    throw new Error('position value is less than zero');
   }
 
   if (quiz.questions.indexOf(question) === newPosition) {
-    return { error: 'new position is current position' };
+    throw new Error('new position is current position');
   }
 
   if (newPosition > quiz.questions.length - 1) {
-    return { error: 'new position is too big' };
+    throw new Error('new position is too big');
   }
 
   quiz.timeLastEdited = Math.round(Date.now() / 1000);

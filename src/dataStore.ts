@@ -5,31 +5,21 @@ let data: Store = {
   users: [],
   quizzes: [],
   sessions: [],
-  trash: []
+  trash: [],
+  games: [],
 };
-
-// Load data from file on startup
-if (fs.existsSync('../data.json')) {
-  const rawData = fs.readFileSync('data.json', 'utf-8');
-  data = JSON.parse(rawData);
-}
 
 function getData(): Store {
   return data;
 }
 
 function setData(newData: Store) {
-  data = newData;
-  saveData();
-}
-
-// Save data to file
-function saveData() {
   const dataString = JSON.stringify(data, null, 2);
   fs.writeFileSync('data.json', dataString);
+  data = newData;
 }
 
 // Save data every 10 minutes
-setInterval(saveData, 10 * 60 * 1000);
+// setInterval(saveData, 10 * 60 * 1000);
 
 export { getData, setData };

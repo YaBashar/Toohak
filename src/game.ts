@@ -146,7 +146,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
   const playerInfo = {
     state: States[gameWithPlayer.status],
     numQuestions: gameWithPlayer.numQuestions,
-    atQuestion: playerFound.atQuestion
+    atQuestion: gameWithPlayer.activeQuestion
   };
 
   return (playerInfo);
@@ -177,7 +177,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   }
 
   if (action === Actions.NEXT_QUESTION) {
-    if (game.status === States.LOBBY) {
+    if (game.status === States.LOBBY || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
       game.activeQuestion += 1;
       setData(data); // Persist changes immediately

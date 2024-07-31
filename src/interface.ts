@@ -1,4 +1,6 @@
 // dataStore
+import { States } from './game';
+
 export interface User {
   userId: number,
   name: string,
@@ -49,7 +51,7 @@ export interface Quiz {
   questions: Question[],
   duration: number,
   userId: number
-  thumbnailUrl: string
+  thumbnailUrl?: string
 }
 
 export interface QuizList {
@@ -66,6 +68,7 @@ export interface QuizInfo {
   numQuestions: number,
   questions: Question[];
   duration : number
+  thumbnailUrl? : string
 }
 
 export interface Session {
@@ -77,9 +80,35 @@ export interface ErrorResponse {
   error : string
 }
 
+export interface Player {
+  playerId: number,
+  name: string,
+  atQuestion: number,
+  points: number,
+}
+
+export interface Results {
+  questionId: number,
+  playersCorrectList: string[],
+  averageAnswerTime: number,
+  percentageCorrect: number
+}
+
+export interface Game {
+  sessionId: number,
+  status: States,
+  quizId: number,
+  autoStartNum: number,
+  players: Player[],
+  numQuestions: number,
+  activeQuestion: number,
+  questionResults: Results[],
+}
+
 export interface Store {
   users: User[],
   quizzes: Quiz[],
   sessions: Session[],
-  trash: Quiz[]
+  trash: Quiz[],
+  games: Game[],
 }

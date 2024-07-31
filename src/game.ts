@@ -184,15 +184,16 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     throw new Error('Question position is invalid');
   }
 
-  const question = quiz.questions[questionposition];
+  const question = quiz.questions[questionposition - 1];
+
 
   // if (game.status !== States.QUESTION_OPEN) {
   //   throw new Error('Session is not in the correct state');
   // }
-
-  if (game.activeQuestion !== question.questionId) {
-    throw new Error('Session is not currently on this question');
-  }
+  
+  // if (game.activeQuestion !== question.questionId) {
+  //   throw new Error('Session is not currently on this question');
+  // }
 
   if (!areAnswerIdsValid(question.questionId, answerids)) {
     throw new Error('Invalid answer ID');

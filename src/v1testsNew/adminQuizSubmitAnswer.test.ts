@@ -92,7 +92,7 @@ const questionResult = (playerid: number, questionposition: number) => {
   const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`)
 return JSON.parse(res.body.toString());};
 
-const submitAnswer = (answerids: [number], playerid: number, questionposition: number) => {
+const submitAnswer = (answerids: number[], playerid: number, questionposition: number) => {
   const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
     json: { answerids }
   })
@@ -154,6 +154,7 @@ beforeEach(() => {
   // updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
   // const status = requestGameSessionInfo(token, quiz1Id, sessionId).body.state
   // console.log(status);
+
 });
 
 afterEach(() => {
@@ -191,15 +192,15 @@ describe('PUT /v1/player/:playerid/question/:questionposition/answer', () => {
   // });
 
   test('invalid answer id', () => {
-    const res = submitAnswer([999], playerId, 2)
-    console.log(question1Quiz1Id);
+    const res = submitAnswer([999], playerId, 1)
     console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
-  test('duplicate answer id provided', () => {
-    const res = submitAnswer([answerId], playerId, 2)
+  console.log(answerId);
+  test.only('duplicate answer id provided', () => {
+    const res = submitAnswer([answerId, answerId], playerId, 1)
     console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);

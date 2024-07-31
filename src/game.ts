@@ -293,16 +293,20 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
   const question = quiz.questions[questionposition - 1];
 
 
-  // if (game.status !== States.QUESTION_OPEN) {
-  //   throw new Error('Session is not in the correct state');
-  // }
+  if (game.status !== States.QUESTION_OPEN) {
+    throw new Error('Session is not in the correct state');
+  }
   
-  // if (game.activeQuestion !== question.questionId) {
-  //   throw new Error('Session is not currently on this question');
-  // }
+  console.log(game.activeQuestion);
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
 
-  if (!areAnswerIdsValid(question.questionId, answerids)) {
-    throw new Error('Invalid answer ID');
+  const validAnswerIds = question.answers.map((answer: any) => answer.answerId);
+  for (const answerId of answerids) {
+    if (!validAnswerIds.includes(answerId)) {
+      throw new Error('Invalid answer ID');
+    }
   }
 
   if (hasDuplicateAnswerIds(answerids)) {
@@ -315,6 +319,7 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
 
   return {};
 }
+
 
 function areAnswerIdsValid(questionid: number, answerIds: number[]): boolean {
   const data = getData();

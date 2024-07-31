@@ -110,6 +110,16 @@ const requestGameSessionInfo = (token : string, quizid : number, sessionid : num
   };
 };
 
+const quizInfo = (quizid: number, token: string) => {
+  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizid}`, {
+    headers: { token }, json: { quizid }
+  });
+  return {
+    body: JSON.parse(res.body.toString()),
+    statusCode: res.statusCode
+  };
+}
+
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -150,11 +160,13 @@ beforeEach(() => {
   playerId = JSON.parse(res.body.toString()).playerId;
 
   // change state
-  // updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
-  // updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
-  // const status = requestGameSessionInfo(token, quiz1Id, sessionId).body.state
-  // console.log(status);
-
+  updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
+  updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
+  const status = requestGameSessionInfo(token, quiz1Id, sessionId).body.state
+  
+  const quizDetails = quizInfo(quiz1Id, token).body;
+  const answer = quizDetails.questions[0].answers.find((answer: any) => answer.correct);
+  const answerId = answer ? answer.answerId : null;
 });
 
 afterEach(() => {
@@ -176,20 +188,20 @@ describe('PUT /v1/player/:playerid/question/:questionposition/answer', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  // test('session is on a different question', () => {
-  //   const res = submitAnswer([answerId], playerId, 2)
-  //   console.log(res.body);
-  //   expect(res.body).toStrictEqual({ error: expect.any(String) });
-  //   expect(res.statusCode).toBe(400);
-  // });
+  test('session is on a different question', () => {
+    const res = submitAnswer([answerId], playerId, 2)
+    console.log(res.body);
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
 
-  // test('session is in the wrong state', () => {
-  //   updateState(quiz1Id, sessionId, token, Actions.END)
-  //   const res = submitAnswer([answerId], playerId, 1)
-  //   console.log(res.body);
-  //   expect(res.body).toStrictEqual({ error: expect.any(String) });
-  //   expect(res.statusCode).toBe(400);
-  // });
+  test('session is in the wrong state', () => {
+    updateState(quiz1Id, sessionId, token, Actions.END)
+    const res = submitAnswer([answerId], playerId, 1)
+    console.log(res.body);
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
 
   test('invalid answer id', () => {
     const res = submitAnswer([999], playerId, 1)
@@ -198,19 +210,18 @@ describe('PUT /v1/player/:playerid/question/:questionposition/answer', () => {
     expect(res.statusCode).toBe(400);
   });
 
-  console.log(answerId);
-  test.only('duplicate answer id provided', () => {
+  test('duplicate answer id provided', () => {
     const res = submitAnswer([answerId, answerId], playerId, 1)
     console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
-  // test('no answer id was submitted', () => {
-  //   const res = submitAnswer([], playerId, 2)
-  //   expect(res.body).toStrictEqual({ error: expect.any(String) });
-  //   expect(res.statusCode).toBe(400);
-  // });
+  test('no answer id was submitted', () => {
+    const res = submitAnswer([], playerId, 2)
+    expect(res.body).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
 
   test('success case', () => {
     const res = submitAnswer([answerId], playerId, 1)

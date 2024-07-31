@@ -89,7 +89,7 @@ export function findDelQuizIndexFromQuizId(target: number): number {
   return (trashArr.findIndex(quiz => (quiz.quizId === target)));
 }
 
-// 
+//
 
 /*
   HELPER FUNCTIONS FOR CREATING UNIQUE AND RANDOM NUMBER IDS

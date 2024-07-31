@@ -17,7 +17,7 @@ END: The game is now over and inactive.
 
 import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
-import { Results, Player, Game } from './interface';
+import { Results, Player, Game, Answer } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
 
 export enum States {
@@ -292,17 +292,15 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
 
   const question = quiz.questions[questionposition - 1];
 
-
   if (game.status !== States.QUESTION_OPEN) {
     throw new Error('Session is not in the correct state');
   }
-  
-  console.log(game.activeQuestion);
+
   if (game.activeQuestion !== questionposition) {
     throw new Error('Session is not currently on this question');
   }
 
-  const validAnswerIds = question.answers.map((answer: any) => answer.answerId);
+  const validAnswerIds = question.answers.map((answer: Answer) => answer.answerId);
   for (const answerId of answerids) {
     if (!validAnswerIds.includes(answerId)) {
       throw new Error('Invalid answer ID');
@@ -317,23 +315,17 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     throw new Error('No answer provided');
   }
 
+  const results = questionResults[questionposition - 1];
+  if (checkAllCorrectAnswers(question.questionid, answerids)) {
+    const playerName = game.players
+      .filter((name: string) => playerId === playerid);
+    results.playersCorrectList.push(playerName);
+    results.percentageCorrect = results.percentageCorrect + 1/(players.length)
+  } 
+
+  // update avg answer time
+
   return {};
-}
-
-
-function areAnswerIdsValid(questionid: number, answerIds: number[]): boolean {
-  const data = getData();
-  const question = data.quizzes
-    .flatMap(quiz => quiz.questions)
-    .find(q => q.questionId === questionid);
-
-  if (!question) {
-    throw new Error('Question does not exist');
-  }
-
-  const validAnswerIds = question.answers.map(answer => answer.answerId);
-
-  return answerIds.every(id => validAnswerIds.includes(id));
 }
 
 function hasDuplicateAnswerIds(answerIds: number[]): boolean {
@@ -347,3 +339,13 @@ function hasDuplicateAnswerIds(answerIds: number[]): boolean {
   }
   return false;
 }
+
+const checkAllCorrectAnswers = (questionId: number, answerIds: number[]): boolean => {
+  // Extract correct answer IDs from the question
+  const correctAnswerIds = question.answers
+    .filter((answer: Answer) => answer.correct)
+    .map((answer: Answer) => answer.answerId);
+
+  // Check if the provided answerIds array contains all correct answer IDs
+  return correctAnswerIds.every((correctId: number) => answerIds.includes(correctId));
+};

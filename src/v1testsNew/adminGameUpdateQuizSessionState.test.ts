@@ -92,6 +92,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     let token : string;
     let quizId : number;
     let sessionId : number;
+    let questionDuration : number;
 
     beforeEach(() => {
       const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
@@ -101,6 +102,9 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
       ]);
+
+      const res = requestQuizInfo(token, quizId);
+      questionDuration = JSON.parse(res.body.toString()).duration;
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
@@ -182,23 +186,132 @@ describe('adminQuizQuestionDuplicate Tests', () => {
     });
 
     test('Invalid Actions from State Question_Open', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
 
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Now update using invalid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update2.body).toStrictEqual({ error: expect.any(String) });
+      expect(update2.statusCode).toStrictEqual(400);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(update3.body).toStrictEqual({ error: expect.any(String) });
+      expect(update3.statusCode).toStrictEqual(400);
     });
 
     test('Invalid Actions from State Question_Close', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
 
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+      // Now update using invalid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
     });
 
     test('Invalid Actions from State Final_Results', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
 
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+
+      // update to Final_Results
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+
+      // Invalid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update2.body).toStrictEqual({ error: expect.any(String) });
+      expect(update2.statusCode).toStrictEqual(400);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(update3.body).toStrictEqual({ error: expect.any(String) });
+      expect(update3.statusCode).toStrictEqual(400);
+
+      const update4 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update4.body).toStrictEqual({ error: expect.any(String) });
+      expect(update4.statusCode).toStrictEqual(400);
     });
 
     test('Invalid Actions from State Answer_Show', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
 
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+
+      // update to go to Answer
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update2.body).toStrictEqual({ error: expect.any(String) });
+      expect(update2.statusCode).toStrictEqual(400);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(update3.body).toStrictEqual({ error: expect.any(String) });
+      expect(update3.statusCode).toStrictEqual(400);
     });
 
     test('Invalid Actions from State End', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
 
+      // Update to END
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(update1.body).toStrictEqual({ error: expect.any(String) });
+      expect(update1.statusCode).toStrictEqual(400);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update2.body).toStrictEqual({ error: expect.any(String) });
+      expect(update2.statusCode).toStrictEqual(400);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update3.body).toStrictEqual({ error: expect.any(String) });
+      expect(update3.statusCode).toStrictEqual(400);
+
+      const update4 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update4.body).toStrictEqual({ error: expect.any(String) });
+      expect(update4.statusCode).toStrictEqual(400);
     });
   });
 
@@ -220,9 +333,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
 
       questionId = JSON.parse(question.body.toString()).questionId;
       const res = requestQuizInfo(token, quizId);
-      console.log(res.body.toString(), 'question');
       questionDuration = JSON.parse(res.body.toString()).duration;
-      console.log(questionDuration);
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
@@ -240,7 +351,6 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       slync(3000);
 
       const res3 = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res3.body);
       expect(res3.body).toStrictEqual(
         {
           state: 'QUESTION_OPEN',
@@ -283,34 +393,63 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       );
     });
 
-    test('Successfully Skips Question_Countdown', (done) => {
-      // Start at lobby
-      requestGameSessionInfo(token, quizId, sessionId);
-      // Update to Next_Question
+    test('Successfully Skips Question_Countdown', () => {
+      // Start at lobby and Update to Next_Question
       updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
       // Do Skip Question
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      const res = requestGameSessionInfo(token, quizId, sessionId);
+
+      expect(res.body).toStrictEqual(
+        {
+          state: 'QUESTION_OPEN',
+          atQuestion: expect.any(Number),
+          players: expect.any(Array),
+          metadata: {
+            quizId: expect.any(Number),
+            name: expect.any(String),
+            timeCreated: expect.any(Number),
+            timeLastEdited: expect.any(Number),
+            description: expect.any(String),
+            numQuestions: expect.any(Number),
+            questions: [
+              {
+                questionId: questionId,
+                question: 'Who is the Monarch of England?',
+                duration: 4,
+                thumbnailUrl: expect.any(String),
+                points: 5,
+                answers: [
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Prince Charles',
+                    colour: expect.any(String),
+                    correct: true
+                  },
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Queen Elizabeth',
+                    colour: expect.any(String),
+                    correct: false
+                  }
+                ]
+              }
+            ],
+            duration: expect.any(Number),
+            thumbnailUrl: expect.any(String)
+          }
+        }
+      );
     });
 
-    test.only('Successfully Moves from Question_Open to Question_Close', () => {
-      // Start at lobby
-      requestGameSessionInfo(token, quizId, sessionId);
-      // Update to Next_Question
+    test('Successfully Moves from Question_Open to Question_Close', () => {
+      // Start at lobby and Update to Next_Question
       updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
-
-      //
-      const res = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res.body);
-
-      // Wait 3 seconds to Question OPen
+      // Wait 3 seconds to Question open
       slync(3000);
-      const res3 = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res3.body);
-      console.log(token);
-
       // Wait until question Duration to question close
       slync(questionDuration * 1000);
       const res4 = requestGameSessionInfo(token, quizId, sessionId);
-      console.log(res4.body);
       expect(res4.body).toStrictEqual(
         {
           state: 'QUESTION_CLOSE',
@@ -351,6 +490,127 @@ describe('adminQuizQuestionDuplicate Tests', () => {
           }
         }
       );
+    });
+
+    test('Valid Actions from Lobby', () => {
+      const res = updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+      expect(res.body).toStrictEqual({});
+      expect(res.statusCode).toStrictEqual(200);
+    });
+
+    test('Valid Actions from Question CountDown', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Now update using valid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+      expect(update1.body).toStrictEqual({});
+      expect(update1.statusCode).toStrictEqual(200);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update2.body).toStrictEqual({});
+      expect(update2.statusCode).toStrictEqual(200);
+    });
+
+    test('Valid Actions from State Question Open', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Now update using invalid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update1.body).toStrictEqual({ });
+      expect(update1.statusCode).toStrictEqual(200);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update2.body).toStrictEqual({ });
+      expect(update2.statusCode).toStrictEqual(200);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update3.body).toStrictEqual({ });
+      expect(update3.statusCode).toStrictEqual(200);
+    });
+
+    test('Valid Actions from State Question_CLOSE', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+      // Now update using invalid Actions
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+      expect(update2.body).toStrictEqual({ });
+      expect(update2.statusCode).toStrictEqual(200);
+
+      const update3 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update3.body).toStrictEqual({ });
+      expect(update3.statusCode).toStrictEqual(200);
+
+      const update4 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update4.body).toStrictEqual({ });
+      expect(update4.statusCode).toStrictEqual(200);
+    });
+
+    test('Valid Actions from State Answer Show', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+
+      // update to go to Answer
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_ANSWER);
+
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+      expect(update1.body).toStrictEqual({ });
+      expect(update1.statusCode).toStrictEqual(200);
+
+      const update2 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update2.body).toStrictEqual({ });
+      expect(update2.statusCode).toStrictEqual(200);
+    });
+
+    test('Valid Actions from State Final Results', () => {
+      // Start with State at LOBBY
+      requestGameSessionInfo(token, quizId, sessionId);
+
+      // Update to Next_Question changing Status to QUESTION_COUNTDOWN
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
+
+      // Skip to question Open
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.SKIP_COUNTDOWN);
+
+      // Wail till Question Closes
+      slync(questionDuration * 1000);
+
+      // update to Final_Results
+      updateQuizSessionStatus(token, quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+
+      // valid Actions
+      const update1 = updateQuizSessionStatus(token, quizId, sessionId, Actions.END);
+      expect(update1.body).toStrictEqual({ });
+      expect(update1.statusCode).toStrictEqual(200);
     });
   });
 });

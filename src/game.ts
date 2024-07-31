@@ -160,3 +160,5 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 
   return (gameSessionInfo);
 }
+
+// Write two of my functions here:

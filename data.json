@@ -1,0 +1,80 @@
+{
+  "users": [
+    {
+      "userId": 120506,
+      "name": "sidak singh",
+      "email": "z5525050@unsw.edu.au",
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722388713084,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1722388713,
+      "timeLastEdited": 1722388713,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722388713095,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "thumbnailUrl": "https://example.com/image-thumbnail-12345.jpg",
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3653,
+              "answer": "Prince Charles",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 3054,
+              "answer": "Queen Elizabeth",
+              "colour": "blue",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "questionId": 719994,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3653,
+              "answer": "Prince Charles",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 3054,
+              "answer": "Queen Elizabeth",
+              "colour": "blue",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "https://example.com/image-thumbnail-12345.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 120506,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 900205,
+      "userId": 120506
+    }
+  ],
+  "trash": [],
+  "games": []
+}

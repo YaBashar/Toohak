@@ -11,6 +11,7 @@ let quiz1Id: number;
 let sessionId: number;
 let playerId: number;
 let answerId: number;
+let player2Id: number;
 
 // wrapper functions
 const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
@@ -126,6 +127,9 @@ beforeEach(() => {
   const res = joinSession(sessionId, 'amelia');
   playerId = JSON.parse(res.body.toString()).playerId;
 
+  const res2 = joinSession(sessionId, 'steph');
+  player2Id = JSON.parse(res2.body.toString()).playerId;
+
   // change state
   updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
   updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
@@ -187,5 +191,9 @@ describe('PUT /v1/player/:playerid/question/:questionposition/answer', () => {
     const res = submitAnswer([answerId], playerId, 1);
     expect(res.body).toStrictEqual({});
     expect(res.statusCode).toBe(200);
+
+    const res2 = submitAnswer([answerId], player2Id, 1);
+    expect(res2.body).toStrictEqual({});
+    expect(res2.statusCode).toBe(200);
   });
 });

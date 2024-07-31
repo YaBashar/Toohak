@@ -43,6 +43,8 @@ export enum Actions {
 //   INACTIVE
 // }
 
+const answerTimes: { [playerId: number]: { [questionPosition: number]: number } } = {};
+
 // DEPENDENCIES
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
@@ -74,6 +76,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
       playersCorrectList: [],
       averageAnswerTime: 0,
       percentageCorrect: 0,
+      startTime: 0
     });
   }
 
@@ -315,16 +318,21 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     throw new Error('No answer provided');
   }
 
-  const results = questionResults[questionposition - 1];
-  if (checkAllCorrectAnswers(question.questionid, answerids)) {
-    const playerName = game.players
-      .filter((name: string) => playerId === playerid);
+  const correctAnswerIds = question.answers
+    .filter((answer: Answer) => answer.correct)
+    .map((answer: Answer) => answer.answerId);
+
+  const correct = correctAnswerIds.every((correctId: number) => answerids.includes(correctId));
+
+  const results = game.questionResults[questionposition - 1];
+  if (correct) {
+    const playerIndex = game.players.findIndex((player) => playerid === player.playerId);
+    const playerName = game.players[playerIndex].name;
     results.playersCorrectList.push(playerName);
-    results.percentageCorrect = results.percentageCorrect + 1/(players.length)
+    results.percentageCorrect = ((results.percentageCorrect/100) + 1/(game.players.length)) * 100;
   } 
 
-  // update avg answer time
-
+  setData(data);
   return {};
 }
 
@@ -339,13 +347,3 @@ function hasDuplicateAnswerIds(answerIds: number[]): boolean {
   }
   return false;
 }
-
-const checkAllCorrectAnswers = (questionId: number, answerIds: number[]): boolean => {
-  // Extract correct answer IDs from the question
-  const correctAnswerIds = question.answers
-    .filter((answer: Answer) => answer.correct)
-    .map((answer: Answer) => answer.answerId);
-
-  // Check if the provided answerIds array contains all correct answer IDs
-  return correctAnswerIds.every((correctId: number) => answerIds.includes(correctId));
-};

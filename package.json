@@ -1,6 +1,6 @@
 {
     "scripts": {
-        "test": "jest",
+        "test": "jest --detectOpenHandles",
         "test:coverage": "jest --coverage",
         "tsc": "tsc --project tsconfig.json",
         "lint": "eslint 'src/**/*.{ts,js}'",
@@ -17,6 +17,7 @@
         "express": "^4.19.2",
         "morgan": "^1.10.0",
         "nyc": "^17.0.0",
+        "slync": "^1.0.2",
         "ts-node": "^10.9.2",
         "validator": "^13.12.0"
     },

@@ -15,7 +15,7 @@ FINAL_RESULTS: This is where the final results are displayed for all players and
 END: The game is now over and inactive.
 */
 
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
 import { Results, Player, Game } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
@@ -30,18 +30,20 @@ export enum States {
   END
 }
 
-// enum Actions {
-//   NEXT_QUESTION,
-//   SKIP_COUNTDOWN,
-//   GO_TO_ANSWER,
-//   GO_TO_FINAL_RESULTS,
-//   END
-// }
+export enum Actions {
+  NEXT_QUESTION,
+  SKIP_COUNTDOWN,
+  GO_TO_ANSWER,
+  GO_TO_FINAL_RESULTS,
+  END
+}
 
 // enum Status {
 //   ACTIVE,
 //   INACTIVE
 // }
+
+// DEPENDENCIES
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
@@ -112,6 +114,110 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
+export const timerMap = new Map();
+
+export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
+  const data = getData();
+  const userArr = data.users;
+  const quizArr = data.quizzes;
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+  const game = findGameSessionId(data, sessionId, quizId);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!game) {
+    throw new Error('Session Id does not exist');
+  }
+
+  if (action === Actions.NEXT_QUESTION) {
+    if (game.status === States.LOBBY) {
+      game.status = States.QUESTION_COUNTDOWN;
+      game.activeQuestion += 1;
+      setData(data); // Persist changes immediately
+
+      // Clear any existing timer
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      // THIS WORKS
+      const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
+        game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
+
+        const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+        setTimeout(() => {
+          game.status = States.QUESTION_CLOSE;
+          setData(data); // Persist changes immediately
+        }, testTime);
+      }, 3000);
+      timerMap.set(sessionId, countdownInterval);
+    } else {
+      throw new Error('Action Next Question not applicable in this state');
+    }
+  }
+
+  if (action === Actions.SKIP_COUNTDOWN) {
+    if (game.status === States.QUESTION_COUNTDOWN) {
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+        timerMap.delete(sessionId);
+        game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
+      }
+
+      const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+      setTimeout(() => {
+        game.status = States.QUESTION_CLOSE;
+        setData(data); // Persist changes immediately
+      }, testTime);
+    } else {
+      throw new Error('Action Skip Countdown not applicable in this state');
+    }
+  }
+
+  if (action === Actions.GO_TO_ANSWER) {
+    if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
+      game.status = States.ANSWER_SHOW;
+      setData(data); // Persist changes immediately
+    } else {
+      throw new Error('Action Go to answer is not applicable in this state');
+    }
+  }
+
+  if (action === Actions.GO_TO_FINAL_RESULTS) {
+    if (game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
+      game.status = States.FINAL_RESULTS;
+      setData(data); // Persist changes immediately
+    } else {
+      throw new Error('Action Go to final results is not applicable in this state');
+    }
+  }
+
+  if (action === Actions.END) {
+    game.status = States.END;
+    setData(data); // Persist changes immediately
+  }
+
+  if (action !== Actions.NEXT_QUESTION && action !== Actions.SKIP_COUNTDOWN &&
+    action !== Actions.GO_TO_ANSWER && action !== Actions.GO_TO_FINAL_RESULTS && action !== Actions.END) {
+    throw new Error('Action not a valid enum');
+  }
+
+  return {};
+}
+
 export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, sessionId : number) {
   const store = getData();
   const userArr = store.users;
@@ -120,7 +226,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   const user = findUserByToken(userId, userArr);
   const quizUser = checkQuizOwnership(userId, quizArr);
 
-  const game = findGameSessionId(sessionId, quizId);
+  const game = findGameSessionId(store, sessionId, quizId);
 
   if (!user) {
     throw new Error('Invalid User id');

@@ -13,8 +13,11 @@ const createUser = (email: string, password: string, firstName: string, lastName
 };
 
 const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: {
+      token,
+    },
+    json: { name, description }
   });
   return JSON.parse(res.body.toString());
 };
@@ -22,8 +25,8 @@ const createQuiz = (token : string, name : string, description : string) => {
 const quizList = (token: string) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/list`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/list`,
+    { headers: { token } }
   );
   return res;
 };
@@ -36,7 +39,7 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('POST /v1/admin/quiz', () => {
+describe('POST /v2/admin/quiz', () => {
   let token: string;
 
   beforeEach(() => {

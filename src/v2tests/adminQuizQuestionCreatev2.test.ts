@@ -5,29 +5,31 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // wrapper functions
-
-const createQuiz = (token : string, name : string, description : string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
-  });
-  return JSON.parse(res.body.toString());
-};
-
 const createUser = (email: string, password: string, firstName: string, lastName: string) => {
   return request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst: firstName, nameLast: lastName }
   });
 };
 
-const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
-  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-    json: {
+const createQuiz = (token : string, name : string, description : string) => {
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { token, name, description }
+  });
+  return JSON.parse(res.body.toString());
+};
+
+const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
       token,
+    },
+    json: {
       questionBody: {
         question,
         duration,
         points,
-        answers
+        answers,
+        thumbnailUrl
       }
     }
   });
@@ -43,7 +45,7 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('POST /v1/admin/quiz/:quizid/question', () => {
+describe('POST /v2/admin/quiz/:quizid/question', () => {
   let quizid: number;
   let quizid2: number;
   let token1: string;
@@ -70,7 +72,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -86,7 +90,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -98,7 +104,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Prince Charles',
         correct: true,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -110,7 +118,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Prince Charles',
         correct: true,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -146,7 +156,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Prince Edward',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -158,7 +170,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Prince Charles',
         correct: true,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -174,7 +188,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -190,7 +206,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -206,7 +224,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -222,7 +242,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -238,7 +260,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -254,7 +278,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: '',
         correct: true,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -270,7 +296,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth Queen Elizabeth Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -286,7 +314,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Prince Charles',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -302,7 +332,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -318,7 +350,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
@@ -334,9 +368,85 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
+  });
+
+  // thumbnailUrl is an empty string
+  test('ThumbnailUrl is an empty string', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ],
+    ''
+    );
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
+
+  // The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png
+  // with gif
+  test('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ],
+    'http://google.com/some/image/path.gif'
+    );
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
+
+  // The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png
+  // with doc
+  test('The thumbnailUrl does not end with one of the following filetypes (case insensitive): jpg, jpeg, png', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ],
+    'http://google.com/some/image/path.doc'
+    );
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
+
+  // The thumbnailUrl does not begin with 'http://' or 'https://'
+  test('The thumbnailUrl does not begin with http:// or https://', () => {
+    const res = questionCreate(token1, quizid, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ],
+    'google.com/some/image/path.jpg'
+    );
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
   });
 
   // Valid input
@@ -350,7 +460,9 @@ describe('POST /v1/admin/quiz/:quizid/question', () => {
         answer: 'Queen Elizabeth',
         correct: false,
       }
-    ]);
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
     expect(JSON.parse(res.body.toString())).toStrictEqual({ questionId: expect.any(Number) });
     expect(res.statusCode).toBe(200);
   });

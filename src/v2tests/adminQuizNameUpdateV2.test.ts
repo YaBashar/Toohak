@@ -12,39 +12,35 @@ const createUser = (email: string, password: string, firstName: string, lastName
   ));
 };
 
-afterEach(() => {
-  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
-});
-
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description }, timeout: TIMEOUT_MS }
-  );
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description } });
+  return JSON.parse(res.body.toString());
+};
+
+const quizInfo = (token : string, quizId : number) => {
+  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } });
   return JSON.parse(res.body.toString());
 };
 
 const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
-    { json: { token, name }, timeout: TIMEOUT_MS }
+    SERVER_URL + `/v2/admin/quiz/${quizId}/name`,
+    { headers: { token }, json: { name }, timeout: TIMEOUT_MS }
   );
   return res;
 };
 
-const quizInfo = (token: string, quizId: number) => {
-  const res = request(
-    'GET',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
-  );
-  return JSON.parse(res.body.toString());
-};
-/// //////////////////////////////////////////////
+/// /////////////////////////////////////////
 
 beforeEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
+afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
@@ -153,6 +149,7 @@ describe('adminQuizNameUpdate Tests', () => {
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
         duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
     });
 

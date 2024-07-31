@@ -1,4 +1,5 @@
 import request from 'sync-request-curl';
+import slync from 'slync';
 import { port, url } from '../config.json';
 import { Actions } from '../game';
 
@@ -230,57 +231,56 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       requestPlayerJoin(sessionId, 'player three');
     });
 
-    test('Successfully Move from Question_Countdown to Question_Open', (done) => {
+    test('Successfully Move from Question_Countdown to Question_Open', () => {
       // Start at lobby
       requestGameSessionInfo(token, quizId, sessionId);
       // Update to Next_Question
       updateQuizSessionStatus(token, quizId, sessionId, Actions.NEXT_QUESTION);
       // Wait for 3 seconds and then check if state has been changed to QUESTION_OPEN
-      setTimeout(() => {
-        const res3 = requestGameSessionInfo(token, quizId, sessionId);
-        console.log(res3.body);
-        expect(res3.body).toStrictEqual(
-          {
-            state: 'QUESTION_OPEN',
-            atQuestion: expect.any(Number),
-            players: expect.any(Array),
-            metadata: {
-              quizId: expect.any(Number),
-              name: expect.any(String),
-              timeCreated: expect.any(Number),
-              timeLastEdited: expect.any(Number),
-              description: expect.any(String),
-              numQuestions: expect.any(Number),
-              questions: [
-                {
-                  questionId: questionId,
-                  question: 'Who is the Monarch of England?',
-                  duration: 4,
-                  thumbnailUrl: expect.any(String),
-                  points: 5,
-                  answers: [
-                    {
-                      answerId: expect.any(Number),
-                      answer: 'Prince Charles',
-                      colour: expect.any(String),
-                      correct: true
-                    },
-                    {
-                      answerId: expect.any(Number),
-                      answer: 'Queen Elizabeth',
-                      colour: expect.any(String),
-                      correct: false
-                    }
-                  ]
-                }
-              ],
-              duration: expect.any(Number),
-              thumbnailUrl: expect.any(String)
-            }
+      slync(3000);
+
+      const res3 = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res3.body);
+      expect(res3.body).toStrictEqual(
+        {
+          state: 'QUESTION_OPEN',
+          atQuestion: expect.any(Number),
+          players: expect.any(Array),
+          metadata: {
+            quizId: expect.any(Number),
+            name: expect.any(String),
+            timeCreated: expect.any(Number),
+            timeLastEdited: expect.any(Number),
+            description: expect.any(String),
+            numQuestions: expect.any(Number),
+            questions: [
+              {
+                questionId: questionId,
+                question: 'Who is the Monarch of England?',
+                duration: 4,
+                thumbnailUrl: expect.any(String),
+                points: 5,
+                answers: [
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Prince Charles',
+                    colour: expect.any(String),
+                    correct: true
+                  },
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Queen Elizabeth',
+                    colour: expect.any(String),
+                    correct: false
+                  }
+                ]
+              }
+            ],
+            duration: expect.any(Number),
+            thumbnailUrl: expect.any(String)
           }
-        );
-        done();
-      }, 3000);
+        }
+      );
     });
 
     test('Successfully Skips Question_Countdown', (done) => {
@@ -291,7 +291,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       // Do Skip Question
     });
 
-    test.only('Successfully Moves from Question_Open to Question_Close', (done) => {
+    test.only('Successfully Moves from Question_Open to Question_Close', () => {
       // Start at lobby
       requestGameSessionInfo(token, quizId, sessionId);
       // Update to Next_Question
@@ -301,17 +301,56 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const res = requestGameSessionInfo(token, quizId, sessionId);
       console.log(res.body);
 
-      console.log(questionDuration, 'duration');
-      setTimeout(() => {
-        const res3 = requestGameSessionInfo(token, quizId, sessionId);
-        console.log(res3.body);
+      // Wait 3 seconds to Question OPen
+      slync(3000);
+      const res3 = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res3.body);
+      console.log(token);
 
-        setTimeout(() => {
-          const res4 = requestGameSessionInfo(token, quizId, sessionId);
-          console.log(res4.body);
-          done();
-        }, questionDuration * 1000);
-      }, 3000);
+      // Wait until question Duration to question close
+      slync(questionDuration * 1000);
+      const res4 = requestGameSessionInfo(token, quizId, sessionId);
+      console.log(res4.body);
+      expect(res4.body).toStrictEqual(
+        {
+          state: 'QUESTION_CLOSE',
+          atQuestion: expect.any(Number),
+          players: expect.any(Array),
+          metadata: {
+            quizId: expect.any(Number),
+            name: expect.any(String),
+            timeCreated: expect.any(Number),
+            timeLastEdited: expect.any(Number),
+            description: expect.any(String),
+            numQuestions: expect.any(Number),
+            questions: [
+              {
+                questionId: questionId,
+                question: 'Who is the Monarch of England?',
+                duration: 4,
+                thumbnailUrl: expect.any(String),
+                points: 5,
+                answers: [
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Prince Charles',
+                    colour: expect.any(String),
+                    correct: true
+                  },
+                  {
+                    answerId: expect.any(Number),
+                    answer: 'Queen Elizabeth',
+                    colour: expect.any(String),
+                    correct: false
+                  }
+                ]
+              }
+            ],
+            duration: expect.any(Number),
+            thumbnailUrl: expect.any(String)
+          }
+        }
+      );
     });
   });
 });

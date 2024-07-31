@@ -135,8 +135,8 @@ beforeEach(() => {
   playerId = joinSession(sessionId, 'amelia').playerId;
 
   // change state
-  updateState(quiz1Id, sessionId, token, NEXT_QUESTION); // lobby->question countdown
-  updateState(quiz1Id, sessionId, token, SKIP_COUNTDOWN); // question countdown -> question 1 open
+  // updateState(quiz1Id, sessionId, token, NEXT_QUESTION); // lobby->question countdown
+  // updateState(quiz1Id, sessionId, token, SKIP_COUNTDOWN); // question countdown -> question 1 open
 });
 
 describe('GET /v1/player/:playerid/question/:questionposition/results', () => {

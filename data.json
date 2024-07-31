@@ -1,0 +1,127 @@
+<<<<<<< HEAD
+=======
+{
+  "users": [
+    {
+<<<<<<< HEAD
+      "userId": 61379,
+      "name": "Mubashir Hussain",
+      "email": "sourceuser@unsw.edu.au",
+=======
+      "userId": 120506,
+      "name": "sidak singh",
+      "email": "z5525050@unsw.edu.au",
+>>>>>>> 45a0950a93b5953114a13cb73b946271e9b57f60
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+<<<<<<< HEAD
+    },
+    {
+      "userId": 628973,
+      "name": "Muhammad Chowdhury",
+      "email": "targetuser@unsw.edu.au",
+      "password": "124ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "124ABCabc@#$"
+      ]
+=======
+>>>>>>> 45a0950a93b5953114a13cb73b946271e9b57f60
+    }
+  ],
+  "quizzes": [
+    {
+<<<<<<< HEAD
+      "quizId": 1721821876970,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1721821876,
+      "timeLastEdited": 1721821876,
+      "numQuestions": 0,
+      "questions": [],
+      "duration": 0,
+      "userId": 61379
+=======
+      "quizId": 1722388713084,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1722388713,
+      "timeLastEdited": 1722388713,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722388713095,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "thumbnailUrl": "https://example.com/image-thumbnail-12345.jpg",
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3653,
+              "answer": "Prince Charles",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 3054,
+              "answer": "Queen Elizabeth",
+              "colour": "blue",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "questionId": 719994,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3653,
+              "answer": "Prince Charles",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 3054,
+              "answer": "Queen Elizabeth",
+              "colour": "blue",
+              "correct": false
+            }
+          ],
+          "thumbnailUrl": "https://example.com/image-thumbnail-12345.jpg"
+        }
+      ],
+      "duration": 0,
+      "userId": 120506,
+      "thumbnailUrl": ""
+>>>>>>> 45a0950a93b5953114a13cb73b946271e9b57f60
+    }
+  ],
+  "sessions": [
+    {
+<<<<<<< HEAD
+      "sessionId": 659342,
+      "userId": 61379
+    },
+    {
+      "sessionId": 72540,
+      "userId": 628973
+    }
+  ],
+  "trash": []
+=======
+      "sessionId": 900205,
+      "userId": 120506
+    }
+  ],
+  "trash": [],
+  "games": []
+>>>>>>> 45a0950a93b5953114a13cb73b946271e9b57f60
+}
+>>>>>>> 8e1703345dbdfbef79696c5c2533dcf17a38ffc3

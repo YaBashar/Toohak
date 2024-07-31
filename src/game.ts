@@ -43,8 +43,6 @@ export enum Actions {
 //   INACTIVE
 // }
 
-const answerTimes: { [playerId: number]: { [questionPosition: number]: number } } = {};
-
 // DEPENDENCIES
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
@@ -329,8 +327,8 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
     const playerIndex = game.players.findIndex((player) => playerid === player.playerId);
     const playerName = game.players[playerIndex].name;
     results.playersCorrectList.push(playerName);
-    results.percentageCorrect = ((results.percentageCorrect/100) + 1/(game.players.length)) * 100;
-  } 
+    results.percentageCorrect = ((results.percentageCorrect / 100) + 1 / (game.players.length)) * 100;
+  }
 
   setData(data);
   return {};

@@ -28,7 +28,7 @@ import {
 import { gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
 } from './game';
 import { setData } from './dataStore';
 
@@ -723,6 +723,36 @@ app.post('/v1/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request,
   }
 });
 
+// adminQuizQuestionDuplicate V2
+app.post('/v2/admin/quiz/:quizid/question/:questionid/duplicate', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const questionId = parseInt(req.params.questionid as string);
+  const userId = getUserIdFromToken(token);
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+
+  try {
+    const result = adminQuizQuestionDuplicate(userId, quizId, questionId);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error caught in route:', error);
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Question id does not refer to valid question in quiz') {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
+});
+
 // adminQuizInfo V1
 app.get('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
   const token = req.query.token as string;
@@ -1081,6 +1111,20 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
       error.message === 'Invalid Quiz Id') {
       return res.status(403).json({ error: error.message });
     } else {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerid', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+
+  try {
+    const result = adminGamePlayerSessionInfo(playerId);
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Player Id does not exist') {
       return res.status(400).json({ error: error.message });
     }
   }

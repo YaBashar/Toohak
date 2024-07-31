@@ -25,10 +25,12 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
+import { gameUpdateQuizSessionState } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo
 } from './game';
+import { setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -40,6 +42,11 @@ app.use(cors());
 app.use(morgan('dev'));
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
+// Load data from file on startup
+if (fs.existsSync('../data.json')) {
+  const rawData = fs.readFileSync('data.json', 'utf-8');
+  setData(JSON.parse(rawData));
+}
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
 app.use('/docs', sui.serve, sui.setup(YAML.parse(file),
   { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
@@ -401,6 +408,38 @@ app.put('/v1/admin/quiz/:quizid/name', (req : Request, res: Response) => {
   }
 });
 
+// adminQuizNameUpdate V2 route
+app.put('/v2/admin/quiz/:quizid/name', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const { name } = req.body;
+  const quizid = parseInt(req.params.quizid as string);
+
+  if (!token) {
+    return res.status(401).json({ error: 'Token is empty or invalid' });
+  }
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const quizNameUpdate = adminQuizNameUpdate(userId, quizid, name);
+    res.json(quizNameUpdate);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Quiz Id not owned by the user' ||
+        error.message === 'Invalid Quiz id') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Name is already used' ||
+        error.message === 'Name cannot be empty' ||
+        error.message === 'Name is too short' ||
+        error.message === 'Name is too long' ||
+        error.message === 'Quiz name cannot have symbols') {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
+});
 // adminQuizQuestionMove
 app.put('/v1/admin/quiz/:quizid/question/:questionid/move', (req: Request, res: Response) => {
   const { token, newPosition } = req.body;
@@ -930,6 +969,31 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
       return res.status(403).json({ error: error.message });
     } else {
       return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+// gameQuizSessionUpdate
+app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const gameId = parseInt(req.params.sessionid as string);
+  const { action } = req.body;
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' || error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
     }
   }
 });

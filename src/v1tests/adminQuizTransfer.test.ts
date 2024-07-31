@@ -29,6 +29,10 @@ const requestQuizList = (token : string) => {
   return (request('GET', SERVER_URL + '/v1/admin/quiz/list', { qs: { token }, timeout: TIMEOUT_MS }));
 };
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 /// /////////////////////////////////////////////////////////////
 
 beforeEach(() => {

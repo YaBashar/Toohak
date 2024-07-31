@@ -12,6 +12,10 @@ const createUser = (email: string, password: string, firstName: string, lastName
   ));
 };
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
@@ -148,7 +152,7 @@ describe('adminQuizNameUpdate Tests', () => {
         description: 'description',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
       });
     });
 

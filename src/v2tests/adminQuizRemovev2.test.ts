@@ -12,11 +12,12 @@ const createUser = (email: string, password: string, firstName: string, lastName
 };
 
 const createQuiz = (token : string, name : string, description : string) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description }, timeout: TIMEOUT_MS }
-  );
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: {
+      token,
+    },
+    json: { name, description }
+  });
   return JSON.parse(res.body.toString());
 };
 
@@ -41,8 +42,8 @@ const quizInfo = (token: string, quizId: number) => {
 const quizRemove = (token: string, quizId: number) => {
   const res = request(
     'DELETE',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/${quizId}`,
+    { headers: { token } }
   );
   return res;
 };
@@ -107,6 +108,9 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
+
+  // Any session for this quiz is not in END state
+  test.todo('Any session for this quiz is not in END state');
 
   test('Quiz is removed from the list of quizzes', () => {
     let res = quizRemove(token1, qid.quizId);

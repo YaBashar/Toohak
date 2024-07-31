@@ -49,6 +49,10 @@ beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('adminQuizQuestionDuplicate Tests', () => {
   describe('Error Cases', () => {
     let token : string;
@@ -183,15 +187,21 @@ describe('adminQuizQuestionDuplicate Tests', () => {
               points: 5,
               answers: [
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince Charles',
+                  colour: expect.any(String),
                   correct: false,
                 },
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince is not Charles',
+                  colour: expect.any(String),
                   correct: true,
                 },
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince is Beckham',
+                  colour: expect.any(String),
                   correct: false,
                 }
               ]
@@ -203,22 +213,28 @@ describe('adminQuizQuestionDuplicate Tests', () => {
               points: 5,
               answers: [
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince Charles',
+                  colour: expect.any(String),
                   correct: false,
                 },
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince is not Charles',
+                  colour: expect.any(String),
                   correct: true,
                 },
                 {
+                  answerId: expect.any(Number),
                   answer: 'Prince is Beckham',
+                  colour: expect.any(String),
                   correct: false,
                 }
               ]
             }
 
           ],
-          duration: expect.any(Number)
+          duration: expect.any(Number),
         }
       );
     });

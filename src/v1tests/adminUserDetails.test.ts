@@ -13,6 +13,10 @@ beforeEach(() => {
   token = JSON.parse(user.body.toString()).token;
 });
 
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 describe('Testing error cases', () => {
   test('Invalid token', () => {
     const res = requestUserDetails('invalid token');

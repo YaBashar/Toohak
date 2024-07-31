@@ -1,6 +1,6 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
-import { Question, User, Quiz } from './interface';
+import { Question, User, Quiz, Game } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -55,6 +55,13 @@ export function findQuizIndexFromQuizId(target: number): number {
 export function findQuestionIndex(quizArray: Quiz[], quizId: number, questionId: number): number {
   const quiz = quizArray.find(quiz => quiz.quizId === quizId);
   return quiz ? quiz.questions.findIndex(question => question.questionId === questionId) : -1;
+}
+
+// Checks whether sessionId exists from a game for a valid quiz.
+export function findGameSessionId(sessionId: number, quizId : number): Game | null {
+  const data = getData();
+  const game = data.games.find(game => game.sessionId === sessionId && game.quizId === quizId);
+  return game || null;
 }
 
 // Checks whether a userid exists with an associated token

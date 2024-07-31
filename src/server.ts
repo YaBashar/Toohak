@@ -28,7 +28,8 @@ import {
 import { gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin,
+  adminGamePlayerSessionInfo, adminGameQuizSessionStatusInfo
 } from './game';
 import { setData } from './dataStore';
 
@@ -1086,6 +1087,19 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   }
 });
 
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerid', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+
+  try {
+    const result = adminGamePlayerSessionInfo(playerId);
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Player Id does not exist') {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+});
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

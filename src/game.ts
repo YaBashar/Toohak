@@ -114,6 +114,44 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
+export function adminGamePlayerSessionInfo(playerId: number) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound = null;
+  let gameWithPlayer = null;
+
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game; // Store the game reference
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+
+  if (playerFound) {
+    console.log('Player found:', playerFound);
+    console.log('Game with player:', gameWithPlayer);
+  } else {
+    throw new Error('Player Id does not exist');
+  }
+
+  const playerInfo = {
+    state: States[gameWithPlayer.status],
+    numQuestions: gameWithPlayer.numQuestions,
+    atQuestion: gameWithPlayer.activeQuestion
+  };
+
+  return (playerInfo);
+}
+
 export const timerMap = new Map();
 
 export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
@@ -139,7 +177,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   }
 
   if (action === Actions.NEXT_QUESTION) {
-    if (game.status === States.LOBBY) {
+    if (game.status === States.LOBBY || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
       game.activeQuestion += 1;
       setData(data); // Persist changes immediately

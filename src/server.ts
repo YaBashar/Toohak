@@ -25,10 +25,13 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
+import { gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin,
+  adminGamePlayerSessionInfo, adminGameQuizSessionStatusInfo
 } from './game';
+import { setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -40,6 +43,11 @@ app.use(cors());
 app.use(morgan('dev'));
 // for producing the docs that define the API
 const file = fs.readFileSync(path.join(process.cwd(), 'swagger.yaml'), 'utf8');
+// Load data from file on startup
+if (fs.existsSync('../data.json')) {
+  const rawData = fs.readFileSync('data.json', 'utf-8');
+  setData(JSON.parse(rawData));
+}
 app.get('/', (req: Request, res: Response) => res.redirect('/docs'));
 app.use('/docs', sui.serve, sui.setup(YAML.parse(file),
   { swaggerOptions: { docExpansion: config.expandDocs ? 'full' : 'list' } }));
@@ -996,6 +1004,31 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
 });
 
+// gameQuizSessionUpdate
+app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  const token = req.header('token');
+  const quizId = parseInt(req.params.quizid as string);
+  const gameId = parseInt(req.params.sessionid as string);
+  const { action } = req.body;
+
+  const userId = getUserIdFromToken(token);
+
+  try {
+    const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
+    res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Invalid Quiz id' || error.message === 'Quiz Id not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else {
+        return res.status(400).json({ error: error.message });
+      }
+    }
+  }
+});
+
 // adminGameSessionCreate
 app.post('/v1/admin/quiz/:quizid/session/start', (req: Request, res: Response) => {
   const token = req.headers.token as string;
@@ -1084,6 +1117,19 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   }
 });
 
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerid', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
+
+  try {
+    const result = adminGamePlayerSessionInfo(playerId);
+    res.json(result);
+  } catch (error) {
+    if (error.message === 'Player Id does not exist') {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+});
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

@@ -1,6 +1,6 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
-import { Question, User, Quiz, Game } from './interface';
+import { Question, User, Quiz, Game, Store } from './interface';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -58,8 +58,7 @@ export function findQuestionIndex(quizArray: Quiz[], quizId: number, questionId:
 }
 
 // Checks whether sessionId exists from a game for a valid quiz.
-export function findGameSessionId(sessionId: number, quizId : number): Game | null {
-  const data = getData();
+export function findGameSessionId(data: Store, sessionId: number, quizId: number): Game | null {
   const game = data.games.find(game => game.sessionId === sessionId && game.quizId === quizId);
   return game || null;
 }

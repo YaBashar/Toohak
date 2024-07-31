@@ -117,14 +117,13 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
 export const timerMap = new Map();
 
 export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
-  const store = getData();
-  const userArr = store.users;
-  const quizArr = store.quizzes;
+  const data = getData();
+  const userArr = data.users;
+  const quizArr = data.quizzes;
   const quiz = findQuizById(quizId, quizArr);
   const user = findUserByToken(token, userArr);
   const quizUser = checkQuizOwnership(token, quizArr);
-  const game = findGameSessionId(sessionId, quizId);
-  // console.log('game', game);
+  const game = findGameSessionId(data, sessionId, quizId);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -139,12 +138,11 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
     throw new Error('Session Id does not exist');
   }
 
-  const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
-
   if (action === Actions.NEXT_QUESTION) {
-    if (game.status === States.LOBBY || game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
+    if (game.status === States.LOBBY) {
       game.status = States.QUESTION_COUNTDOWN;
       game.activeQuestion += 1;
+      setData(data); // Persist changes immediately
 
       // Clear any existing timer
       const existingTimer = timerMap.get(sessionId);
@@ -155,12 +153,12 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
       // THIS WORKS
       const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
         game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
 
+        const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
         setTimeout(() => {
-          console.log('Inner timeout fired');
           game.status = States.QUESTION_CLOSE;
-          console.log('Closing question', States[game.status]);
-          setData(store);
+          setData(data); // Persist changes immediately
         }, testTime);
       }, 3000);
       timerMap.set(sessionId, countdownInterval);
@@ -176,13 +174,13 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
         clearTimeout(existingTimer);
         timerMap.delete(sessionId);
         game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
       }
 
+      const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
       setTimeout(() => {
-        console.log('Inner timeout fired');
         game.status = States.QUESTION_CLOSE;
-        console.log('Closing question', States[game.status]);
-        setData(store);
+        setData(data); // Persist changes immediately
       }, testTime);
     } else {
       throw new Error('Action Skip Countdown not applicable in this state');
@@ -192,6 +190,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.GO_TO_ANSWER) {
     if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
       game.status = States.ANSWER_SHOW;
+      setData(data); // Persist changes immediately
     } else {
       throw new Error('Action Go to answer is not applicable in this state');
     }
@@ -200,6 +199,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.GO_TO_FINAL_RESULTS) {
     if (game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.FINAL_RESULTS;
+      setData(data); // Persist changes immediately
     } else {
       throw new Error('Action Go to final results is not applicable in this state');
     }
@@ -207,6 +207,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
 
   if (action === Actions.END) {
     game.status = States.END;
+    setData(data); // Persist changes immediately
   }
 
   if (action !== Actions.NEXT_QUESTION && action !== Actions.SKIP_COUNTDOWN &&
@@ -225,7 +226,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   const user = findUserByToken(userId, userArr);
   const quizUser = checkQuizOwnership(userId, quizArr);
 
-  const game = findGameSessionId(sessionId, quizId);
+  const game = findGameSessionId(store, sessionId, quizId);
 
   if (!user) {
     throw new Error('Invalid User id');

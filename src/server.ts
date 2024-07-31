@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo, adminPlayerSessionChat
 } from './game';
 
 // Set up app
@@ -1018,6 +1018,25 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
       return res.status(403).json({ error: error.message });
     } else {
       return res.status(400).json({ error: error.message });
+    }
+  }
+});
+
+// adminPlayerSessionChat Route:
+app.get('/v1/player/:playerid/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid, 10);
+
+  try {
+    const result = adminPlayerSessionChat(playerId);
+    res.status(200).json(result);
+  } catch (error) {
+    // Handle errors based on their type or message
+    if (error.message === 'Session not found for this player') {
+      res.status(404).json({ error: error.message });
+    } else if (error.message === 'Player ID does not exist') {
+      res.status(404).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 });

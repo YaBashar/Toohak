@@ -161,4 +161,25 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   return (gameSessionInfo);
 }
 
-// Write two of my functions here:
+// AdminPlayerSessionChat
+export function adminPlayerSessionChat(playerId: number) {
+  const store = getData();
+  const game = store.games.find((game) =>
+    game.players.some((player) => player.playerId === playerId)
+  );
+
+  if (!game) {
+    throw new Error('Session not found for this player');
+  }
+
+  const player = game.players.find((player) => player.playerId === playerId);
+  
+  if (!player) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const allMessages = game.chat || [];
+  const sortedMessages = allMessages.sort((a, b) => a.timeSent - b.timeSent);
+
+  return { messages: sortedMessages };
+}

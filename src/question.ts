@@ -278,7 +278,12 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
       question: string,
       duration: number,
       points: number,
-      answers:Answer[],
+      answerBody: {
+        answerId: number,
+        answer: string,
+        colour: string,
+        correct: boolean
+      },
       thumbnailUrl: string
     }
 ) : Record<string, never> | { error: string } {
@@ -372,13 +377,13 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
   const colourArray = ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'];
 
   // add the color and answerId here
-  const answerBody = question.answers.map((answer, index) => ({
+  questionBody.answerBody = question.answers.map((answer, index) => ({
     answerId: uniqueAnswerId(question.answers),
     answer: answer.answer,
     colour: colourArray[index % colourArray.length],
     correct: answer.correct
   }));
-  
+
   const quest: Question = quiz.questions[questionIndex];
   quest.question = questionBody.question;
   quest.duration = questionBody.duration;

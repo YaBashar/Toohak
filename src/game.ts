@@ -161,4 +161,38 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   return (gameSessionInfo);
 }
 
-// Write two of my functions here:
+// AdminQuizPlayerSessionChatSend
+export function adminQuizPlayerSessionChatSend(playerId: number, message: string) {
+  const store = getData();
+  const game = store.games.find((game) => game.players.some((player) => player.playerId === playerId));
+
+  if (!game) {
+    throw new Error('Session not found for this player');
+  }
+
+  const player = game.players.find((player) => player.playerId === playerId);
+  if (!player) {
+    throw new Error('Player ID does not exist');
+  }
+
+  if (message.trim().length === 0) {
+    throw new Error('Message body is less than 1 character');
+  }
+
+  if (message.length > 100) {
+    throw new Error('Message body is more than 100 characters');
+  }
+
+  // Save the chat message to the game session
+  if (!game.chat) {
+    game.chat = [];
+  }
+
+  game.chat.push({
+    playerId,
+    message,
+    timestamp: new Date().toISOString(),
+  });
+
+  return {};
+}

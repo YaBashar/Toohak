@@ -18,7 +18,7 @@ import {
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
   adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
-  adminQuizTransfer, adminQuizUpdateThumbnail
+  adminQuizTransfer, adminQuizUpdateThumbnail,
 } from './quiz';
 
 import {
@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo, adminQuizPlayerSessionChatSend
 } from './game';
 
 // Set up app
@@ -1026,7 +1026,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
 
 /// ////////////////////////////////////////////////////////////////////////////
 
-/// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
+/// //////////////      ITERATION 3 (NEW)    ///////////////////////////////
 // adminQuizUpdateThumbnail
 app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   try {
@@ -1053,6 +1053,39 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
     }
   }
 });
+
+// adminPlayerSessionChatSend Route
+app.post('/v1/admin/quiz/session/chat/send', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const { playerId, message } = req.body;
+    
+    // Validate token
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    
+    // Call the function to handle chat message sending
+    const result = adminQuizPlayerSessionChatSend(playerId, message);
+    
+    // Return success response
+    return res.status(200).json(result);
+  } catch (error) {
+    // Error handling
+    if (error.message === 'Session not found for this player') {
+      return res.status(404).json({ error: error.message });
+    } else if (error.message === 'Player ID does not exist') {
+      return res.status(404).json({ error: error.message });
+    } else if (error.message === 'Message body is less than 1 character' ||
+      error.message === 'Message body is more than 100 characters') {
+      return res.status(400).json({ error: error.message });
+    } else {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+});
+
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

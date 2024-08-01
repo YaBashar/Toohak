@@ -10,6 +10,17 @@
       "passwordHistory": [
         "abcd1234!@#$ABCD"
       ]
+    },
+    {
+      "userId": 647517,
+      "name": "Muhammad Chowdhury",
+      "email": "targetuser@unsw.edu.au",
+      "password": "124ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "124ABCabc@#$"
+      ]
     }
   ],
   "quizzes": [

@@ -20,8 +20,10 @@ and update information regarding quizzes.
 // DEPENDENCIES
 
 import { getData, setData } from './dataStore';
+
 import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
-import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable } from './helper';
+import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
+import { States } from './game';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -353,33 +355,36 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
+  const gameArr = store.games;
 
-  const findQuiz = quizArr.findIndex(quiz => quiz.quizId === quizId);
-  if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
+  const user = findUserByToken(token, userArr);
+  if (!user) {
+    throw new Error('Invalid User id');
   }
-
+  const findQuiz = findQuizIndexFromQuizId(quizId);
+  if (findQuiz === -1) {
+    throw new Error('Invalid Quiz id');
+  }
   const quiz = store.quizzes[findQuiz];
-  const user = userArr.find(user => user.userId === token);
-  const quizUser = quizArr.find((quiz) => quiz.userId === token);
 
-  const targetUser = store.users.find(user => user.email === userEmail);
+  const quizUser = checkQuizOwnership(token, quizArr);
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  const targetUser = findUserByEmail(userEmail, userArr);
   if (!targetUser) {
-    return { error: 'Target user email is not a real user' };
+    throw new Error('Target user email is not a real user');
   }
   const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
-
-  if (!user) {
-    return { error: 'Invalid User id' };
-  } else if (findQuiz === -1) {
-    return { error: 'Invalid Quiz id' };
-  } else if (!quizUser) {
-    return { error: 'Quiz Id not owned by the user' };
-  } else if (user.userId === targetUser.userId) {
-    return { error: 'Target user email is the same as currently logged in user' };
-  } else if (isQuizExists) {
-    return { error: 'Quiz name already in use by target user' };
+  if (isQuizExists) {
+    throw new Error('Quiz name already in use by target user');
   }
+
+  const notInEndState = gameArr.some(game => game.quizId === quizId && States[game.status] !== 'END');
+  if (notInEndState) {
+    throw new Error('Any session for this quiz is not in END state');
+  }
+
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.userId = targetUser.userId;
   return {};

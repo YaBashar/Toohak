@@ -45,6 +45,7 @@ export enum Status {
 
 // DEPENDENCIES
 
+// /v1/admin/quiz/{quizid}/session/start
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
   const gameArr = getData().games;
@@ -64,7 +65,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
     throw new Error('10 active sessions for this quiz already exist');
   }
 
-  const newSessId = createDataStoreId();
+  const newSessId = gameArr.length + 1;
   const results: Results[] = [];
   const players: Player[] = [];
 
@@ -93,6 +94,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   return { sessionId: newSessId };
 }
 
+// /v1/player/join
 export function adminGamePlayerJoin(sessionId: number, name: string) {
   const session = getData().games.find(x => x.sessionId === sessionId);
 
@@ -113,6 +115,34 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   });
 
   return { playerId: newPlayerId };
+}
+
+// /v1/admin/quiz/{quizid}/sessions
+export function adminGameViewSessions(userId: number, quizId: number) {
+  const quiz = getData().quizzes.find(x => x.quizId === quizId);
+  const gameArr = getData().games;
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  } else if (quiz.userId !== userId) {
+    throw new Error('User is not an owner of this quiz.');
+  }
+
+  const active: number[] = [];
+  const inactive: number[] = [];
+
+  for (const sess of gameArr) {
+    if (sess.status === States.END && sess.quizId === quizId) {
+      inactive.push(sess.sessionId);
+    } else if (sess.status !== States.END && sess.quizId === quizId) {
+      active.push(sess.sessionId);
+    }
+  }
+
+  return {
+    activeSessions: active,
+    inactiveSessions: inactive
+  };
 }
 
 export function adminGamePlayerSessionInfo(playerId: number) {

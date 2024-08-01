@@ -193,10 +193,6 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
     }
   }
 
-  if (!gameWithPlayer) {
-    throw new Error('Session not found for this player');
-  }
-
   if (!playerFound) {
     throw new Error('Player ID does not exist');
   }

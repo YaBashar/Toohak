@@ -65,7 +65,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
     throw new Error('10 active sessions for this quiz already exist');
   }
 
-  const newSessId = createDataStoreId();
+  const newSessId = gameArr.length + 1;
   const results: Results[] = [];
   const players: Player[] = [];
 
@@ -132,9 +132,9 @@ export function adminGameViewSessions(userId: number, quizId: number) {
   const inactive: number[] = [];
 
   for (const sess of gameArr) {
-    if (sess.status === States.END) {
+    if (sess.status === States.END && sess.quizId === quizId) {
       inactive.push(sess.sessionId);
-    } else {
+    } else if (sess.status !== States.END && sess.quizId === quizId) {
       active.push(sess.sessionId);
     }
   }
@@ -144,6 +144,7 @@ export function adminGameViewSessions(userId: number, quizId: number) {
     inactiveSessions: inactive
   };
 }
+
 export function adminGamePlayerSessionInfo(playerId: number) {
   const store = getData();
   const gameArr = store.games;

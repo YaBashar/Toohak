@@ -60,7 +60,7 @@ describe('Success cases', () => {
     sessionId4 = requestCreateSession(token, quizId, 3);
   });
 
-  test('Success case - active sessions', () => {
+  test('Success case - active sessions + ascending order', () => {
     const res = requestViewSessions(token, quizId);
     const data = JSON.parse(res.body.toString());
 
@@ -71,7 +71,7 @@ describe('Success cases', () => {
     expect(res.statusCode).toStrictEqual(200);
   });
 
-  test('Viewing both active and inactive quizzes', () => {
+  test('Viewing both active and inactive quizzes + ascending order', () => {
     requestUpdateStatus(token, quizId, sessionId1, Actions.END);
     requestUpdateStatus(token, quizId, sessionId2, Actions.END);
 
@@ -101,15 +101,7 @@ describe('Success cases', () => {
   });
 });
 
-/*
- TODO:
- - making sure only quizzes with relevant quizIds are called
- - viewing both active and inactive quizzes
- - sorted in ascending order
-*/
-
 // HELPER FUNCTIONS
-
 const requestViewSessions = (token: string, quizid: number) => {
   return (request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/sessions`, {
     headers: { token }, timeout: TIMEOUT_MS

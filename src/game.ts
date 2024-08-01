@@ -168,10 +168,10 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   let playerFound: Player | null = null;
   let gameWithPlayer: Game | null = null;
 
+  // Validation checks
   if (messageBody.trim().length === 0) {
     throw new Error('Message body is less than 1 character');
   }
-  
   if (messageBody.length > 100) {
     throw new Error('Message body is more than 100 characters');
   }
@@ -179,12 +179,11 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   // Find the game session where the player is involved
   for (let i = 0; i < gameArr.length; i++) {
     const game = gameArr[i];
-    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
     for (let j = 0; j < game.players.length; j++) {
       const player = game.players[j];
       if (player.playerId === playerId) {
         playerFound = player;
-        gameWithPlayer = game; 
+        gameWithPlayer = game;
         break;
       }
     }

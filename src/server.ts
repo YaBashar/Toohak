@@ -1056,31 +1056,19 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
 
 // adminPlayerSessionChatSend Route
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
-  const token = req.headers.token as string;
   const { message } = req.body;
   const playerId = parseInt(req.params.playerId, 10);
-  const userId = getUserIdFromToken(token);
   try {
-    if (!userId) {
-      throw new Error('Invalid token');
-    }
-
     const result = adminPlayerSessionChatSend(playerId, message);
     return res.status(200).json(result);
-
   } catch (error) {
     if (error instanceof Error) {
-      switch (error.message) {
-        case 'Invalid token':
-          return res.status(401).json({ error: error.message });
-        case 'Message body is less than 1 character':
-        case 'Message body is more than 100 characters':
-        case 'Message body contains only whitespace':
-        case 'Session not found for this player':
-        case 'Player ID does not exist':
-          return res.status(400).json({ error: error.message });
-        default:
-          return res.status(500).json({ error: 'Internal Server Error' });
+      if (error.message === 'Message body is less than 1 character' || 
+          error.message === 'Message body is more than 100 characters' || 
+          error.message === 'Player ID does not exist') {
+        return res.status(400).json({ error: error.message });
+      } else {
+        return res.status(500).json({ error: 'Internal Server Error' });
       }
     } else {
       return res.status(500).json({ error: 'Internal Server Error' });

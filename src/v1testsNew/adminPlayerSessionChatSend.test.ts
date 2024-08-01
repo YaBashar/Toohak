@@ -80,8 +80,8 @@ describe('adminPlayerSessionChatSend Tests', () => {
     });
 
     test('Player ID does not exist', () => {
-      const res = sendMessage(playerId + 1, 'Hello'); 
-      expect(res.statusCode).toBe(400); 
+      const res = sendMessage(playerId + 1, 'Hello');
+      expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Player ID does not exist' });
     });
 
@@ -90,14 +90,14 @@ describe('adminPlayerSessionChatSend Tests', () => {
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is less than 1 character' });
     });
-    
+
     test('Message body is more than 100 characters', () => {
       const longMessage = 'a'.repeat(101);
       const res = sendMessage(playerId, longMessage);
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is more than 100 characters' });
     });
-    
+
     test('Message body contains only whitespace', () => {
       const res = sendMessage(playerId, ' '.repeat(10));
       expect(res.statusCode).toBe(400);
@@ -124,7 +124,7 @@ describe('adminPlayerSessionChatSend Tests', () => {
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });
-    
+
     test('Send a chat message exactly 100 characters long', () => {
       const validMessage = 'a'.repeat(100);
       const res = sendMessage(playerId, validMessage);

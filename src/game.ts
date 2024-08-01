@@ -38,10 +38,10 @@ export enum Actions {
   END
 }
 
-// enum Status {
-//   ACTIVE,
-//   INACTIVE
-// }
+export enum Status {
+  ACTIVE,
+  INACTIVE
+}
 
 // DEPENDENCIES
 
@@ -303,6 +303,66 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
     }
   };
   return (gameSessionInfo);
+}
+
+// AdminPlayerSessionChatSend
+export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
+
+  // Validation checks
+  if (messageBody.trim().length === 0) {
+    throw new Error('Message body is less than 1 character');
+  }
+  if (messageBody.length > 100) {
+    throw new Error('Message body is more than 100 characters');
+  }
+  if (/^\s*$/.test(messageBody)) {
+    throw new Error('Message body contains only whitespace');
+  }
+
+  // Find the game session where the player is involved
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game;
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+
+  if (!playerFound) {
+    throw new Error('Player ID does not exist');
+  }
+
+  // Initialize chat array if it doesn't exist
+  if (!gameWithPlayer.chat) {
+    gameWithPlayer.chat = [];
+  }
+
+  // Save the chat message to the game session
+  gameWithPlayer.chat.push({
+    playerId,
+    message: messageBody,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Optionally log the successful operation
+  console.log('Chat message saved successfully:', {
+    playerId,
+    messageBody,
+    timestamp: new Date().toISOString()
+  });
+
+  return {};
 }
 
 export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {

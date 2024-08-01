@@ -557,7 +557,6 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
   }
 });
 
-
 /// /////////////////////////////////////////////////////////////////////////////
 
 /// //////////////      ITERATION 3 (MODIFIED)    ///////////////////////////////
@@ -810,7 +809,6 @@ app.post('/v2/admin/auth/logout', (req: Request, res: Response) => {
   res.json(result);
 });
 
-
 // adminQuizTrashEmpty V2
 app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
   const token = req.headers.token as string;
@@ -1040,11 +1038,9 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
   }
 });
 
-
 /// ////////////////////////////////////////////////////////////////////////////
 
 /// //////////////      ITERATION 3 (NEW)    ///////////////////////////////
-
 
 // gameQuizSessionUpdate
 app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {

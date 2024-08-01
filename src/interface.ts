@@ -107,10 +107,11 @@ export interface Player {
 
 // Define the Results interface
 export interface Results {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentageCorrect: number;
+  questionId: number,
+  playersCorrectList: string[],
+  averageAnswerTime: number,
+  percentageCorrect: number,
+  startTime: number
 }
 
 // Update the Game interface to include chat

@@ -5,7 +5,7 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions for requests
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 const registerUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
@@ -69,7 +69,7 @@ const sendMessage = (playerId: number, messageBody: string) => {
   return res;
 };
 
-/////////////////////////////////////////////////////////////
+/// //////////////////////////////////////////////////////////
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
@@ -146,7 +146,7 @@ describe('adminPlayerSessionChatSend Tests', () => {
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });
-  
+
     test('Send a chat message exactly 100 characters long', () => {
       const validMessage = 'a'.repeat(100);
       const res = sendMessage(playerId, validMessage);

@@ -5,7 +5,6 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions for requests
-/// //////////////////////////////////////////////////////////
 const registerUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request(
     'POST',
@@ -19,42 +18,35 @@ const registerUser = (email: string, password: string, nameFirst: string, nameLa
 };
 
 const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
-  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
-    headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
-  }));
+  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
+    headers: { token },
+    json: { autoStartNum: autoStartNum },
+    timeout: TIMEOUT_MS
+  });
 };
 
-const requestCreateQuiz = (token: string, name : string, description : string) => {
-  const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }, timeout: TIMEOUT_MS
-  }));
+const requestCreateQuiz = (token: string, name: string, description: string) => {
+  const quiz = request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description },
+    timeout: TIMEOUT_MS
+  });
   return JSON.parse(quiz.body.toString()).quizId;
 };
 
-const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
-  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, thumbnailUrl: string, answers: object) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: { token },
     json: {
-      token,
-      questionBody: {
-        question,
-        duration,
-        points,
-        answers
-      }
+      questionBody: { question, duration, points, thumbnailUrl, answers }
     }
   });
 };
 
-const joinSession = (token: string, sessionId: number) => {
-  const res = request(
-    'POST',
-    SERVER_URL + `/v1/player/session/${sessionId}/join`,
-    {
-      json: { token },
-      timeout: TIMEOUT_MS,
-    }
-  );
-  return JSON.parse(res.body.toString());
+const requestPlayerJoin = (sessionId: number, name: string) => {
+  return request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name },
+    timeout: TIMEOUT_MS
+  });
 };
 
 const sendMessage = (playerId: number, messageBody: string) => {
@@ -69,8 +61,7 @@ const sendMessage = (playerId: number, messageBody: string) => {
   return res;
 };
 
-/// //////////////////////////////////////////////////////////
-
+// Test Cases
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
@@ -84,15 +75,23 @@ describe('adminPlayerSessionChatSend Tests', () => {
     let token: string;
     let playerId: number;
     let sessionId: number;
-    let quizID: number;
+    let quizId: number;
 
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      const session = requestCreateSession(token, 'Test Session');
-      sessionId = session.sessionId;
-      const player = joinSession(token, sessionId);
-      playerId = player.playerId;
+      quizId = requestCreateQuiz(token, 'quizName', 'description');
+
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true },
+        { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      const session = requestCreateSession(token, quizId, 3);
+      sessionId = JSON.parse(session.body.toString()).sessionId;
+
+      const player = requestPlayerJoin(sessionId, 'Mubashir');
+      playerId = JSON.parse(player.body.toString()).playerId;
     });
 
     test('Player ID does not exist', () => {
@@ -123,35 +122,40 @@ describe('adminPlayerSessionChatSend Tests', () => {
 
   describe('Success Cases', () => {
     let token: string;
-    let playerId: number;
+    let playerId1: number;
+    let playerId2: number;
     let sessionId: number;
+    let quizId: number;
 
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      console.log(token);
-      const session = requestCreateSession(token, quizid, autoStartNum);
-      sessionId = session.sessionId;
-      console.log(sessionId);
-      const player = joinSession(token, sessionId);
-      playerId = player.playerId;
-      console.log(playerId);
+
+      quizId = requestCreateQuiz(token, 'quizName', 'description');
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true },
+        { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      const session = requestCreateSession(token, quizId, 3);
+      sessionId = JSON.parse(session.body.toString()).sessionId;
+
+      const player1 = requestPlayerJoin(sessionId, 'Mubashir');
+      const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+
+      playerId1 = JSON.parse(player1.body.toString()).playerId;
+      playerId2 = JSON.parse(player2.body.toString()).playerId;
     });
 
-    test.only('Send a valid chat message', () => {
-      const res = sendMessage(playerId, 'Hello, this is a test message.');
-      console.log('Response statusCode:', res.statusCode);
-      console.log('Response body:', res.body.toString());
-      console.log(playerId);
+    test('Send a valid chat message', () => {
+      const res = sendMessage(playerId1, 'Hello, this is a test message.');
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });
 
     test('Send a chat message exactly 100 characters long', () => {
       const validMessage = 'a'.repeat(100);
-      const res = sendMessage(playerId, validMessage);
-      console.log('Response statusCode:', res.statusCode);
-      console.log('Response body:', res.body.toString());
+      const res = sendMessage(playerId2, validMessage);
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });

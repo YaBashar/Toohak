@@ -364,6 +364,7 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
 
   return {};
 }
+
 export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
   const data = getData();
   const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));

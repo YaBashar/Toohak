@@ -27,7 +27,7 @@ import {
 } from './question';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo, adminQuizPlayerSessionChatSend
+  adminGameCreateSession, adminGamePlayerJoin, adminGameQuizSessionStatusInfo, adminPlayerSessionChatSend
 } from './game';
 
 // Set up app
@@ -1055,37 +1055,31 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
 });
 
 // adminPlayerSessionChatSend Route
-app.post('/v1/admin/quiz/session/chat/send', (req: Request, res: Response) => {
+app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   try {
     const token = req.headers.token as string;
-    const { playerId, message } = req.body;
-    
-    // Validate token
+    const { message } = req.body;
+    const playerId = parseInt(req.params.playerId, 10);
     const userId = getUserIdFromToken(token);
     if (userId === -1) {
-      return res.status(401).json({ error: 'Invalid Token' });
+      return res.status(400).json({ error: 'Player ID does not exist' });
     }
-    
-    // Call the function to handle chat message sending
-    const result = adminQuizPlayerSessionChatSend(playerId, message);
-    
-    // Return success response
+    const result = adminPlayerSessionChatSend(playerId, message);
+    if (result.error) {
+      if (result.error === 'Message body is less than 1 character' ||
+          result.error === 'Message body is more than 100 characters') {
+        return res.status(400).json(result);
+      }
+      if (result.error === 'Session not found for this player' ||
+          result.error === 'Player ID does not exist') {
+        return res.status(404).json(result);
+      }
+    }
     return res.status(200).json(result);
   } catch (error) {
-    // Error handling
-    if (error.message === 'Session not found for this player') {
-      return res.status(404).json({ error: error.message });
-    } else if (error.message === 'Player ID does not exist') {
-      return res.status(404).json({ error: error.message });
-    } else if (error.message === 'Message body is less than 1 character' ||
-      error.message === 'Message body is more than 100 characters') {
-      return res.status(400).json({ error: error.message });
-    } else {
-      return res.status(500).json({ error: 'Internal Server Error' });
-    }
+    return res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

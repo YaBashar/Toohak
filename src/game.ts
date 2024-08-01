@@ -161,26 +161,29 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   return (gameSessionInfo);
 }
 
-// AdminQuizPlayerSessionChatSend
-export function adminQuizPlayerSessionChatSend(playerId: number, message: string) {
+// AdminPlayerSessionChatSend
+export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
   const store = getData();
-  const game = store.games.find((game) => game.players.some((player) => player.playerId === playerId));
+
+  // Validate message body first
+  if (messageBody.trim().length === 0) {
+    return { error: 'Message body is less than 1 character' };
+  }
+  
+  if (messageBody.length > 100) {
+    return { error: 'Message body is more than 100 characters' };
+  }
+
+  // Find the game and player
+  const game = store.games.find(game => game.players.some(player => player.playerId === playerId));
 
   if (!game) {
-    throw new Error('Session not found for this player');
+    return { error: 'Session not found for this player' };
   }
 
-  const player = game.players.find((player) => player.playerId === playerId);
+  const player = game.players.find(player => player.playerId === playerId);
   if (!player) {
-    throw new Error('Player ID does not exist');
-  }
-
-  if (message.trim().length === 0) {
-    throw new Error('Message body is less than 1 character');
-  }
-
-  if (message.length > 100) {
-    throw new Error('Message body is more than 100 characters');
+    return { error: 'Player ID does not exist' };
   }
 
   // Save the chat message to the game session
@@ -190,7 +193,7 @@ export function adminQuizPlayerSessionChatSend(playerId: number, message: string
 
   game.chat.push({
     playerId,
-    message,
+    message: messageBody,
     timestamp: new Date().toISOString(),
   });
 

@@ -68,6 +68,10 @@ export function findUserByToken(token: number, users: Array<User>): User | null 
   return users.find(user => user.userId === token) || null;
 }
 
+export function findUserByEmail(userEmail: string, users: Array<User>): User | null {
+  return users.find(user => user.email === userEmail) || null;
+}
+
 // Checks whether quiz exists with associated quizId
 export function findQuizById(quizId: number, quizzes: Array<Quiz>): Quiz | null {
   return quizzes.find(quiz => quiz.quizId === quizId) || null;

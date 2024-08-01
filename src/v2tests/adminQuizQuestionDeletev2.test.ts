@@ -46,12 +46,6 @@ const requestCreateSession = (token: string, quizid: number, autoStartNum: numbe
   }));
 };
 
-const requestPlayerJoin = (sessionId: number, name: string) => {
-  return (request('POST', SERVER_URL + '/v1/player/join', {
-    json: { sessionId, name }, timeout: TIMEOUT_MS
-  }));
-};
-
 const updateQuizSessionStatus = (token : string, quizId : number, sessionId : number, action : Actions) => {
   const res = request(
     'PUT',
@@ -180,7 +174,6 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid', () => {
 
     // deleting at lobby
     const res = questionDelete(token1, quizId, qid.questionId);
-    console.log(JSON.parse(res.body.toString()));
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
 
@@ -192,7 +185,7 @@ describe('DELETE /v1/admin/quiz/:quizid/question/:questionid', () => {
     expect(res2.statusCode).toBe(400);
     updateQuizSessionStatus(token1, quizId, sessionId, Actions.END);
   });
-  
+
   // test to check if the question is removed from the list of questions
   test('Question is removed from the list of questions', () => {
     const res = questionDelete(token1, quizId, qid.questionId);

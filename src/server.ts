@@ -18,7 +18,7 @@ import {
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
   adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
-  adminQuizTransfer, adminQuizUpdateThumbnail,
+  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult
 } from './quiz';
 
 import {

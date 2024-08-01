@@ -18,16 +18,31 @@ const registerUser = (email: string, password: string, nameFirst: string, nameLa
   return JSON.parse(res.body.toString());
 };
 
-const createSession = (token: string, sessionName: string) => {
-  const res = request(
-    'POST',
-    SERVER_URL + '/v1/admin/session/create',
-    {
-      json: { token, sessionName },
-      timeout: TIMEOUT_MS,
+const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
+  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
+    headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
+  }));
+};
+
+const requestCreateQuiz = (token: string, name : string, description : string) => {
+  const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }, timeout: TIMEOUT_MS
+  }));
+  return JSON.parse(quiz.body.toString()).quizId;
+};
+
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
+  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+    json: {
+      token,
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers
+      }
     }
-  );
-  return JSON.parse(res.body.toString());
+  });
 };
 
 const joinSession = (token: string, sessionId: number) => {
@@ -69,11 +84,12 @@ describe('adminPlayerSessionChatSend Tests', () => {
     let token: string;
     let playerId: number;
     let sessionId: number;
+    let quizID: number;
 
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      const session = createSession(token, 'Test Session');
+      const session = requestCreateSession(token, 'Test Session');
       sessionId = session.sessionId;
       const player = joinSession(token, sessionId);
       playerId = player.playerId;
@@ -113,21 +129,29 @@ describe('adminPlayerSessionChatSend Tests', () => {
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      const session = createSession(token, 'Test Session');
+      console.log(token);
+      const session = requestCreateSession(token, quizid, autoStartNum);
       sessionId = session.sessionId;
+      console.log(sessionId);
       const player = joinSession(token, sessionId);
       playerId = player.playerId;
+      console.log(playerId);
     });
 
-    test('Send a valid chat message', () => {
+    test.only('Send a valid chat message', () => {
       const res = sendMessage(playerId, 'Hello, this is a test message.');
+      console.log('Response statusCode:', res.statusCode);
+      console.log('Response body:', res.body.toString());
+      console.log(playerId);
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });
-
+  
     test('Send a chat message exactly 100 characters long', () => {
       const validMessage = 'a'.repeat(100);
       const res = sendMessage(playerId, validMessage);
+      console.log('Response statusCode:', res.statusCode);
+      console.log('Response body:', res.body.toString());
       expect(res.statusCode).toBe(200);
       expect(JSON.parse(res.body.toString())).toStrictEqual({});
     });

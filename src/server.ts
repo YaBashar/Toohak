@@ -1063,8 +1063,8 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
     return res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Message body is less than 1 character' || 
-          error.message === 'Message body is more than 100 characters' || 
+      if (error.message === 'Message body is less than 1 character' ||
+          error.message === 'Message body is more than 100 characters' ||
           error.message === 'Player ID does not exist') {
         return res.status(400).json({ error: error.message });
       } else {

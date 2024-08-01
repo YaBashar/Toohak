@@ -175,6 +175,9 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   if (messageBody.length > 100) {
     throw new Error('Message body is more than 100 characters');
   }
+  if (/^\s*$/.test(messageBody)) {
+    throw new Error('Message body contains only whitespace');
+  }
 
   // Find the game session where the player is involved
   for (let i = 0; i < gameArr.length; i++) {
@@ -206,6 +209,13 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
     playerId,
     message: messageBody,
     timestamp: new Date().toISOString(),
+  });
+
+  // Optionally log the successful operation
+  console.log('Chat message saved successfully:', {
+    playerId,
+    messageBody,
+    timestamp: new Date().toISOString()
   });
 
   return {};

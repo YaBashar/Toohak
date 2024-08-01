@@ -116,11 +116,6 @@ app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   try {
     const token = req.headers.token as string;
     const userId = getUserIdFromToken(token);
-
-    if (userId === -1) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
     const result = adminQuizTrashView(token);
     return res.status(200).json(result);
   } catch (error) {

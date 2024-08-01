@@ -25,12 +25,12 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
-import { adminPlayerSessionChatSend, gameUpdateQuizSessionState } from './game';
+import { adminPlayerSessionChatSend, adminPlayerSessionChat, gameUpdateQuizSessionState } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
 } from './game';
-import { setData } from './dataStore';
+import { getData, setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -1163,6 +1163,27 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   }
 });
 
+// adminPlayerSessionChat Route
+app.post('/v1/player/:playerId/chat', (req, res) => {
+  const playerId = parseInt(req.params.playerId, 10);
+  const { message } = req.body;
+
+  try {
+    if (typeof message !== 'string') {
+      throw new Error('Invalid message format');
+    }
+
+    // Call the function to handle the chat message
+    adminPlayerSessionChat(playerId, message);
+
+    // Send a success response
+    res.status(200).json({});
+  } catch (error) {
+    // Send an error response
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // adminGamePlayerSessionInfo
 app.get('/v1/player/:playerid', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid as string);
@@ -1184,16 +1205,13 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
   if (!playerid) {
     return res.status(400).json({ error: 'invalid playerid' });
   }
-
   if (!Array.isArray(answerids) || answerids.length === 0) {
     return res.status(400).json({ error: 'No answer IDs submitted' });
   }
-
   try {
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
     res.status(200).json(result);
     if ('error' in result) {
-      // throw new Error(error);
     }
   } catch (error) {
     return res.status(400).json({ error: error.message });

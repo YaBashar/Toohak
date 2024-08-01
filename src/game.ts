@@ -17,7 +17,7 @@ END: The game is now over and inactive.
 
 import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
-import { Results, Player, Game, Answer } from './interface';
+import { Results, Player, Game, Answer, ChatMessage } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
 
 export enum States {
@@ -365,6 +365,57 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   return {};
 }
 
+// AdminPlayerSessionChat
+export function adminPlayerSessionChat(playerId: number, messageBody: string) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
+
+  if (messageBody.trim().length === 0) {
+    throw new Error('Please enter a message');
+  }
+
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game;
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+
+  if (!playerFound) {
+    throw new Error('Player ID does not exist');
+  }
+
+  if (!gameWithPlayer.chat) {
+    gameWithPlayer.chat = [];
+  }
+
+  // Save the chat message to the game session
+  gameWithPlayer.chat.push({
+    playerId,
+    message: messageBody,
+    timestamp: new Date().toISOString() 
+  });
+
+  console.log('Chat message saved successfully:', {
+    playerId,
+    messageBody,
+    timestamp: new Date().toISOString()
+  });
+
+  return {};
+}
+
+// adminQuizSubmitAnswer
 export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
   const data = getData();
   const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));

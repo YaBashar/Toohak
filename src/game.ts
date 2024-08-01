@@ -165,32 +165,33 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
   const store = getData();
 
-  // Validate message body first
+  // Validate message body
   if (messageBody.trim().length === 0) {
-    return { error: 'Message body is less than 1 character' };
+    throw new Error('Message body is less than 1 character');
   }
   
   if (messageBody.length > 100) {
-    return { error: 'Message body is more than 100 characters' };
+    throw new Error('Message body is more than 100 characters');
   }
 
-  // Find the game and player
+  // Find the game session where the player is involved
   const game = store.games.find(game => game.players.some(player => player.playerId === playerId));
 
   if (!game) {
-    return { error: 'Session not found for this player' };
+    throw new Error('Session not found for this player');
   }
 
   const player = game.players.find(player => player.playerId === playerId);
   if (!player) {
-    return { error: 'Player ID does not exist' };
+    throw new Error('Player ID does not exist');
   }
 
-  // Save the chat message to the game session
+  // Initialize chat array if it doesn't exist
   if (!game.chat) {
     game.chat = [];
   }
 
+  // Save the chat message to the game session
   game.chat.push({
     playerId,
     message: messageBody,

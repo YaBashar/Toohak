@@ -1056,32 +1056,34 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
 
 // adminPlayerSessionChatSend Route
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const { message } = req.body;
+  const playerId = parseInt(req.params.playerId, 10);
+  const userId = getUserIdFromToken(token);
   try {
-    const token = req.headers.token as string;
-    const { message } = req.body;
-    const playerId = parseInt(req.params.playerId, 10);
-    const userId = getUserIdFromToken(token);
-
     if (!userId) {
-      return res.status(401).json({ error: 'Invalid token' });
+      throw new Error('Invalid token');
     }
-
     const result = adminPlayerSessionChatSend(playerId, message);
-    if (result.error) {
-      if (result.error === 'Message body is less than 1 character' ||
-          result.error === 'Message body is more than 100 characters' ||
-          result.error === 'Message body contains only whitespace') {
-        return res.status(400).json(result);
-      }
-      if (result.error === 'Session not found for this player' ||
-          result.error === 'Player ID does not exist') {
-        return res.status(400).json(result);
-      }
-    }
-
     return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ error: 'Internal Server Error' });
+    if (error instanceof Error) {
+      if (error.message === 'Invalid token') {
+        return res.status(401).json({ error: error.message });
+      } else if (
+        error.message === 'Message body is less than 1 character' ||
+        error.message === 'Message body is more than 100 characters' ||
+        error.message === 'Message body contains only whitespace' ||
+        error.message === 'Session not found for this player' ||
+        error.message === 'Player ID does not exist'
+      ) {
+        return res.status(400).json({ error: error.message });
+      } else {
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+    } else {
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
   }
 });
 

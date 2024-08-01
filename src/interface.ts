@@ -6,7 +6,6 @@ export interface ChatMessage {
   playerId: number;
   message: string;
   timestamp: string;
-  timeSent: number; // Unix timestamp
 }
 
 // Define the User interface
@@ -108,10 +107,11 @@ export interface Player {
 
 // Define the Results interface
 export interface Results {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentageCorrect: number;
+  questionId: number,
+  playersCorrectList: string[],
+  averageAnswerTime: number,
+  percentageCorrect: number,
+  startTime: number
 }
 
 // Update the Game interface to include chat
@@ -124,7 +124,7 @@ export interface Game {
   numQuestions: number;
   activeQuestion: number;
   questionResults: Results[];
-  chat?: ChatMessage[]; 
+  chat?: ChatMessage[]; // Add this line to include the chat property
 }
 
 // Define the Store interface

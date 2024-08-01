@@ -130,6 +130,7 @@ const data = {
 };
 
 ```
+
 [Optional] short description: 
 
 The object 'data' contains an array of users and an array of quizzes. 

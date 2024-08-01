@@ -15,9 +15,9 @@ FINAL_RESULTS: This is where the final results are displayed for all players and
 END: The game is now over and inactive.
 */
 
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
-import { Results, Player, Game } from './interface';
+import { Results, Player, Game, Answer } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
 
 export enum States {
@@ -30,18 +30,20 @@ export enum States {
   END
 }
 
-// enum Actions {
-//   NEXT_QUESTION,
-//   SKIP_COUNTDOWN,
-//   GO_TO_ANSWER,
-//   GO_TO_FINAL_RESULTS,
-//   END
-// }
+export enum Actions {
+  NEXT_QUESTION,
+  SKIP_COUNTDOWN,
+  GO_TO_ANSWER,
+  GO_TO_FINAL_RESULTS,
+  END
+}
 
 // enum Status {
 //   ACTIVE,
 //   INACTIVE
 // }
+
+// DEPENDENCIES
 
 export function adminGameCreateSession(userId: number, quizId: number, autoStartNum: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
@@ -72,6 +74,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
       playersCorrectList: [],
       averageAnswerTime: 0,
       percentageCorrect: 0,
+      startTime: 0
     });
   }
 
@@ -112,6 +115,148 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
+export function adminGamePlayerSessionInfo(playerId: number) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound = null;
+  let gameWithPlayer = null;
+
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game; // Store the game reference
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+
+  if (playerFound) {
+    console.log('Player found:', playerFound);
+    console.log('Game with player:', gameWithPlayer);
+  } else {
+    throw new Error('Player Id does not exist');
+  }
+
+  const playerInfo = {
+    state: States[gameWithPlayer.status],
+    numQuestions: gameWithPlayer.numQuestions,
+    atQuestion: gameWithPlayer.activeQuestion
+  };
+
+  return (playerInfo);
+}
+
+export const timerMap = new Map();
+
+export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
+  const data = getData();
+  const userArr = data.users;
+  const quizArr = data.quizzes;
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(token, userArr);
+  const quizUser = checkQuizOwnership(token, quizArr);
+  const game = findGameSessionId(data, sessionId, quizId);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!game) {
+    throw new Error('Session Id does not exist');
+  }
+
+  if (action === Actions.NEXT_QUESTION) {
+    if (game.status === States.LOBBY || game.status === States.QUESTION_CLOSE) {
+      game.status = States.QUESTION_COUNTDOWN;
+      game.activeQuestion += 1;
+      setData(data); // Persist changes immediately
+
+      // Clear any existing timer
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+      }
+
+      // THIS WORKS
+      const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
+        game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
+
+        const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+        setTimeout(() => {
+          game.status = States.QUESTION_CLOSE;
+          setData(data); // Persist changes immediately
+        }, testTime);
+      }, 3000);
+      timerMap.set(sessionId, countdownInterval);
+    } else {
+      throw new Error('Action Next Question not applicable in this state');
+    }
+  }
+
+  if (action === Actions.SKIP_COUNTDOWN) {
+    if (game.status === States.QUESTION_COUNTDOWN) {
+      const existingTimer = timerMap.get(sessionId);
+      if (existingTimer) {
+        clearTimeout(existingTimer);
+        timerMap.delete(sessionId);
+        game.status = States.QUESTION_OPEN;
+        setData(data); // Persist changes immediately
+      }
+
+      const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
+      setTimeout(() => {
+        game.status = States.QUESTION_CLOSE;
+        setData(data); // Persist changes immediately
+      }, testTime);
+    } else {
+      throw new Error('Action Skip Countdown not applicable in this state');
+    }
+  }
+
+  if (action === Actions.GO_TO_ANSWER) {
+    if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
+      game.status = States.ANSWER_SHOW;
+      setData(data); // Persist changes immediately
+    } else {
+      throw new Error('Action Go to answer is not applicable in this state');
+    }
+  }
+
+  if (action === Actions.GO_TO_FINAL_RESULTS) {
+    if (game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
+      game.status = States.FINAL_RESULTS;
+      setData(data); // Persist changes immediately
+    } else {
+      throw new Error('Action Go to final results is not applicable in this state');
+    }
+  }
+
+  if (action === Actions.END) {
+    game.status = States.END;
+    setData(data); // Persist changes immediately
+  }
+
+  if (action !== Actions.NEXT_QUESTION && action !== Actions.SKIP_COUNTDOWN &&
+    action !== Actions.GO_TO_ANSWER && action !== Actions.GO_TO_FINAL_RESULTS && action !== Actions.END) {
+    throw new Error('Action not a valid enum');
+  }
+
+  return {};
+}
+
 export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, sessionId : number) {
   const store = getData();
   const userArr = store.users;
@@ -120,7 +265,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
   const user = findUserByToken(userId, userArr);
   const quizUser = checkQuizOwnership(userId, quizArr);
 
-  const game = findGameSessionId(sessionId, quizId);
+  const game = findGameSessionId(store, sessionId, quizId);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -157,29 +302,144 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
       thumbnailUrl: quiz.thumbnailUrl
     }
   };
-
   return (gameSessionInfo);
 }
 
-// AdminPlayerSessionChat
-export function adminPlayerSessionChat(playerId: number) {
+// AdminPlayerSessionChatSend
+export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
   const store = getData();
-  const game = store.games.find((game) =>
-    game.players.some((player) => player.playerId === playerId)
-  );
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
 
-  if (!game) {
-    throw new Error('Session not found for this player');
+  // Validation checks
+  if (messageBody.trim().length === 0) {
+    throw new Error('Message body is less than 1 character');
+  }
+  if (messageBody.length > 100) {
+    throw new Error('Message body is more than 100 characters');
+  }
+  if (/^\s*$/.test(messageBody)) {
+    throw new Error('Message body contains only whitespace');
   }
 
-  const player = game.players.find((player) => player.playerId === playerId);
-  
-  if (!player) {
+  // Find the game session where the player is involved
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game;
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+
+  if (!playerFound) {
     throw new Error('Player ID does not exist');
   }
 
-  const allMessages = game.chat || [];
-  const sortedMessages = allMessages.sort((a, b) => a.timeSent - b.timeSent);
+  // Initialize chat array if it doesn't exist
+  if (!gameWithPlayer.chat) {
+    gameWithPlayer.chat = [];
+  }
 
-  return { messages: sortedMessages };
+  // Save the chat message to the game session
+  gameWithPlayer.chat.push({
+    playerId,
+    message: messageBody,
+    timestamp: new Date().toISOString(),
+  });
+
+  // Optionally log the successful operation
+  console.log('Chat message saved successfully:', {
+    playerId,
+    messageBody,
+    timestamp: new Date().toISOString()
+  });
+
+  return {};
+}
+
+export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  const question = quiz.questions[questionposition - 1];
+
+  if (game.status !== States.QUESTION_OPEN) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const validAnswerIds = question.answers.map((answer: Answer) => answer.answerId);
+  for (const answerId of answerids) {
+    if (!validAnswerIds.includes(answerId)) {
+      throw new Error('Invalid answer ID');
+    }
+  }
+
+  if (hasDuplicateAnswerIds(answerids)) {
+    throw new Error('Duplicate answers provided');
+  }
+
+  if (answerids.length < 1) {
+    throw new Error('No answer provided');
+  }
+
+  const correctAnswerIds = question.answers
+    .filter((answer: Answer) => answer.correct)
+    .map((answer: Answer) => answer.answerId);
+
+  const correct = correctAnswerIds.every((correctId: number) => answerids.includes(correctId));
+
+  const results = game.questionResults[questionposition - 1];
+  if (correct) {
+    const playerIndex = game.players.findIndex((player) => playerid === player.playerId);
+    const playerName = game.players[playerIndex].name;
+    results.playersCorrectList.push(playerName);
+    results.percentageCorrect = ((results.percentageCorrect / 100) + 1 / (game.players.length)) * 100;
+  }
+
+  setData(data);
+  return {};
+}
+
+function hasDuplicateAnswerIds(answerIds: number[]): boolean {
+  const seen = new Set<number>();
+
+  for (const answerId of answerIds) {
+    if (seen.has(answerId)) {
+      return true;
+    }
+    seen.add(answerId);
+  }
+  return false;
 }

@@ -38,10 +38,10 @@ export enum Actions {
   END
 }
 
-// enum Status {
-//   ACTIVE,
-//   INACTIVE
-// }
+export enum Status {
+  ACTIVE,
+  INACTIVE
+}
 
 // DEPENDENCIES
 

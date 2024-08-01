@@ -18,7 +18,7 @@ import {
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
   adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
-  adminQuizTransfer, adminQuizUpdateThumbnail,
+  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult
 } from './quiz';
 
 import {
@@ -122,12 +122,6 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
 app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   try {
     const token = req.headers.token as string;
-    const userId = getUserIdFromToken(token);
-
-    if (userId === -1) {
-      return res.status(401).json({ error: 'Invalid token' });
-    }
-
     const result = adminQuizTrashView(token);
     return res.status(200).json(result);
   } catch (error) {
@@ -1197,6 +1191,33 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
     }
   } catch (error) {
     return res.status(400).json({ error: error.message });
+  }
+});
+
+// adminQuizSessionFinalResult
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const quizid = parseInt(req.params.quizid as string);
+    const sessionid = parseInt(req.params.sessionid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    const result = adminQuizSessionFinalResult(userId, quizid, sessionid);
+    if ('error' in result) {
+      // throw new Error(error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Invalid Quiz id') {
+      return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
+    }
   }
 });
 

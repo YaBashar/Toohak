@@ -91,7 +91,8 @@ export interface Results {
   questionId: number,
   playersCorrectList: string[],
   averageAnswerTime: number,
-  percentageCorrect: number
+  percentageCorrect: number,
+  startTime: number
 }
 
 export interface Game {

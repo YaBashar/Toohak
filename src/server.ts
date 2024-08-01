@@ -28,8 +28,7 @@ import {
 import { gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin,
-  adminGamePlayerSessionInfo, adminGameQuizSessionStatusInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
 } from './game';
 import { setData } from './dataStore';
 
@@ -1155,6 +1154,30 @@ app.get('/v1/player/:playerid', (req: Request, res: Response) => {
     }
   }
 });
+
+app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
+  const { answerids } = req.body;
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition as number);
+  if (!playerid) {
+    return res.status(400).json({ error: 'invalid playerid' });
+  }
+
+  if (!Array.isArray(answerids) || answerids.length === 0) {
+    return res.status(400).json({ error: 'No answer IDs submitted' });
+  }
+
+  try {
+    const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
+    res.status(200).json(result);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================
 // ====================================================================

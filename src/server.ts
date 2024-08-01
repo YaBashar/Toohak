@@ -1158,7 +1158,7 @@ app.get('/v1/player/:playerid', (req: Request, res: Response) => {
 app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
   const { answerids } = req.body;
   const playerid = parseInt(req.params.playerid as string);
-  const questionposition = parseInt(req.params.questionposition as number);
+  const questionposition = parseInt(req.params.questionposition);
   if (!playerid) {
     return res.status(400).json({ error: 'invalid playerid' });
   }
@@ -1171,7 +1171,7 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
     res.status(200).json(result);
     if ('error' in result) {
-      throw new Error(result.error);
+      // throw new Error(result.error);
     }
   } catch (error) {
     return res.status(400).json({ error: error.message });

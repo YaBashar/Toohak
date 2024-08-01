@@ -626,6 +626,17 @@ app.put('/v2/admin/user/password', (req: Request, res: Response) => {
   }
 });
 
+// adminAuthUserDetailsv2
+app.get('/v2/admin/user/details', (req: Request, res: Response) => {
+  const token = req.headers.token as string;
+  const userId = getUserIdFromToken(token);
+  try {
+    res.json(adminUserDetails(userId));
+  } catch (error) {
+    return res.status(401).json({ error: error.message });
+  }
+});
+
 // adminAuthUpdateUserDetails v2
 app.put('/v2/admin/user/details', (req: Request, res: Response) => {
   const token = req.header('token');

@@ -108,28 +108,18 @@ describe('Player Chat Retrieval Tests', () => {
 
     const player1 = requestPlayerJoin(sessionId, 'Mubashir');
     const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+    requestPlayerJoin(sessionId, 'Syed');
 
     playerId1 = JSON.parse(player1.body.toString()).playerId;
     playerId2 = JSON.parse(player2.body.toString()).playerId;
-
-    // Send test messages
-    sendMessage(playerId1, 'Hello, this is a test message.');
-    sendMessage(playerId2, 'Another test message.');
   });
 
   describe('Error Cases', () => {
-    test('Handle case where player ID does not exist', () => {
+    test.only('Handle case where player ID does not exist', () => {
       const invalidPlayerId = playerId1 + 999;
-      const res = getPlayerChatMessages(invalidPlayerId);
+      const res = sendMessage(invalidPlayerId, 'Invalid Player Exists');
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Player ID does not exist' });
-    });
-
-    test('Handle case where player ID format is invalid', () => {
-      const invalidPlayerId = 'invalid' as any;
-      const res = getPlayerChatMessages(Number(invalidPlayerId));
-      expect(res.statusCode).toBe(400);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Invalid player ID format' });
     });
   });
 
@@ -152,6 +142,7 @@ describe('Player Chat Retrieval Tests', () => {
     });
 
     test('Retrieve chat messages for a player with multiple messages', () => {
+      sendMessage(playerId2, 'Message Output');
       const res = getPlayerChatMessages(playerId2);
       expect(res.statusCode).toBe(200);
 

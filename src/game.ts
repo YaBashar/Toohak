@@ -19,6 +19,7 @@ import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
 import { Results, Player, Game, Answer, ChatMessage } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
+import { timeStamp } from 'console';
 
 export enum States {
   LOBBY,
@@ -350,9 +351,10 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
 
   // Save the chat message to the game session
   gameWithPlayer.chat.push({
-    playerId,
-    message: messageBody,
-    timestamp: new Date().toISOString(),
+    messageBody: messageBody,
+    playerId: playerId, 
+    playerName: playerFound.name,
+    timeSent: new Date().toISOString(),
   });
 
   // Optionally log the successful operation
@@ -365,8 +367,8 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   return {};
 }
 
-// AdminPlayerSessionChat
-export function adminPlayerSessionChat(playerId: number, messageBody?: string) {
+// AdminPlayerSessionChatGet
+export function adminPlayerSessionChat(playerId: number) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
@@ -389,24 +391,17 @@ export function adminPlayerSessionChat(playerId: number, messageBody?: string) {
     throw new Error('Player ID does not exist');
   }
 
-  if (messageBody) {
-    if (messageBody.trim().length === 0) {
-      throw new Error('Please enter a message');
+  for (const game of gameArr) {
+    for (const chat of game.chat) {
+      const message =  {
+        messageBody: chat.messageBody,
+        playerId: chat.playerId,
+        playerName: chat.playerName,
+        timeSent: chat.timeSent
+      }
+      console.log(message);
+      return message;
     }
-
-    if (!gameWithPlayer.chat) {
-      gameWithPlayer.chat = [];
-    }
-
-    gameWithPlayer.chat.push({
-      playerId,
-      message: messageBody,
-      timestamp: new Date().toISOString(), 
-    });
-
-    return { statusCode: 200, body: JSON.stringify({}) };
-  } else {
-    return { statusCode: 200, body: JSON.stringify({ messages: gameWithPlayer.chat || [] }) };
   }
 }
 

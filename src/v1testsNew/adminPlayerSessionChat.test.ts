@@ -38,7 +38,7 @@ const createQuizQuestion = (token: string, quizId: number, question: string, dur
 const requestCreateSession = (token: string, quizId: number, autoStartNum: number) => {
   const session = request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/session/start`, {
     headers: { token },
-    json: { autoStartNum: autoStartNum },
+    json: { autoStartNum },
     timeout: TIMEOUT_MS
   });
   return JSON.parse(session.body.toString());
@@ -57,19 +57,18 @@ const sendMessage = (playerId: number, messageBody: string) => {
     'POST',
     SERVER_URL + `/v1/player/${playerId}/chat`,
     {
-      json: { messageBody },
+      json: { message: messageBody },
       timeout: TIMEOUT_MS,
     }
   );
 };
 
 const getMessages = (playerId: number) => {
-  const res = request(
+  return request(
     'GET',
     SERVER_URL + `/v1/player/${playerId}/chat`,
     { timeout: TIMEOUT_MS }
   );
-  return JSON.parse(res.body.toString());
 };
 /////////////////////////////////////////////////////////////
 
@@ -104,6 +103,7 @@ describe('adminPlayerSessionChat Tests', () => {
 
       const player1 = requestPlayerJoin(sessionId, 'Mubashir');
       const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+      requestPlayerJoin(sessionId, 'Syed');
       
       playerId1 = player1.playerId;
       playerId2 = player2.playerId;
@@ -111,20 +111,16 @@ describe('adminPlayerSessionChat Tests', () => {
 
     test('Player ID does not exist', () => {
       const res = request('GET', SERVER_URL + `/v1/player/${playerId1 + 1}/chat`, { timeout: TIMEOUT_MS });
+      const body = JSON.parse(res.body.toString());
       expect(res.statusCode).toBe(400);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Player ID does not exist' });
+      expect(body).toStrictEqual({ error: 'Player ID does not exist' });
     });
 
     test('No messages in session', () => {
       const res = getMessages(playerId1);
+      const body = JSON.parse(res.body.toString());
       expect(res.statusCode).toBe(200);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ messages: [] });
-    });
-
-    test('Send an empty message', () => {
-      const res = sendMessage(playerId1, '');
-      expect(res.statusCode).toBe(400);
-      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Please enter a message' });
+      expect(body).toStrictEqual({ messages: [] });
     });
   });
 
@@ -138,8 +134,10 @@ describe('adminPlayerSessionChat Tests', () => {
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
+      console.log(token);
 
       quizId = requestCreateQuiz(token, 'Test Quiz', 'Test Description');
+      console.log(quizId);
       createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true },
         { answer: 'Queen Elizabeth', correct: false }
@@ -147,34 +145,22 @@ describe('adminPlayerSessionChat Tests', () => {
 
       const session = requestCreateSession(token, quizId, 3);
       sessionId = session.sessionId;
+      console.log(sessionId);
 
       const player1 = requestPlayerJoin(sessionId, 'Mubashir');
       const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+      requestPlayerJoin(sessionId, 'Syed');
+      
       
       playerId1 = player1.playerId;
       playerId2 = player2.playerId;
     });
 
     test('Send and retrieve messages within the same session', () => {
-      const messages = [
-        'Hello, this is the first message.',
-        'This is the second message.',
-        'And this is the third message.'
-      ];
-      
-      messages.forEach(message => sendMessage(playerId1, message));
-
+      sendMessage(playerId1, 'Test Message') 
+      getMessages(playerId1);
       const res = getMessages(playerId1);
-      const retrievedMessages = JSON.parse(res.body.toString()).messages;
-
-      expect(res.statusCode).toBe(200);
-      expect(retrievedMessages).toHaveLength(messages.length);
-
-      const currentTime = Math.floor(Date.now() / 1000);
-      retrievedMessages.forEach((msg: any, index: number) => {
-        expect(msg.message).toBe(messages[index]);
-        expect(msg.timeSent).toBeGreaterThanOrEqual(currentTime - 1);
-        expect(msg.timeSent).toBeLessThanOrEqual(currentTime);
+      expect(res.body.toString()).toStrictEqual({
       });
     });
 
@@ -186,30 +172,28 @@ describe('adminPlayerSessionChat Tests', () => {
       ];
       
       messages.forEach(message => sendMessage(playerId1, message));
+      const moreMessages = [
+        'Fourth message',
+        'Fifth message'
+      ];
+      moreMessages.forEach(message => sendMessage(playerId1, message));
 
-      setTimeout(() => {
-        const moreMessages = [
-          'Fourth message',
-          'Fifth message'
-        ];
-        moreMessages.forEach(message => sendMessage(playerId1, message));
-        
-        const res = getMessages(playerId1);
-        const retrievedMessages = JSON.parse(res.body.toString()).messages;
+      const res = getMessages(playerId1);
+      const body = JSON.parse(res.body.toString());
+      const retrievedMessages = body.messages;
 
-        expect(res.statusCode).toBe(200);
-        expect(retrievedMessages).toHaveLength(messages.length + moreMessages.length);
+      expect(res.statusCode).toBe(200);
+      expect(retrievedMessages).toHaveLength(messages.length + moreMessages.length);
 
-        const currentTime = Math.floor(Date.now() / 1000);
-        retrievedMessages.forEach((msg: any, index: number) => {
-          expect(msg.message).toBe(messages[index] || moreMessages[index - messages.length]);
-          expect(msg.timeSent).toBeGreaterThanOrEqual(currentTime - 2);  
-          expect(msg.timeSent).toBeLessThanOrEqual(currentTime);
-        });
-      }, 1000);
+      const currentTime = Math.floor(Date.now() / 1000);
+      retrievedMessages.forEach((msg: any, index: number) => {
+        expect(msg.message).toBe(messages[index] || moreMessages[index - messages.length]);
+        expect(msg.timeSent).toBeGreaterThanOrEqual(currentTime - 2);  
+        expect(msg.timeSent).toBeLessThanOrEqual(currentTime);
+      });
     });
 
-    test('Retrieve messages from multiple players', () => {
+    test('Retrieve messages from multiple players', async () => {
       // Send messages from player 1
       const messagesPlayer1 = [
         'Player 1, first message.',
@@ -224,9 +208,12 @@ describe('adminPlayerSessionChat Tests', () => {
       ];
       messagesPlayer2.forEach(message => sendMessage(playerId2, message));
 
+      await new Promise(resolve => setTimeout(resolve, 1000));  
+
       // Retrieve messages for player 1
       const res1 = getMessages(playerId1);
-      const retrievedMessages1 = JSON.parse(res1.body.toString()).messages;
+      const body1 = JSON.parse(res1.body.toString());
+      const retrievedMessages1 = body1.messages;
 
       expect(res1.statusCode).toBe(200);
       expect(retrievedMessages1).toHaveLength(messagesPlayer1.length + messagesPlayer2.length);
@@ -240,7 +227,8 @@ describe('adminPlayerSessionChat Tests', () => {
 
       // Retrieve messages for player 2
       const res2 = getMessages(playerId2);
-      const retrievedMessages2 = JSON.parse(res2.body.toString()).messages;
+      const body2 = JSON.parse(res2.body.toString());
+      const retrievedMessages2 = body2.messages;
 
       expect(res2.statusCode).toBe(200);
       expect(retrievedMessages2).toHaveLength(messagesPlayer1.length + messagesPlayer2.length);

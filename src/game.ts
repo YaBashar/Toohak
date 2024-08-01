@@ -68,16 +68,6 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   const results: Results[] = [];
   const players: Player[] = [];
 
-  for (const question of quiz.questions) {
-    results.push({
-      questionId: question.questionId,
-      playersCorrectList: [],
-      averageAnswerTime: 0,
-      percentageCorrect: 0,
-      startTime: 0
-    });
-  }
-
   const newSession: Game = {
     sessionId: newSessId,
     status: States.LOBBY,

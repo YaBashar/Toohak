@@ -1,0 +1,89 @@
+{
+  "users": [
+    {
+      "userId": 291417,
+      "name": "sidak singh",
+      "email": "z5525050@unsw.edu.au",
+      "password": "123ABCabc@#$",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "123ABCabc@#$"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722504169687,
+      "name": "quizName",
+      "description": "description",
+      "timeCreated": 1722504169,
+      "timeLastEdited": 1722504169,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722504169689,
+          "question": "Who is the Monarch of England?",
+          "duration": 4,
+          "thumbnailUrl": "https://example.com/image-thumbnail-12345.jpg",
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 787,
+              "answer": "Prince Charles",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 1868,
+              "answer": "Queen Elizabeth",
+              "colour": "blue",
+              "correct": false
+            }
+          ]
+        }
+      ],
+      "duration": 0,
+      "userId": 291417,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 273173,
+      "userId": 291417
+    }
+  ],
+  "trash": [],
+  "games": [
+    {
+      "sessionId": 561161,
+      "status": 1,
+      "quizId": 1722504169687,
+      "autoStartNum": 3,
+      "players": [
+        {
+          "playerId": 485614,
+          "name": "player one",
+          "atQuestion": 0,
+          "points": 0
+        },
+        {
+          "playerId": 471289,
+          "name": "player two",
+          "atQuestion": 0,
+          "points": 0
+        },
+        {
+          "playerId": 169937,
+          "name": "player three",
+          "atQuestion": 0,
+          "points": 0
+        }
+      ],
+      "activeQuestion": 1,
+      "numQuestions": 1,
+      "questionResults": []
+    }
+  ]
+}

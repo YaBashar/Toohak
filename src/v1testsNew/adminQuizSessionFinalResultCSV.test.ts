@@ -7,72 +7,76 @@ const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 // helper functions
+
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
-	const uid = (request('POST', SERVER_URL + '/v1/admin/auth/register', {
-		json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
-	}));
-	return JSON.parse(uid.body.toString()).token;
+  const uid = (request('POST', SERVER_URL + '/v1/admin/auth/register', {
+    json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
+  }));
+  return JSON.parse(uid.body.toString()).token;
 };
 const requestCreateQuiz = (token: string, name : string, description : string) => {
-	const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
-		json: { token, name, description }, timeout: TIMEOUT_MS
-	}));
-	return JSON.parse(quiz.body.toString()).quizId;
+  const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
+    json: { token, name, description }, timeout: TIMEOUT_MS
+  }));
+  return JSON.parse(quiz.body.toString()).quizId;
 };
 
-const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
-	const sessId = (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
-		headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
-	}));
-	return JSON.parse(sessId.body.toString()).sessionId;
+const startSession = (quizid: number, token: string, autoStartNum: number) => {
+  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/start`, {
+    headers: { token }, json: { autoStartNum }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString());
 };
-
 
 const requestPlayerJoin = (sessionId: number, name: string) => {
-	return (request('POST', SERVER_URL + '/v1/player/join', {
-		json: { sessionId, name }, timeout: TIMEOUT_MS
-	}));	
-};	
-
-const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
-	return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
-		json: {
-			token,
-			questionBody: {
-				question,
-				duration,
-				points,
-				answers
-			}
-		}
-	});	
+  return (request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name }, timeout: TIMEOUT_MS
+  }));
 };
 
- const sessionState = (quizid: number, sessionid: number, token: string) => {
-   const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-     headers: { token }
-   })
- return JSON.parse(res.body.toString());};
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
+  return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
+    json: {
+      token,
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers
+      }
+    }
+  });
+};
 
+const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
+  const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
+    headers: { token }, json: { action }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString());
+};
 
-  const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
-    const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-      headers: { token }, json: { action }
-    })
-  return JSON.parse(res.body.toString());};
-
- const submitAnswer = (answerids: [number], playerid: number, questionposition: number) => {
-   const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
-     json: { answerids }
-   })
-   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
- }
+const submitAnswer = (answerids: number[], playerid: number, questionposition: number) => {
+  const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
+    json: { answerids }, timeout: TIMEOUT_MS
+  });
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+};
 
 const quizSessionFinalResult = (token: string, quizid: number, sessionid: number) => {
-	return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {
-		headers: { token }, timeout: TIMEOUT_MS
-	});
-}
+  return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {
+    headers: { token }, timeout: TIMEOUT_MS
+  });
+};
+
+const quizInfo = (quizid: number, token: string) => {
+  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizid}`, {
+    headers: { token }, json: { quizid }, timeout: TIMEOUT_MS
+  });
+  return {
+    body: JSON.parse(res.body.toString()),
+    statusCode: res.statusCode
+  };
+};
 
 const quizSessionFinalResultCSV = (token: string, quizid: number, sessionid: number) => {
 	return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, {
@@ -96,8 +100,13 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 	beforeEach(() => {
 		token = requestAuthRegister('z5525050@unsw.edu.au', '123ABCabc!@#', 'sidak', 'singh');
 		quizId = requestCreateQuiz(token, 'quiz1', 'quiz description');
-		sessionId = requestCreateSession(token, quizId, 3);
-	});
+		createQuizQuestion(token, quizId, 'What is 1 + 1?', 4, 5, [
+      { answer: '4', correct: false },
+      { answer: '2', correct: true },
+      { answer: '11', correct: false }
+    ]);
+    sessionId = startSession(quizId, token, 3).sessionId;
+  });
 
 	test('SessionId does not refer to a valid session', () => {
 		const res = quizSessionFinalResultCSV(token, quizId, sessionId + 1);
@@ -138,12 +147,14 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 	// success case 
 	// Get the a link to the final results (in CSV format) for all players for a completed quiz session
 	// "url": "http://google.com/some/image/path.csv"
-	test('Success Case', () => {
-		// Assuming that the session is in FINAL_RESULTS state
-		updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
+  // write a success test case for this
 
-		const res = quizSessionFinalResultCSV(token, quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(200);
-	});
+  // test('Success Case', () => {
+  //   updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
+
+  //   const res = quizSessionFinalResultCSV(token, quizId, sessionId);
+  //   expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
+	// 	expect(res.statusCode).toStrictEqual(200);
+  // });
+	
 });

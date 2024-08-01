@@ -71,6 +71,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
       playersCorrectList: [],
       averageAnswerTime: 0,
       percentageCorrect: 0,
+      startTime: 0
     });
   }
 
@@ -142,14 +143,15 @@ export function adminQuizQuestionInfo(playerid: number, questionposition: number
       colour: question.answers[i].colour
     });
   };
-
-  return {
+  const questionInfo = {
     questionId: question.questionId,
     question: question.question,
     duration: question.duration,
     thumbnailUrl: question.thumbnailUrl,
     points: question.points,
-    answers: answers
-  };
+    answers: question.answers
+  }
+
+  return questionInfo;
 };
 

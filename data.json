@@ -1,61 +1,92 @@
 {
   "users": [
     {
-      "userId": 473509,
+      "userId": 74266,
       "name": "amelia su",
       "email": "amelia@unsw.edu.au",
-      "password": "abcd1234!@#$ABCD",
+      "password": "39035b152f0c762f690ef9e25ac0db494ead26d755f3f222b81c9ba34f3778cc",
       "numSuccessfulLogins": 2,
       "numFailedPasswordsSinceLastLogin": 0,
       "passwordHistory": [
-        "abcd1234!@#$ABCD"
+        "39035b152f0c762f690ef9e25ac0db494ead26d755f3f222b81c9ba34f3778cc"
       ]
     }
   ],
   "quizzes": [
     {
-      "quizId": 1722253566338,
+      "quizId": 1722555406788,
       "name": "quiz 1",
       "description": "the first quiz",
-      "timeCreated": 1722253566,
-      "timeLastEdited": 1722253566,
+      "timeCreated": 1722555406,
+      "timeLastEdited": 1722555406,
       "numQuestions": 0,
       "questions": [
         {
-          "questionId": 1722253566340,
+          "questionId": 1722555406794,
           "question": "Who is the Monarch of England?",
           "duration": 4,
           "points": 5,
           "answers": [
             {
+              "answerId": 3451,
               "answer": "Prince William",
+              "colour": "red",
               "correct": false
             },
             {
+              "answerId": 3099,
               "answer": "Prince Charles",
+              "colour": "blue",
               "correct": true
             },
             {
+              "answerId": 530,
               "answer": "Prince Beckham",
+              "colour": "green",
               "correct": false
             }
-          ],
-          "thumbnailUrl": "http://google.com/some/image/path.jpg"
+          ]
+        },
+        {
+          "questionId": 1722555406799,
+          "question": "What is 1 + 1?",
+          "duration": 4,
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3517,
+              "answer": "4",
+              "colour": "red",
+              "correct": false
+            },
+            {
+              "answerId": 3012,
+              "answer": "2",
+              "colour": "blue",
+              "correct": true
+            },
+            {
+              "answerId": 3807,
+              "answer": "11",
+              "colour": "green",
+              "correct": false
+            }
+          ]
         }
       ],
       "duration": 0,
-      "userId": 473509,
+      "userId": 74266,
       "thumbnailUrl": ""
     }
   ],
   "sessions": [
     {
-      "sessionId": 196114,
-      "userId": 473509
+      "sessionId": 819158,
+      "userId": 74266
     },
     {
-      "sessionId": 770600,
-      "userId": 473509
+      "sessionId": 664108,
+      "userId": 74266
     }
   ],
   "trash": [],

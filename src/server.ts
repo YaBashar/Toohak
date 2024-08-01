@@ -1061,20 +1061,24 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
     const { message } = req.body;
     const playerId = parseInt(req.params.playerId, 10);
     const userId = getUserIdFromToken(token);
-    if (userId === -1) {
-      return res.status(400).json({ error: 'Player ID does not exist' });
+
+    if (!userId) {
+      return res.status(401).json({ error: 'Invalid token' });
     }
+
     const result = adminPlayerSessionChatSend(playerId, message);
     if (result.error) {
       if (result.error === 'Message body is less than 1 character' ||
-          result.error === 'Message body is more than 100 characters') {
+          result.error === 'Message body is more than 100 characters' ||
+          result.error === 'Message body contains only whitespace') {
         return res.status(400).json(result);
       }
       if (result.error === 'Session not found for this player' ||
           result.error === 'Player ID does not exist') {
-        return res.status(404).json(result);
+        return res.status(400).json(result);
       }
     }
+
     return res.status(200).json(result);
   } catch (error) {
     return res.status(500).json({ error: 'Internal Server Error' });

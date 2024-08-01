@@ -73,15 +73,16 @@ afterEach(() => {
 describe('adminPlayerSessionChatSend Tests', () => {
   describe('Error Cases', () => {
     let token: string;
-    let playerId: number;
+    let playerId1: number;
+    let playerId2: number;
     let sessionId: number;
     let quizId: number;
 
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      quizId = requestCreateQuiz(token, 'quizName', 'description');
 
+      quizId = requestCreateQuiz(token, 'quizName', 'description');
       createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true },
         { answer: 'Queen Elizabeth', correct: false }
@@ -90,31 +91,35 @@ describe('adminPlayerSessionChatSend Tests', () => {
       const session = requestCreateSession(token, quizId, 3);
       sessionId = JSON.parse(session.body.toString()).sessionId;
 
-      const player = requestPlayerJoin(sessionId, 'Mubashir');
-      playerId = JSON.parse(player.body.toString()).playerId;
+      const player1 = requestPlayerJoin(sessionId, 'Mubashir');
+      const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+      requestPlayerJoin(sessionId, 'Syed');
+
+      playerId1 = JSON.parse(player1.body.toString()).playerId;
+      playerId2 = JSON.parse(player2.body.toString()).playerId;
     });
 
     test('Player ID does not exist', () => {
-      const res = sendMessage(playerId + 1, 'Hello');
+      const res = sendMessage(playerId1 + 1, 'Hello');
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Player ID does not exist' });
     });
 
     test('Message body is less than 1 character', () => {
-      const res = sendMessage(playerId, '');
+      const res = sendMessage(playerId2, '');
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is less than 1 character' });
     });
 
     test('Message body is more than 100 characters', () => {
       const longMessage = 'a'.repeat(101);
-      const res = sendMessage(playerId, longMessage);
+      const res = sendMessage(playerId1, longMessage);
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is more than 100 characters' });
     });
 
     test('Message body contains only whitespace', () => {
-      const res = sendMessage(playerId, ' '.repeat(10));
+      const res = sendMessage(playerId2, ' '.repeat(10));
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is less than 1 character' });
     });
@@ -142,6 +147,7 @@ describe('adminPlayerSessionChatSend Tests', () => {
 
       const player1 = requestPlayerJoin(sessionId, 'Mubashir');
       const player2 = requestPlayerJoin(sessionId, 'Mohammad');
+      requestPlayerJoin(sessionId, 'Syed');
 
       playerId1 = JSON.parse(player1.body.toString()).playerId;
       playerId2 = JSON.parse(player2.body.toString()).playerId;

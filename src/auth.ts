@@ -176,15 +176,14 @@ export function adminUserDetails(userId: number): UserDetails {
 export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string): Record<string, never> | ErrorResponse {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-
-  if (!Number.isInteger(token)) {
-    throw new Error('invalid userId');
-  }
+  // if (!Number.isInteger(token)) {
+  //   throw new Error('invalid userId');
+  // }
 
   const userIndex = data.users.findIndex(user => user.userId === token);
-  if (userIndex === -1) {
-    throw new Error('userId does not exist');
-  }
+  // if (userIndex === -1) {
+  //   throw new Error('userId does not exist');
+  // }
 
   if (!validator.isEmail(email)) {
     throw new Error('invalid email address');
@@ -239,9 +238,9 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   const data = getData();
   const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    throw new Error('userId does not exist');
-  }
+  // if (!user) {
+  //   throw new Error('userId does not exist');
+  // }
 
   if (user.password !== oldPassword) {
     throw new Error('incorrect password');

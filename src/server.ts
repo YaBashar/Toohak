@@ -924,7 +924,7 @@ app.delete('/v2/admin/quiz/:quizid/question/:questionid', (req: Request, res: Re
     } else if (error.message === 'Quiz Id not owned by the user' ||
       error.message === 'Invalid Quiz Id') {
       return res.status(403).json({ error: error.message });
-    } else if (error.message === 'Invalid Question Id') {
+    } else if (error.message === 'Invalid Question Id' || error.message === 'Any session for this quiz is not in END state') {
       return res.status(400).json({ error: error.message });
     }
   }

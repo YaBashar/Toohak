@@ -22,6 +22,7 @@ and update information regarding questions within a quiz.
 import { getData, setData } from './dataStore';
 import { Answer, Question, QuestionId, ErrorResponse } from './interface';
 import { findUserByToken, checkQuizOwnership, findQuizIndexFromQuizId, findQuestionIndex, createQuestionId } from './helper';
+import { States } from './game';
 
 /** [1] adminQuizQuestionCreate
   *
@@ -238,6 +239,7 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   const userArr = store.users;
   const quiz = quizArr.find((quiz) => quiz.quizId === quizId);
   const user = userArr.find((user) => user.userId === token);
+  const gameArr = store.games;
 
   if (!user) {
     throw new Error('Invalid Token');
@@ -251,6 +253,11 @@ export function adminQuizQuestionDelete(token: number, quizId: number, questionI
   const question = quiz.questions.find((question: Question) => question.questionId === questionId);
   if (!question) {
     throw new Error('Invalid Question Id');
+  }
+  for (const game of gameArr) {
+    if (game.quizId === quizId && game.status !== States.END) {
+      throw new Error('Any session for this quiz is not in END state');
+    }
   }
   const index = quiz.questions.indexOf(question);
   quiz.questions.splice(index, 1);

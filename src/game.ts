@@ -123,7 +123,6 @@ export function adminGamePlayerSessionInfo(playerId: number) {
 
   for (let i = 0; i < gameArr.length; i++) {
     const game = gameArr[i];
-    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
     for (let j = 0; j < game.players.length; j++) {
       const player = game.players[j];
       if (player.playerId === playerId) {
@@ -137,10 +136,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
     }
   }
 
-  if (playerFound) {
-    console.log('Player found:', playerFound);
-    console.log('Game with player:', gameWithPlayer);
-  } else {
+  if (!playerFound) {
     throw new Error('Player Id does not exist');
   }
 
@@ -153,6 +149,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
   return (playerInfo);
 }
 
+// Create a global variable to store all timers
 export const timerMap = new Map();
 
 export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
@@ -181,7 +178,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
     if (game.status === States.LOBBY || game.status === States.QUESTION_CLOSE) {
       game.status = States.QUESTION_COUNTDOWN;
       game.activeQuestion += 1;
-      setData(data); // Persist changes immediately
+      setData(data);
 
       // Clear any existing timer
       const existingTimer = timerMap.get(sessionId);
@@ -189,15 +186,18 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
         clearTimeout(existingTimer);
       }
 
-      // THIS WORKS
+      // Countdown 3 Seconds to Move from Question_Countdown to Question_Open
+      // Transition to Question_Close once the question has been opened for its duration
+      // which was set in quizCreate
       const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
         game.status = States.QUESTION_OPEN;
-        setData(data); // Persist changes immediately
+        game.questionResults[game.activeQuestion - 1].startTime = Math.floor(Date.now() / 1000);
+        setData(data);
 
         const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
         setTimeout(() => {
           game.status = States.QUESTION_CLOSE;
-          setData(data); // Persist changes immediately
+          setData(data);
         }, testTime);
       }, 3000);
       timerMap.set(sessionId, countdownInterval);
@@ -208,12 +208,14 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
 
   if (action === Actions.SKIP_COUNTDOWN) {
     if (game.status === States.QUESTION_COUNTDOWN) {
+      // Delete existing timer created when countdown started from NEXT_QUESTION action
       const existingTimer = timerMap.get(sessionId);
       if (existingTimer) {
         clearTimeout(existingTimer);
         timerMap.delete(sessionId);
         game.status = States.QUESTION_OPEN;
-        setData(data); // Persist changes immediately
+        game.questionResults[game.activeQuestion - 1].startTime = Math.floor(Date.now() / 1000);
+        setData(data);
       }
 
       const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
@@ -229,7 +231,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.GO_TO_ANSWER) {
     if (game.status === States.QUESTION_OPEN || game.status === States.QUESTION_CLOSE) {
       game.status = States.ANSWER_SHOW;
-      setData(data); // Persist changes immediately
+      setData(data);
     } else {
       throw new Error('Action Go to answer is not applicable in this state');
     }
@@ -238,7 +240,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   if (action === Actions.GO_TO_FINAL_RESULTS) {
     if (game.status === States.ANSWER_SHOW || game.status === States.QUESTION_CLOSE) {
       game.status = States.FINAL_RESULTS;
-      setData(data); // Persist changes immediately
+      setData(data);
     } else {
       throw new Error('Action Go to final results is not applicable in this state');
     }
@@ -246,7 +248,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
 
   if (action === Actions.END) {
     game.status = States.END;
-    setData(data); // Persist changes immediately
+    setData(data);
   }
 
   if (action !== Actions.NEXT_QUESTION && action !== Actions.SKIP_COUNTDOWN &&

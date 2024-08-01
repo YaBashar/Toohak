@@ -17,7 +17,7 @@ END: The game is now over and inactive.
 
 import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
-import { Results, Player, Game } from './interface';
+import { Results, Player, Game, Answer } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
 
 export enum States {
@@ -74,6 +74,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
       playersCorrectList: [],
       averageAnswerTime: 0,
       percentageCorrect: 0,
+      startTime: 0
     });
   }
 
@@ -301,6 +302,84 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
       thumbnailUrl: quiz.thumbnailUrl
     }
   };
-
   return (gameSessionInfo);
+}
+
+export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  const question = quiz.questions[questionposition - 1];
+
+  if (game.status !== States.QUESTION_OPEN) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const validAnswerIds = question.answers.map((answer: Answer) => answer.answerId);
+  for (const answerId of answerids) {
+    if (!validAnswerIds.includes(answerId)) {
+      throw new Error('Invalid answer ID');
+    }
+  }
+
+  if (hasDuplicateAnswerIds(answerids)) {
+    throw new Error('Duplicate answers provided');
+  }
+
+  if (answerids.length < 1) {
+    throw new Error('No answer provided');
+  }
+
+  const correctAnswerIds = question.answers
+    .filter((answer: Answer) => answer.correct)
+    .map((answer: Answer) => answer.answerId);
+
+  const correct = correctAnswerIds.every((correctId: number) => answerids.includes(correctId));
+
+  const results = game.questionResults[questionposition - 1];
+  if (correct) {
+    const playerIndex = game.players.findIndex((player) => playerid === player.playerId);
+    const playerName = game.players[playerIndex].name;
+    results.playersCorrectList.push(playerName);
+    results.percentageCorrect = ((results.percentageCorrect / 100) + 1 / (game.players.length)) * 100;
+  }
+
+  setData(data);
+  return {};
+}
+
+function hasDuplicateAnswerIds(answerIds: number[]): boolean {
+  const seen = new Set<number>();
+
+  for (const answerId of answerIds) {
+    if (seen.has(answerId)) {
+      return true;
+    }
+    seen.add(answerId);
+  }
+  return false;
 }

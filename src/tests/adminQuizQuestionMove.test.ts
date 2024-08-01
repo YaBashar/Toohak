@@ -90,35 +90,30 @@ beforeEach(() => {
 describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
   test('Question id does not exist', () => {
     const res = moveQuestion(token, quiz1Id, '55', 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('New position is less than 0', () => {
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, -2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('New position is too big', () => {
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, 5);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('New position is current position', () => {
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, 0);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('empty token', () => {
     const res = moveQuestion('', quiz1Id, question1Quiz1Id, 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -126,7 +121,6 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
   test('invalid token', () => {
     request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { token } });
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
   });
@@ -140,21 +134,18 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { token: randomToken } });
     userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD');
     const res = moveQuestion(token, randomQuizId, question1Quiz1Id, 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
   test('this quiz does not exist', () => {
     const res = moveQuestion(token, '999', question1Quiz1Id, 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(403);
   });
 
   test('All fields are valid', () => {
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, 1);
-    console.log(res.body);
     expect(res.body).toStrictEqual({});
     expect(res.statusCode).toBe(200);
   });

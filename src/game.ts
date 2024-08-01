@@ -17,9 +17,8 @@ END: The game is now over and inactive.
 
 import { getData, setData } from './dataStore';
 import { createDataStoreId } from './helper';
-import { Results, Player, Game, Answer, ChatMessage } from './interface';
+import { Results, Player, Game, Answer } from './interface';
 import { findQuizById, findUserByToken, checkQuizOwnership, findGameSessionId } from './helper';
-import { timeStamp } from 'console';
 
 export enum States {
   LOBBY,
@@ -309,7 +308,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 }
 
 // AdminPlayerSessionChatSend
-export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
+export function adminPlayerSendMessage(playerId: number, messageBody: string) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
@@ -347,16 +346,16 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   }
 
   // Initialize chat array if it doesn't exist
-  if (!gameWithPlayer.chat) {
-    gameWithPlayer.chat = [];
+  if (!gameWithPlayer.messages) {
+    gameWithPlayer.messages = [];
   }
 
   // Save the chat message to the game session
-  gameWithPlayer.chat.push({
+  gameWithPlayer.messages.push({
     messageBody: messageBody,
-    playerId: playerId, 
+    playerId: playerId,
     playerName: playerFound.name,
-    timeSent: new Date().toISOString(),
+    timeSent: Math.floor(Date.now() / 1000),
   });
 
   // Optionally log the successful operation
@@ -370,7 +369,7 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
 }
 
 // AdminPlayerSessionChatGet
-export function adminPlayerSessionChat(playerId: number) {
+export function adminPlayerGetMessage(playerId: number) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
@@ -388,23 +387,29 @@ export function adminPlayerSessionChat(playerId: number) {
       break;
     }
   }
-
   if (!playerFound) {
     throw new Error('Player ID does not exist');
   }
 
-  for (const game of gameArr) {
-    for (const chat of game.chat) {
-      const message =  {
-        messageBody: chat.messageBody,
-        playerId: chat.playerId,
-        playerName: chat.playerName,
-        timeSent: chat.timeSent
-      }
-      console.log(message);
-      return message;
-    }
+  console.log(gameWithPlayer);
+  if (!gameWithPlayer.messages) {
+    return { messages: [] };
   }
+
+  const messages = [];
+
+  for (const chat of gameWithPlayer.messages) {
+    const message = {
+      messageBody: chat.messageBody,
+      playerId: chat.playerId,
+      playerName: chat.playerName,
+      timeSent: chat.timeSent
+    };
+    messages.push(message);
+  }
+
+  console.log(messages);
+  return { messages: messages };
 }
 
 // adminQuizSubmitAnswer

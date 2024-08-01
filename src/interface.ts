@@ -6,7 +6,7 @@ export interface ChatMessage {
   messageBody: string;
   playerId: number;
   playerName: string;
-  timeSent: string;
+  timeSent: number;
 }
 
 // Define the User interface
@@ -125,7 +125,7 @@ export interface Game {
   numQuestions: number;
   activeQuestion: number;
   questionResults: Results[];
-  chat?: ChatMessage[]; 
+  messages?: ChatMessage[];
 }
 
 // Define the Store interface

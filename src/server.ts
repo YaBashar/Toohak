@@ -25,12 +25,12 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
-import { adminPlayerSessionChatSend, adminPlayerSessionChat, gameUpdateQuizSessionState } from './game';
+import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessage } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
 } from './game';
-import { getData, setData } from './dataStore';
+import { setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -1142,7 +1142,7 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   console.log('Starting on the line');
   try {
     console.log('Checking status');
-    const result = adminPlayerSessionChatSend(playerId, message);
+    const result = adminPlayerSendMessage(playerId, message);
     console.log('Checking on the flow of information');
 
     res.status(200).json(result);
@@ -1152,9 +1152,9 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
         console.log('checking catch status');
         return res.status(400).json({ error: 'Please enter a message' });
       } else if (error.message === 'Player ID does not exist') {
-        console.log('checking catch status again.')
+        console.log('checking catch status again.');
         return res.status(400).json({ error: 'Player ID does not exist' });
-      } 
+      }
     } else {
       console.log('final check.');
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -1168,18 +1168,16 @@ app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
 
   try {
     // Call the function to handle the chat message
-    adminPlayerSessionChat(playerId);
+    const result = adminPlayerGetMessage(playerId);
 
     // Send a success response
-    res.status(200).json({});
+    res.status(200).json(result);
   } catch (error) {
     // Handle specific error messages
-    if (error.message === 'Please enter a message') {
-      res.status(400).json({ error: 'Please enter a message' });
-    } else if (error.message === 'Player ID does not exist') {
+    if (error.message === 'Player ID does not exist') {
       res.status(400).json({ error: 'Player ID does not exist' });
     } else {
-      res.status(500).json({ error: 'Internal Server Error' });
+      res.status(500).json({ error: error.message });
     }
   }
 });
@@ -1189,13 +1187,12 @@ app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerId, 10);
 
   try {
-    const result = adminPlayerSessionChat(playerId);
+    const result = adminGamePlayerSessionInfo(playerId);
 
-    res.json(result)
+    res.json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Player ID does not exist')
-      res.status(400).json({ error: error.message });
+      if (error.message === 'Player ID does not exist') { res.status(400).json({ error: error.message }); }
     } else {
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
@@ -1216,8 +1213,6 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
   try {
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
     res.status(200).json(result);
-    if ('error' in result) {
-    }
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }

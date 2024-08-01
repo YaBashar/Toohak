@@ -164,8 +164,10 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 // AdminPlayerSessionChatSend
 export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
   const store = getData();
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
 
-  // Validate message body
   if (messageBody.trim().length === 0) {
     throw new Error('Message body is less than 1 character');
   }
@@ -175,24 +177,37 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   }
 
   // Find the game session where the player is involved
-  const game = store.games.find(game => game.players.some(player => player.playerId === playerId));
+  for (let i = 0; i < gameArr.length; i++) {
+    const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
+    for (let j = 0; j < game.players.length; j++) {
+      const player = game.players[j];
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game; 
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
 
-  if (!game) {
+  if (!gameWithPlayer) {
     throw new Error('Session not found for this player');
   }
 
-  const player = game.players.find(player => player.playerId === playerId);
-  if (!player) {
+  if (!playerFound) {
     throw new Error('Player ID does not exist');
   }
 
   // Initialize chat array if it doesn't exist
-  if (!game.chat) {
-    game.chat = [];
+  if (!gameWithPlayer.chat) {
+    gameWithPlayer.chat = [];
   }
 
   // Save the chat message to the game session
-  game.chat.push({
+  gameWithPlayer.chat.push({
     playerId,
     message: messageBody,
     timestamp: new Date().toISOString(),

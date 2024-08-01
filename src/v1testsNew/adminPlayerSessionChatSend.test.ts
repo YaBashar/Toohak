@@ -47,7 +47,7 @@ const sendMessage = (playerId: number, messageBody: string) => {
     'POST',
     SERVER_URL + `/v1/player/${playerId}/chat`,
     {
-      json: { message: messageBody }, 
+      json: { message: messageBody },
       timeout: TIMEOUT_MS,
     }
   );

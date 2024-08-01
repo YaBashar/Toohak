@@ -1146,14 +1146,15 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const { message } = req.body;
   const playerId = parseInt(req.params.playerId, 10);
   try {
-    const result = adminPlayerSessionChatSend(playerId, message);
-    return res.status(200).json(result);
+    const result = adminPlayerSessionChat(playerId, message);
+
+    res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Message body is less than 1 character' ||
-          error.message === 'Message body is more than 100 characters' ||
-          error.message === 'Player ID does not exist') {
-        return res.status(400).json({ error: error.message });
+      if (error.message === 'Please enter a message') {
+        return res.status(400).json({ error: 'Please enter a message' });
+      } else if (error.message === 'Player ID does not exist') {
+        return res.status(400).json({ error: 'Player ID does not exist' });
       } else {
         return res.status(500).json({ error: 'Internal Server Error' });
       }
@@ -1164,40 +1165,55 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
 });
 
 // adminPlayerSessionChat Route
-app.post('/v1/player/:playerId/chat', (req, res) => {
+app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerId, 10);
   const { message } = req.body;
 
-  try {
-    if (typeof message !== 'string') {
-      throw new Error('Invalid message format');
-    }
+  // Validate request parameters
+  if (isNaN(playerId) || typeof message !== 'string') {
+    return res.status(400).json({ error: 'Invalid request parameters' });
+  }
 
+  try {
     // Call the function to handle the chat message
     adminPlayerSessionChat(playerId, message);
 
     // Send a success response
     res.status(200).json({});
   } catch (error) {
-    // Send an error response
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// adminGamePlayerSessionInfo
-app.get('/v1/player/:playerid', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerid as string);
-
-  try {
-    const result = adminGamePlayerSessionInfo(playerId);
-    res.json(result);
-  } catch (error) {
-    if (error.message === 'Player Id does not exist') {
-      return res.status(400).json({ error: error.message });
+    // Handle specific error messages
+    if (error.message === 'Please enter a message') {
+      res.status(400).json({ error: 'Please enter a message' });
+    } else if (error.message === 'Player ID does not exist') {
+      res.status(404).json({ error: 'Player ID does not exist' });
+    } else {
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 });
 
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId, 10);
+
+  try {
+    const result = adminPlayerSessionChat(playerId);
+    const messages = JSON.parse(result.body).messages.map((msg: any) => ({
+      ...msg,
+      timestamp: Math.floor(new Date(msg.timestamp).getTime() / 1000) 
+    }));
+
+    res.status(result.statusCode).json({ messages });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  }
+});
+
+// questionposition
 app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
   const { answerids } = req.body;
   const playerid = parseInt(req.params.playerid as string);

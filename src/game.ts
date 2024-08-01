@@ -366,20 +366,14 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
 }
 
 // AdminPlayerSessionChat
-export function adminPlayerSessionChat(playerId: number, messageBody: string) {
+export function adminPlayerSessionChat(playerId: number, messageBody?: string) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
   let gameWithPlayer: Game | null = null;
 
-  if (messageBody.trim().length === 0) {
-    throw new Error('Please enter a message');
-  }
-
-  for (let i = 0; i < gameArr.length; i++) {
-    const game = gameArr[i];
-    for (let j = 0; j < game.players.length; j++) {
-      const player = game.players[j];
+  for (const game of gameArr) {
+    for (const player of game.players) {
       if (player.playerId === playerId) {
         playerFound = player;
         gameWithPlayer = game;
@@ -395,24 +389,25 @@ export function adminPlayerSessionChat(playerId: number, messageBody: string) {
     throw new Error('Player ID does not exist');
   }
 
-  if (!gameWithPlayer.chat) {
-    gameWithPlayer.chat = [];
+  if (messageBody) {
+    if (messageBody.trim().length === 0) {
+      throw new Error('Please enter a message');
+    }
+
+    if (!gameWithPlayer.chat) {
+      gameWithPlayer.chat = [];
+    }
+
+    gameWithPlayer.chat.push({
+      playerId,
+      message: messageBody,
+      timestamp: new Date().toISOString(), 
+    });
+
+    return { statusCode: 200, body: JSON.stringify({}) };
+  } else {
+    return { statusCode: 200, body: JSON.stringify({ messages: gameWithPlayer.chat || [] }) };
   }
-
-  // Save the chat message to the game session
-  gameWithPlayer.chat.push({
-    playerId,
-    message: messageBody,
-    timestamp: new Date().toISOString() 
-  });
-
-  console.log('Chat message saved successfully:', {
-    playerId,
-    messageBody,
-    timestamp: new Date().toISOString()
-  });
-
-  return {};
 }
 
 // adminQuizSubmitAnswer

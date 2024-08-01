@@ -23,6 +23,7 @@ import { getData, setData } from './dataStore';
 
 import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
+import { States } from './game';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -354,6 +355,7 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
+  const gameArr = store.games;
 
   const user = findUserByToken(token, userArr);
   if (!user) {
@@ -376,6 +378,11 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   const isQuizExists = store.quizzes.some(q => ((q.name === quiz.name) && (q.userId === targetUser.userId)));
   if (isQuizExists) {
     throw new Error('Quiz name already in use by target user');
+  }
+
+  const notInEndState = gameArr.some(game => game.quizId === quizId && States[game.status] !== 'END');
+  if (notInEndState) {
+    throw new Error('Any session for this quiz is not in END state');
   }
 
   // Change the quiz authuser id so it has the authuser id of the new owner

@@ -672,8 +672,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
 });
 
 // adminQuizTransfer V2
-// adminQuizTransfer
-app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
+app.post('/v2/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
   const token = req.headers.token as string;
   const { email } = req.body;
   const quizId = parseInt(req.params.quizid as string);
@@ -690,7 +689,7 @@ app.post('/v1/admin/quiz/:quizid/transfer', (req : Request, res: Response) => {
         return res.status(403).json({ error: error.message });
       } else if (error.message === 'Target user email is not a real user' ||
         error.message === 'Target user email is the same as currently logged in user' ||
-        error.message === 'Quiz name already in use by target user'
+        error.message === 'Quiz name already in use by target user' || error.message === 'Any session for this quiz is not in END state'
       ) {
         return res.status(400).json({ error: error.message });
       }

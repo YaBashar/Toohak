@@ -94,7 +94,6 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   return { sessionId: newSessId };
 }
 
-
 // /v1/player/join
 export function adminGamePlayerJoin(sessionId: number, name: string) {
   const session = getData().games.find(x => x.sessionId === sessionId);
@@ -118,7 +117,6 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-
 // /v1/admin/quiz/{quizid}/sessions
 export function adminGameViewSessions(userId: number, quizId: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
@@ -130,17 +128,17 @@ export function adminGameViewSessions(userId: number, quizId: number) {
     throw new Error('User is not an owner of this quiz.');
   }
 
-  const active: Number[] = [];
-  const inactive: Number[] = [];
+  const active: number[] = [];
+  const inactive: number[] = [];
 
-  for (let sess of gameArr) {
+  for (const sess of gameArr) {
     if (sess.status === States.END) {
       inactive.push(sess.sessionId);
-    } else{
+    } else {
       active.push(sess.sessionId);
     }
   }
- 
+
   return {
     activeSessions: active,
     inactiveSessions: inactive

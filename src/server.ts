@@ -28,7 +28,7 @@ import {
 import { adminPlayerSessionChatSend, gameUpdateQuizSessionState } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, 
+  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
   adminGamePlayerSessionInfo, adminGameViewSessions
 } from './game';
 
@@ -1083,7 +1083,6 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   }
 });
 
-
 // adminGameViewSessions
 app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
   const quizid = parseInt(req.params.quizid as string);
@@ -1092,13 +1091,13 @@ app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
 
   if (userId === -1) {
     return res.status(401).json({ error: 'Invalid Token' });
-  } 
-  
+  }
+
   try {
     const data = adminGameViewSessions(userId, quizid);
     res.json(data);
   } catch (error) {
-    return res.status(403).json({error: error.message});
+    return res.status(403).json({ error: error.message });
   }
 });
 

@@ -25,6 +25,14 @@ describe('Testing error cases', () => {
     expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
+  // Userid does not exist
+  test('Invalid userId', () => {
+    const res = requestUserDetails('0');
+    const data = JSON.parse(res.body.toString());
+
+    expect(data).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(401);
+  });
 });
 
 describe('Testing correct return', () => {

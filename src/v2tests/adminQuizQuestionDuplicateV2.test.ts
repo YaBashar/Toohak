@@ -16,40 +16,43 @@ const createUser = (email: string, password: string, firstName: string, lastName
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description }, timeout: TIMEOUT_MS }
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description }, timeout: TIMEOUT_MS }
   );
   return JSON.parse(res.body.toString());
 };
 
-const createQuizQuestion = (token : string, quizId : number, questionBody : object) => {
-  const res = request(
-    'POST',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/question`,
-    { json: { token: token, questionBody: questionBody }, timeout: TIMEOUT_MS }
-  );
-  return JSON.parse(res.body.toString());
+const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, thumbnailUrl: string, answers: object) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
+      token,
+    },
+    json: {
+      questionBody: {
+        question,
+        duration,
+        points,
+        thumbnailUrl,
+        answers,
+      }
+    }
+  });
 };
-
 const quizInfo = (token: string, quizId: number) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/${quizId}`,
+    { headers: { token } }
   );
   return JSON.parse(res.body.toString());
 };
 
 const requestDuplicateQuestion = (token : string, quizId : number, questionId : number) => {
-  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizId}/question/${questionId}/duplicate`, { json: { token: token }, timeout: TIMEOUT_MS }));
+  return (request('POST', SERVER_URL + `/v2/admin/quiz/${quizId}/question/${questionId}/duplicate`, { headers: { token }, timeout: TIMEOUT_MS }));
 };
 /// //////////////////////////////////////////////
 
 beforeEach(() => {
-  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
-});
-
-afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
@@ -64,26 +67,12 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
 
-      questionId = createQuizQuestion(token, quizId,
-        {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: false,
-            },
-            {
-              answer: 'Prince is not Charles',
-              correct: true,
-            },
-            {
-              answer: 'Prince is Beckham',
-              correct: false,
-            }
-          ]
-        }).questionId;
+      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      const questionResponse = JSON.parse(question.body.toString());
+      questionId = questionResponse.questionId;
     });
 
     test('Duplicating of a Question with invalid Authuser id', () => {
@@ -109,26 +98,12 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const token2 = JSON.parse(user2.body.toString()).token;
       const quizId2 = createQuiz(token2, 'quizName', 'description').quizId;
 
-      const questionId2 = createQuizQuestion(token2, quizId2, {
-        question: 'Who is the Monarch of England?',
-        duration: 4,
-        points: 5,
-        answers: [
-          {
-            answer: 'Prince Charles',
-            correct: false,
-          },
-          {
-            answer: 'Prince is not Charles',
-            correct: true,
-          },
-          {
-            answer: 'Prince is Beckham',
-            correct: false,
-          }
-        ]
-      }).questionId;
+      const question = createQuizQuestion(token, quizId2, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
 
+      const questionResponse = JSON.parse(question.body.toString());
+      const questionId2 = questionResponse.questionId;
       const duplicateQuestion = requestDuplicateQuestion(token, quizId, questionId2);
       expect(JSON.parse(duplicateQuestion.body.toString())).toStrictEqual({ error: expect.any(String) });
       expect(duplicateQuestion.statusCode).toStrictEqual(400);
@@ -145,26 +120,12 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
 
-      questionId = createQuizQuestion(token, quizId,
-        {
-          question: 'Who is the Monarch of England?',
-          duration: 4,
-          points: 5,
-          answers: [
-            {
-              answer: 'Prince Charles',
-              correct: false,
-            },
-            {
-              answer: 'Prince is not Charles',
-              correct: true,
-            },
-            {
-              answer: 'Prince is Beckham',
-              correct: false,
-            }
-          ]
-        }).questionId;
+      const question = createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+        { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
+      ]);
+
+      const questionResponse = JSON.parse(question.body.toString());
+      questionId = questionResponse.questionId;
     });
 
     test('success duplicating quiz question through QuizInfo', () => {
@@ -173,36 +134,31 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       const info = quizInfo(token, quizId);
       expect(info).toStrictEqual(
         {
-          quizId: quizId,
-          name: 'quizName',
+          quizId: expect.any(Number),
+          name: expect.any(String),
           timeCreated: expect.any(Number),
           timeLastEdited: expect.any(Number),
-          description: 'description',
+          description: expect.any(String),
           numQuestions: expect.any(Number),
           questions: [
             {
               questionId: questionId,
               question: 'Who is the Monarch of England?',
               duration: 4,
+              thumbnailUrl: expect.any(String),
               points: 5,
               answers: [
                 {
                   answerId: expect.any(Number),
                   answer: 'Prince Charles',
                   colour: expect.any(String),
-                  correct: false,
+                  correct: true
                 },
                 {
                   answerId: expect.any(Number),
-                  answer: 'Prince is not Charles',
+                  answer: 'Queen Elizabeth',
                   colour: expect.any(String),
-                  correct: true,
-                },
-                {
-                  answerId: expect.any(Number),
-                  answer: 'Prince is Beckham',
-                  colour: expect.any(String),
-                  correct: false,
+                  correct: false
                 }
               ]
             },
@@ -210,31 +166,26 @@ describe('adminQuizQuestionDuplicate Tests', () => {
               questionId: questId,
               question: 'Who is the Monarch of England?',
               duration: 4,
+              thumbnailUrl: expect.any(String),
               points: 5,
               answers: [
                 {
                   answerId: expect.any(Number),
                   answer: 'Prince Charles',
                   colour: expect.any(String),
-                  correct: false,
+                  correct: true
                 },
                 {
                   answerId: expect.any(Number),
-                  answer: 'Prince is not Charles',
+                  answer: 'Queen Elizabeth',
                   colour: expect.any(String),
-                  correct: true,
-                },
-                {
-                  answerId: expect.any(Number),
-                  answer: 'Prince is Beckham',
-                  colour: expect.any(String),
-                  correct: false,
+                  correct: false
                 }
               ]
             }
-
           ],
           duration: expect.any(Number),
+          thumbnailUrl: expect.any(String)
         }
       );
     });

@@ -25,12 +25,12 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
-import { adminPlayerSessionChatSend, gameUpdateQuizSessionState } from './game';
+import { adminPlayerSessionChatSend, adminPlayerSessionChat, gameUpdateQuizSessionState } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
 } from './game';
-import { setData } from './dataStore';
+import { getData, setData } from './dataStore';
 
 // Set up app
 const app = express();
@@ -1139,38 +1139,70 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const { message } = req.body;
   const playerId = parseInt(req.params.playerId, 10);
+  console.log('Starting on the line');
   try {
+    console.log('Checking status');
     const result = adminPlayerSessionChatSend(playerId, message);
-    return res.status(200).json(result);
+    console.log('Checking on the flow of information');
+
+    res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Message body is less than 1 character' ||
-          error.message === 'Message body is more than 100 characters' ||
-          error.message === 'Player ID does not exist') {
-        return res.status(400).json({ error: error.message });
-      } else {
-        return res.status(500).json({ error: 'Internal Server Error' });
-      }
+      if (error.message === 'Please enter a message') {
+        console.log('checking catch status');
+        return res.status(400).json({ error: 'Please enter a message' });
+      } else if (error.message === 'Player ID does not exist') {
+        console.log('checking catch status again.')
+        return res.status(400).json({ error: 'Player ID does not exist' });
+      } 
     } else {
+      console.log('final check.');
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 });
 
-// adminGamePlayerSessionInfo
-app.get('/v1/player/:playerid', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerid as string);
+// adminPlayerSessionChatGet Route
+app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId, 10);
 
   try {
-    const result = adminGamePlayerSessionInfo(playerId);
-    res.json(result);
+    // Call the function to handle the chat message
+    adminPlayerSessionChat(playerId);
+
+    // Send a success response
+    res.status(200).json({});
   } catch (error) {
-    if (error.message === 'Player Id does not exist') {
-      return res.status(400).json({ error: error.message });
+    // Handle specific error messages
+    if (error.message === 'Please enter a message') {
+      res.status(400).json({ error: 'Please enter a message' });
+    } else if (error.message === 'Player ID does not exist') {
+      res.status(400).json({ error: 'Player ID does not exist' });
+    } else {
+      res.status(500).json({ error: 'Internal Server Error' });
     }
   }
 });
 
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerId, 10);
+
+  try {
+    const result = adminPlayerSessionChat(playerId);
+
+    res.json(result)
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Player ID does not exist')
+      res.status(400).json({ error: error.message });
+    } else {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  }
+});
+
+// questionposition
 app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request, res: Response) => {
   const { answerids } = req.body;
   const playerid = parseInt(req.params.playerid as string);
@@ -1178,16 +1210,13 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
   if (!playerid) {
     return res.status(400).json({ error: 'invalid playerid' });
   }
-
   if (!Array.isArray(answerids) || answerids.length === 0) {
     return res.status(400).json({ error: 'No answer IDs submitted' });
   }
-
   try {
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);
     res.status(200).json(result);
     if ('error' in result) {
-      // throw new Error(error);
     }
   } catch (error) {
     return res.status(400).json({ error: error.message });

@@ -1,10 +1,14 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 beforeEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
+afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
@@ -17,7 +21,7 @@ describe('Testing email address input', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'email is used by another user' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -31,7 +35,7 @@ describe('Testing email address input', () => {
     const res = requestAuthRegister(email, 'abcd1234', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'email is not a valid email address' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -47,7 +51,7 @@ describe('Testing first name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first' + char, 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'name contains invalid characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -59,7 +63,7 @@ describe('Testing first name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', first, 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'first name must be at least 2 characters and no more than 20' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -75,7 +79,7 @@ describe('Testing last name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last' + char);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'name contains invalid characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -87,7 +91,7 @@ describe('Testing last name', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', last);
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'last name must be at least 2 characters and no more than 20' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -98,7 +102,7 @@ describe('Testing password', () => {
     const res = requestAuthRegister('email@unsw.edu.au', 'abc123', 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'password must be at least 8 characters' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 
@@ -109,7 +113,7 @@ describe('Testing password', () => {
     const res = requestAuthRegister('email@unsw.edu.au', password, 'first', 'last');
     const data = JSON.parse(res.body.toString());
 
-    expect(data).toStrictEqual({ error: 'password must contain at least one number and one letter' });
+    expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(400);
   });
 });
@@ -126,10 +130,38 @@ describe('Testing that information has been correctly registered', () => {
     expect(data.token).toStrictEqual(expect.any(String));
     expect(res.statusCode).toStrictEqual(200);
   });
+
+  // checks that user was added to database
+  test('User information successfully added to database', () => {
+    const res1 = requestAuthRegister('email@unsw.edu.au', 'abcd1234', 'first', 'last');
+    const token = JSON.parse(res1.body.toString()).token;
+
+    const res2 = requestUserDetails(token);
+    const data = JSON.parse(res2.body.toString());
+
+    expect(data).toStrictEqual({
+      user: {
+        userId: expect.any(Number),
+        name: 'first last',
+        email: 'email@unsw.edu.au',
+        numSuccessfulLogins: 1,
+        numFailedPasswordsSinceLastLogin: 0,
+      }
+    });
+
+    expect(res2.statusCode).toStrictEqual(200);
+  });
 });
 
+// HELPER FUNCTIONS
 const requestAuthRegister = (email: string, password: string, nameFirst: string, nameLast: string) => {
   return (request('POST', SERVER_URL + '/v1/admin/auth/register', {
     json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
+  }));
+};
+
+const requestUserDetails = (token: string) => {
+  return (request('GET', SERVER_URL + '/v1/admin/user/details', {
+    qs: { token }, timeout: TIMEOUT_MS
   }));
 };

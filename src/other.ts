@@ -1,5 +1,5 @@
 /* /////////////////////////////////////////////////////////////////////////////
-//////////////////////   TOOHAK ITERATION 1 'OTHER.JS'  ///////////////////////
+//////////////////////   TOOHAK ITERATION 2 'OTHER.TS'  ///////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
 COMP1531 24T2 --- Major Project: `Toohak',
@@ -18,7 +18,7 @@ application.
 
 // DEPENDENCIES
 
-import { getData, setData } from './dataStore.js';
+import { getData, setData } from './dataStore';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -32,12 +32,25 @@ import { getData, setData } from './dataStore.js';
   *
 */
 
-export function clear () {
+import { timerMap } from './game';
+
+export function clear (): Record<string, never> {
   const store = getData();
+
+  // Clear all timers
+  timerMap.forEach((timer) => {
+    clearTimeout(timer);
+  });
+  timerMap.clear();
+
+  const fs = require('fs');
+  fs.truncate('./data.json', 0, function() {});
 
   store.users = [];
   store.quizzes = [];
-
+  store.sessions = [];
+  store.trash = [];
+  store.games = [];
   setData(store);
   return {};
 }

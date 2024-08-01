@@ -1,41 +1,47 @@
 import request from 'sync-request-curl';
-import { port, url } from '../src/config.json';
+import { port, url } from '../config.json';
 
 const SERVER_URL = `${url}:${port}`;
+const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions
 /// //////////////////////////////////////////////
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
 
 const createQuiz = (token : string, name : string, description : string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description } }
-  );
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description } });
+  return JSON.parse(res.body.toString());
+};
+
+const quizInfo = (token : string, quizId : number) => {
+  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizId}`, { headers: { token } });
   return JSON.parse(res.body.toString());
 };
 
 const quizNameUpdate = (token : string, quizId : number, name : string) => {
   const res = request(
     'PUT',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
-    { json: { token, name } }
+    SERVER_URL + `/v2/admin/quiz/${quizId}/name`,
+    { headers: { token }, json: { name }, timeout: TIMEOUT_MS }
   );
   return res;
 };
 
-const quizInfo = (token: string, quizId: number) => {
-  const res = request(
-    'GET',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
-  );
-  return JSON.parse(res.body.toString());
-};
-/// //////////////////////////////////////////////
+/// /////////////////////////////////////////
 
 beforeEach(() => {
-  request('DELETE', SERVER_URL + '/v1/clear');
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
 describe('adminQuizNameUpdate Tests', () => {
@@ -44,7 +50,7 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
@@ -121,9 +127,9 @@ describe('adminQuizNameUpdate Tests', () => {
     let quizId : number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', { json: { email: 'z5525050@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'sidak', nameLast: 'singh' } });
+      const user = createUser('z5525050@unsw.edu.au', '123ABCabc@#$', 'sidak', 'singh');
       token = JSON.parse(user.body.toString()).token;
-      quizId = createQuiz(token, 'name', 'description').quizId;
+      quizId = createQuiz(token, 'quizName', 'description').quizId;
     });
 
     test('Check that function returns empty object', () => {
@@ -142,8 +148,31 @@ describe('adminQuizNameUpdate Tests', () => {
         description: 'description',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
+    });
+
+    test('Testing timeLastEdited property is the same as timeCreated', () => {
+      const quiz = createQuiz(token, 'newQuiz', 'description');
+      const initialTimeCreated = quiz.timeCreated;
+      const initialTimeEdited = quiz.timeLastEdited;
+
+      expect(initialTimeCreated).toEqual(initialTimeEdited);
+    });
+
+    test('Testing timeLastEdited property has been changed', (done) => {
+      const createQuizResponse = createQuiz(token, 'newQuiz', 'description');
+      const quizId = createQuizResponse.quizId;
+      const initialTimeCreated = createQuizResponse.timeCreated;
+
+      setTimeout(() => {
+        quizNameUpdate(token, quizId, 'changeName');
+        const quizInfoResponse = quizInfo(token, quizId);
+        const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
+        expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
+        done();
+      }, 1000);
     });
   });
 });

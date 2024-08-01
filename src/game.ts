@@ -164,6 +164,8 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
   const quizUser = checkQuizOwnership(token, quizArr);
   const game = findGameSessionId(data, sessionId, quizId);
 
+  console.log(game);
+
   if (!user) {
     throw new Error('Invalid User id');
   }
@@ -192,6 +194,8 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
       // THIS WORKS
       const countdownInterval: ReturnType<typeof setTimeout> = setTimeout(() => {
         game.status = States.QUESTION_OPEN;
+        game.questionResults[game.activeQuestion - 1].startTime = Math.floor(Date.now() / 1000);
+        console.log(game.questionResults[game.activeQuestion - 1].startTime);
         setData(data); // Persist changes immediately
 
         const testTime = quiz.questions[game.activeQuestion - 1].duration * 1000;
@@ -213,6 +217,8 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
         clearTimeout(existingTimer);
         timerMap.delete(sessionId);
         game.status = States.QUESTION_OPEN;
+        game.questionResults[game.activeQuestion - 1].startTime = Math.floor(Date.now() / 1000);
+        console.log(game.questionResults[game.activeQuestion - 1].startTime);
         setData(data); // Persist changes immediately
       }
 

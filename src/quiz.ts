@@ -24,11 +24,9 @@ import { getData, setData } from './dataStore';
 import { Quiz, QuizInfo, QuizList, ErrorResponse, QuizSessionFinalResult, Game } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 import { States } from './game';
-import { Parser } from 'json2csv';
 import { writeFileSync } from 'fs';
 import { mkdirSync, existsSync } from 'fs';
 import path from 'path';
-
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -645,7 +643,6 @@ export function adminQuizSessionFinalResult(userId: number, quizId: number, sess
  * "url": "http://google.com/some/image/path.csv"
  */
 
-
 // store data in memory
 const csvCache: { [key: string]: string } = {};
 
@@ -718,4 +715,4 @@ const convertSessionToCSV = (session: Game): string => {
   writeFileSync(filePath, `${headers}\n${rows.join('\n')}`);
 
   return `${headers}\n${rows.join('\n')}`;
-}
+};

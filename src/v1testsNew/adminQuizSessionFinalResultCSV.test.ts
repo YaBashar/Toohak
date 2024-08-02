@@ -1,7 +1,6 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
 import { Actions } from '../game';
-import { adminQuizSessionFinalResultCsv } from '../quiz';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -28,12 +27,6 @@ const startSession = (quizid: number, token: string, autoStartNum: number) => {
   return JSON.parse(res.body.toString());
 };
 
-const requestPlayerJoin = (sessionId: number, name: string) => {
-  return (request('POST', SERVER_URL + '/v1/player/join', {
-    json: { sessionId, name }, timeout: TIMEOUT_MS
-  }));
-};
-
 const createQuizQuestion = (token: string, quizid: number, question: string, duration: number, points: number, answers: object) => {
   return request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/question`, {
     json: {
@@ -53,29 +46,6 @@ const updateState = (quizid: number, sessionid: number, token: string, action: A
     headers: { token }, json: { action }, timeout: TIMEOUT_MS
   });
   return JSON.parse(res.body.toString());
-};
-
-const submitAnswer = (answerids: number[], playerid: number, questionposition: number) => {
-  const res = request('PUT', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/answer`, {
-    json: { answerids }, timeout: TIMEOUT_MS
-  });
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-};
-
-const quizSessionFinalResult = (token: string, quizid: number, sessionid: number) => {
-  return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results`, {
-    headers: { token }, timeout: TIMEOUT_MS
-  });
-};
-
-const quizInfo = (quizid: number, token: string) => {
-  const res = request('GET', SERVER_URL + `/v2/admin/quiz/${quizid}`, {
-    headers: { token }, json: { quizid }, timeout: TIMEOUT_MS
-  });
-  return {
-    body: JSON.parse(res.body.toString()),
-    statusCode: res.statusCode
-  };
 };
 
 const quizSessionFinalResultCSV = (token: string, quizid: number, sessionid: number) => {
@@ -144,19 +114,6 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
     expect(res.statusCode).toStrictEqual(403);
   });
   // success case
-  // Get the a link to the final results (in CSV format) for all players for a completed quiz session
-  // "url": "http://google.com/some/image/path.csv"
-  // write a success test case for this
-
-  // test('Success Case', () => {
-  //   updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
-
-  //   const res = quizSessionFinalResultCSV(token, quizId, sessionId);
-  //   expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
-  // 	expect(res.statusCode).toStrictEqual(200);
-  // });
-
-
   test('Success Case', () => {
     // Move session to FINAL_RESULTS state
     updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);

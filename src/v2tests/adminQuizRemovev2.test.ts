@@ -1,6 +1,7 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
 import { Actions } from '../game';
+import sleep from 'slync/dist/cjs/sleep';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -200,7 +201,7 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     const quizResponse = quizInfo(token1, quizId);
     const initialTimeCreated = quizResponse.timeCreated;
 
-    slync(2000);
+    sleep(2);
     quizRemove(token1, quizId);
     const quizInfoResponse = quizInfo(token1, quizId);
     const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;

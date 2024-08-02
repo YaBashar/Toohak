@@ -600,6 +600,8 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
     } else if (error.message === 'Invalid quiz Id entered' ||
       error.message === 'Quiz Id not owned by the user') {
       return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
     }
   }
 });
@@ -1354,7 +1356,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
       return res.status(400).json({ error: error.message });
     }
   }
-});const csvCache: { [key: string]: string } = {};
+}); const csvCache: { [key: string]: string } = {};
 
 app.get('/download/:filename', (req, res) => {
   const filename = req.params.filename;
@@ -1368,7 +1370,6 @@ app.get('/download/:filename', (req, res) => {
   res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
   res.send(csvData);
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

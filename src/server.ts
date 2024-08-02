@@ -1183,18 +1183,16 @@ app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
 });
 
 // adminGamePlayerSessionInfo
-app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
-  const playerId = parseInt(req.params.playerId, 10);
+// adminGamePlayerSessionInfo
+app.get('/v1/player/:playerid', (req: Request, res: Response) => {
+  const playerId = parseInt(req.params.playerid as string);
 
   try {
     const result = adminGamePlayerSessionInfo(playerId);
-
     res.json(result);
   } catch (error) {
-    if (error instanceof Error) {
-      if (error.message === 'Player ID does not exist') { res.status(400).json({ error: error.message }); }
-    } else {
-      res.status(500).json({ error: 'An unexpected error occurred' });
+    if (error.message === 'Player Id does not exist') {
+      return res.status(400).json({ error: error.message });
     }
   }
 });

@@ -123,6 +123,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
 
   for (let i = 0; i < gameArr.length; i++) {
     const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
     for (let j = 0; j < game.players.length; j++) {
       const player = game.players[j];
       if (player.playerId === playerId) {
@@ -136,7 +137,10 @@ export function adminGamePlayerSessionInfo(playerId: number) {
     }
   }
 
-  if (!playerFound) {
+  if (playerFound) {
+    console.log('Player found:', playerFound);
+    console.log('Game with player:', gameWithPlayer);
+  } else {
     throw new Error('Player Id does not exist');
   }
 

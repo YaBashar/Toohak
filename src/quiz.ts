@@ -207,9 +207,10 @@ export function adminQuizInfo(token: number, quizId: number, isVersion2: boolean
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
+  const trashArr = store.trash;
   const quiz = findQuizById(quizId, quizArr);
   const user = findUserByToken(token, userArr);
-  const quizUser = checkQuizOwnership(token, quizArr);
+  const quizUser = checkQuizOwnership(token, quizArr) || checkQuizOwnership(token, trashArr);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -411,18 +412,25 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
   * @returns {array} quizzes
   *
 */
-export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
-  const store = getData();
-  const trash = store.trash;
-  const result = [];
-
-  for (const item of trash) {
-    result.push({
-      quizId: item.quizId,
-      name: item.name,
-    });
+export function adminQuizTrashView(token: number): { quizzes: QuizList[] } {
+  if (!token) {
+    throw new Error('Invalid User id');
   }
-  return ({ quizzes: result });
+
+  const store = getData();
+  const userSession = store.sessions.find(session => session.userId === token);
+
+  if (!userSession) {
+    throw new Error('Invalid User id');
+  }
+
+  const trash = store.trash;
+  const result = trash.map(item => ({
+    quizId: item.quizId,
+    name: item.name,
+  }));
+
+  return { quizzes: result };
 }
 
 /** [9] adminQuizTrashEmpty
@@ -437,14 +445,23 @@ export function adminQuizTrashView(token: string): {quizzes: QuizList[] } {
   * @returns {} - empty object
   *
 */
-export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> | ErrorResponse {
+export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<string, never> {
+  if (!token) {
+    throw new Error('Invalid User id');
+  }
+
   const store = getData();
+  const userSession = store.sessions.find(session => session.userId === token);
+
+  if (!userSession) {
+    throw new Error('Invalid User id');
+  }
 
   // checking if all quizzes exist in the system
   for (const item of quizIds) {
     const quiz = store.quizzes.find(x => x.quizId === item) || store.trash.find(x => x.quizId === item);
     if (!quiz) {
-      return { error: 'Some quizzes do not exist' };
+      throw new Error('Some quizzes do not exist');
     }
   }
 
@@ -452,15 +469,15 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   for (const item of quizIds) {
     const quiz = store.trash.find(x => x.quizId === item);
     if (!quiz) {
-      return { error: 'Some quizzes are not in the trash' };
+      throw new Error('Some quizzes are not in the trash');
     }
   }
 
   // checking if all quizzes are owned by user
   for (const item of quizIds) {
     const quiz = store.trash.find(x => x.quizId === item);
-    if (quiz.userId !== token) {
-      return { error: 'Some quizzes are not owned by the user' };
+    if (quiz.userId !== userSession.userId) {
+      throw new Error('Some quizzes are not owned by the user');
     }
   }
 

@@ -19,8 +19,8 @@ const createUser = (email: string, password: string, firstName: string, lastName
 const createQuiz = (token: string, name: string, description: string) => {
   const res = request(
     'POST',
-    `${SERVER_URL}/v1/admin/quiz`,
-    { json: { token, name, description } }
+    `${SERVER_URL}/v2/admin/quiz`,
+    { headers: { token }, json: { name, description } }
   );
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
@@ -39,8 +39,8 @@ const quizDescriptionUpdate = (token: string, quizId: number, description: strin
 const quizInfo = (token: string, quizId: number) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/${quizId}`,
+    { headers: { token } }
   );
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
@@ -122,7 +122,8 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'Toohak Javascript Quiz 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
     });
 
@@ -139,7 +140,8 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: 'QUIZ 1',
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
     });
 
@@ -157,7 +159,8 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: longDescription,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
     });
 
@@ -175,7 +178,8 @@ describe('adminQuizDescriptionUpdate Tests', () => {
         description: description,
         numQuestions: expect.any(Number),
         questions: expect.any(Array),
-        duration: expect.any(Number)
+        duration: expect.any(Number),
+        thumbnailUrl: expect.any(String)
       });
     });
   });

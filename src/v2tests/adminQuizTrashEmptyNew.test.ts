@@ -6,13 +6,40 @@ const TIMEOUT_MS = 5 * 1000;
 
 // Helper Functions for requests
 const emptyTrash = (token: string, quizIds: number[]) => {
-  return request('DELETE', `${SERVER_URL}/v1/admin/quiz/trash/empty`, {
+  return request('DELETE', `${SERVER_URL}/v2/admin/quiz/trash/empty`, {
+    headers: { token },
     qs: {
-      token,
       quizIds: JSON.stringify(quizIds),
     },
     timeout: TIMEOUT_MS
   });
+};
+
+const quizRemove = (token: string, quizId: number) => {
+  const res = request(
+    'DELETE',
+    `${SERVER_URL}/v2/admin/quiz/${quizId}`,
+    { headers: { token } }
+  );
+  return res;
+};
+
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
+
+const createQuiz = (token: string, name: string, description: string) => {
+  return (request('POST', SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description }, timeout: TIMEOUT_MS })
+  );
+};
+
+const requestViewTrash = (token: string) => {
+  return (request('GET', SERVER_URL + '/v2/admin/quiz/trash', {
+    headers: { token: token }, timeout: TIMEOUT_MS
+  }));
 };
 
 beforeEach(() => {
@@ -30,44 +57,16 @@ describe('adminQuizTrashEmpty Tests', () => {
     let quizId2: number;
 
     beforeEach(() => {
-      const user = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: {
-          email: 'user@unsw.edu.au',
-          password: '123ABCabc@#$',
-          nameFirst: 'John',
-          nameLast: 'Doe'
-        },
-        timeout: TIMEOUT_MS
-      });
+      const user = createUser('user@unsw.edu.au', '123ABCabc@#$', 'John', 'Doe');
       token = JSON.parse(user.body.toString()).token;
 
-      const quiz = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-        json: {
-          token,
-          name: 'Quiz Name',
-          description: 'Description'
-        },
-        timeout: TIMEOUT_MS
-      });
+      const quiz = createQuiz(token, 'QuizName', 'Description');
       quizId = JSON.parse(quiz.body.toString()).quizId;
 
-      const quiz2 = request('POST', `${SERVER_URL}/v1/admin/quiz`, {
-        json: {
-          token,
-          name: 'Quiz Name 2',
-          description: 'Description 2'
-        },
-        timeout: TIMEOUT_MS
-      });
+      const quiz2 = createQuiz(token, 'QuizName2', 'Description2');
       quizId2 = JSON.parse(quiz2.body.toString()).quizId;
 
-      request('DELETE', `${SERVER_URL}/v1/admin/quiz/${quizId}`, {
-        qs: {
-          token,
-          quizid: quizId
-        },
-        timeout: TIMEOUT_MS
-      });
+      quizRemove(token, quizId);
     });
 
     test('Deleting quizzes not in the trash', () => {
@@ -80,20 +79,12 @@ describe('adminQuizTrashEmpty Tests', () => {
     test('Deleting quizzes with an invalid token', () => {
       const res = emptyTrash('invalid token', [quizId]);
       const data = JSON.parse(res.body.toString());
-      expect(data).toStrictEqual({ error: 'Token is empty or invalid' });
+      expect(data).toStrictEqual({ error: 'Invalid User id' });
       expect(res.statusCode).toStrictEqual(401);
     });
 
     test('Deleting quizzes not owned by the user', () => {
-      const anotherUser = request('POST', `${SERVER_URL}/v1/admin/auth/register`, {
-        json: {
-          email: 'anotheruser@unsw.edu.au',
-          password: '124ABCabc@#$',
-          nameFirst: 'Jane',
-          nameLast: 'Smith'
-        },
-        timeout: TIMEOUT_MS
-      });
+      const anotherUser = createUser('anotheruser@unsw.edu.au', '124ABCabc@#$', 'Jane', 'Smith');
       const anotherToken = JSON.parse(anotherUser.body.toString()).token;
       const res = emptyTrash(anotherToken, [quizId]);
       const data = JSON.parse(res.body.toString());
@@ -160,9 +151,3 @@ describe('adminQuizTrashEmpty Tests', () => {
     });
   });
 });
-
-const requestViewTrash = (token: string) => {
-  return request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
-    qs: { token: token }, timeout: TIMEOUT_MS
-  });
-};

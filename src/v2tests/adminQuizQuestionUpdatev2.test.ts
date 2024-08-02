@@ -21,23 +21,23 @@ const createUser = (email: string, password: string, nameFirst: string, nameLast
 };
 
 const userLogin = (email: string, password: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
+  const res = request('POST', SERVER_URL + '/v2/admin/auth/login', {
     json: { email, password }
   });
   return JSON.parse(res.body.toString());
 };
 
 const createQuiz = (token: string, name: string, description: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { token, name, description }
   });
   return JSON.parse(res.body.toString());
 };
 
 const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
-  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
+  const res = request('POST', `${SERVER_URL}/v2/admin/quiz/${quizId}/question`, {
+    headers: { token },
     json: {
-      token,
       questionBody: {
         question,
         duration,

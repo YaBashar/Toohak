@@ -110,7 +110,7 @@ app.get('/v1/admin/quiz/trash', (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Token is empty or invalid' });
     }
 
-    const result = adminQuizTrashView(token);
+    const result = adminQuizTrashView(userId);
     return res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
@@ -356,21 +356,17 @@ app.delete('/v1/admin/quiz/trash/empty', (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Token is empty or invalid' });
     }
     const result = adminQuizTrashEmpty(userId, quizIds);
-    if ('error' in result) {
-      if (result.error === 'Some quizzes do not exist') {
-        return res.status(400).json({ error: result.error });
-      } else if (result.error === 'Some quizzes are not in the trash') {
-        return res.status(400).json({ error: result.error });
-      } else if (result.error === 'Some quizzes are not owned by the user') {
-        return res.status(403).json({ error: result.error });
-      } else {
-        return res.status(400).json({ error: 'Unknown error' });
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
+      } else if (error.message === 'Some quizzes are not owned by the user') {
+        return res.status(403).json({ error: error.message });
+      } else if (error.message === 'Some quizzes do not exist' || error.message === 'Some quizzes are not in the trash') {
+        return res.status(400).json({ error: error.message });
       }
     }
-    return res.status(200).json({});
-  } catch (error) {
-    console.error('Error handling request:', error);
-    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -568,7 +564,8 @@ app.post('/v1/admin/quiz/:quizid/restore', (req: Request, res: Response) => {
 app.get('/v2/admin/quiz/trash', (req: Request, res: Response) => {
   try {
     const token = req.headers.token as string;
-    const result = adminQuizTrashView(token);
+    const userId = getUserIdFromToken(token);
+    const result = adminQuizTrashView(userId);
     return res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
@@ -835,22 +832,15 @@ app.delete('/v2/admin/quiz/trash/empty', (req: Request, res: Response) => {
 
   try {
     const result = adminQuizTrashEmpty(userId, quizIds);
-
-    if ('error' in result) {
-      throw new Error(result.error);
-    }
-
     return res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Some quizzes do not exist') {
-        return res.status(400).json({ error: error.message });
-      } else if (error.message === 'Some quizzes are not in the trash') {
-        return res.status(400).json({ error: error.message });
+      if (error.message === 'Invalid User id') {
+        return res.status(401).json({ error: error.message });
       } else if (error.message === 'Some quizzes are not owned by the user') {
         return res.status(403).json({ error: error.message });
-      } else {
-        return res.status(400).json({ error: 'Unknown error' });
+      } else if (error.message === 'Some quizzes do not exist' || error.message === 'Some quizzes are not in the trash') {
+        return res.status(400).json({ error: error.message });
       }
     }
 
@@ -1234,10 +1224,10 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Please enter a message') {
-        return res.status(400).json({ error: 'Please enter a message' });
-      } else if (error.message === 'Player ID does not exist') {
-        return res.status(400).json({ error: 'Player ID does not exist' });
+      if (error.message === 'Message body is less than 1 character' || error.message === 'Message body is more than 100 characters' ||
+         error.message === 'Message body contains only whitespace' || error.message === 'Player ID does not exist'
+      ) {
+        return res.status(400).json({ error: error.message });
       }
     } else {
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -1288,7 +1278,7 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
     return res.status(400).json({ error: 'invalid playerid' });
   }
   if (!Array.isArray(answerids) || answerids.length === 0) {
-    return res.status(400).json({ error: 'No answer IDs submitted' });
+    return res.status(400).json({ error: 'No answer provided' });
   }
   try {
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);

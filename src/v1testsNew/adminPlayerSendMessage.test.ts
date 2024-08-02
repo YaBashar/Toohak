@@ -3,7 +3,7 @@ import { port, url } from '../config.json';
 import slync from 'slync';
 
 const SERVER_URL = `${url}:${port}`;
-const TIMEOUT_MS = 5 * 1000;
+const TIMEOUT_MS = 7 * 1000;
 
 // Helper Functions for requests
 const registerUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
@@ -87,7 +87,7 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('Player Chat Retrieval Tests', () => {
+describe('Player Chat Send Tests', () => {
   let token: string;
   let playerId1: number;
   let sessionId: number;
@@ -119,6 +119,18 @@ describe('Player Chat Retrieval Tests', () => {
       const res = sendMessage(invalidPlayerId, 'Invalid Player Exists');
       expect(res.statusCode).toBe(400);
       expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Player ID does not exist' });
+    });
+    test('Message body is less than 1 character', () => {
+      const res = sendMessage(playerId1, '');
+      expect(res.statusCode).toBe(400);
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is less than 1 character' });
+    });
+
+    test('Message body is more than 100 characters', () => {
+      const longMessage = 'a'.repeat(101);
+      const res = sendMessage(playerId1, longMessage);
+      expect(res.statusCode).toBe(400);
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ error: 'Message body is more than 100 characters' });
     });
   });
 

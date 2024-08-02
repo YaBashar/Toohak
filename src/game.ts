@@ -126,16 +126,6 @@ export function adminQuizQuestionResults(playerid: number, questionposition: num
 
   const game = data.games[gameIndex];
 
-  if (!game) {
-    throw new Error('Game does not exist');
-  }
-
-  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-
-  if (!quiz) {
-    throw new Error('Quiz does not exist');
-  }
-
   if (questionposition > game.numQuestions) {
     throw new Error('Question position is invalid');
   }
@@ -397,9 +387,6 @@ export function adminPlayerSendMessage(playerId: number, messageBody: string) {
   if (messageBody.length > 100) {
     throw new Error('Message body is more than 100 characters');
   }
-  if (/^\s*$/.test(messageBody)) {
-    throw new Error('Message body contains only whitespace');
-  }
 
   // Find the game session where the player is involved
   for (let i = 0; i < gameArr.length; i++) {
@@ -467,7 +454,6 @@ export function adminPlayerGetMessage(playerId: number) {
     throw new Error('Player ID does not exist');
   }
 
-  console.log(gameWithPlayer);
   if (!gameWithPlayer.messages) {
     return { messages: [] };
   }
@@ -499,15 +485,7 @@ export function adminQuizSubmitAnswer(answerids: number[], playerid: number, que
 
   const game = data.games[gameIndex];
 
-  if (!game) {
-    throw new Error('Game does not exist');
-  }
-
   const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-
-  if (!quiz) {
-    throw new Error('Quiz does not exist');
-  }
 
   if (questionposition > game.numQuestions) {
     throw new Error('Question position is invalid');
@@ -577,16 +555,7 @@ export function adminQuizQuestionInfo(playerid: number, questionposition: number
   }
 
   const game = data.games[gameIndex];
-
-  if (!game) {
-    throw new Error('Game does not exist');
-  }
-
   const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-
-  if (!quiz) {
-    throw new Error('Quiz does not exist');
-  }
 
   if (questionposition > game.numQuestions) {
     throw new Error('Question position is invalid');
@@ -633,17 +602,6 @@ export function adminQuizFinalResults (playerid: number) {
   }
 
   const game = data.games[gameIndex];
-
-  if (!game) {
-    throw new Error('Game does not exist');
-  }
-
-  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-
-  if (!quiz) {
-    throw new Error('Quiz does not exist');
-  }
-
   if (game.status !== States.FINAL_RESULTS) {
     throw new Error('session not in correct state');
   }

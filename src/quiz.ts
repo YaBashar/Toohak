@@ -21,11 +21,14 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 
-import { Quiz, QuizInfo, QuizList, ErrorResponse, QuizSessionFinalResult } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse, QuizSessionFinalResult, Game } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 import { States } from './game';
 import { Parser } from 'json2csv';
 import { writeFileSync } from 'fs';
+import { mkdirSync, existsSync } from 'fs';
+import path from 'path';
+
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -624,6 +627,11 @@ export function adminQuizSessionFinalResult(userId: number, quizId: number, sess
  * @returns {Object} - an object is a url link(string) containing the final results of the quiz session in CSV format
  * "url": "http://google.com/some/image/path.csv"
  */
+
+
+// store data in memory
+const csvCache: { [key: string]: string } = {};
+
 export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, sessionId: number): object | ErrorResponse {
   const store = getData();
   const userArr = store.users;
@@ -633,7 +641,7 @@ export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, s
   const user = findUserByToken(userId, userArr);
   const quizUser = checkQuizOwnership(userId, quizArr);
 
-  const session = getData().games.find(x => x.sessionId === sessionId);
+  const session = store.games.find(x => x.sessionId === sessionId && x.quizId === quizId);
 
   if (!user) {
     throw new Error('Invalid User id');
@@ -651,20 +659,46 @@ export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, s
     throw new Error('Session is not in FINAL_RESULTS state');
   }
 
-  // implement the logic to generate the CSV file
-  const numQuestions = 8;
-  const csvData = session.questionResults.slice(0, numQuestions).map((result, index) => ({
-    Name: user.name,
-    [`question${index + 1}score`]: result.score,
-    [`question${index + 1}rank`]: result.playersCorrectList.find,
-  }));
+  const csvData = convertSessionToCSV(session);
+  const downloadUrl = `./exports/quiz_results_${sessionId}.csv`;
 
-  // converting JSON to CSV
-  const parser = new Parser();
-  const csv = parser.parse(csvData);
+  // store data in memory
+  csvCache[downloadUrl] = csvData;
+  console.log(downloadUrl);
+  return { url: downloadUrl };
+}
 
-  // write CSV to a file
-  writeFileSync('quiz_results.csv', csv);
+const convertSessionToCSV = (session: Game): string => {
+  const players = session.players.sort((a, b) => a.name.localeCompare(b.name));
+  const quiz = getData().quizzes.find(q => q.quizId === session.quizId);
 
-  return csv;
+  const questions = quiz.questions;
+
+  let headers = 'Player';
+  for (let i = 1; i <= questions.length; i++) {
+    headers += `,question${i}score,question${i}rank`;
+  }
+
+  const rows = players.map(player => {
+    let row = `${player.name}`;
+    questions.forEach((_, index) => {
+      const thisResult = session.questionResults.find(questionResult => questionResult.questionId === questions[index].questionId);
+      const playerRank = thisResult ? thisResult.playersCorrectList.indexOf(player.name) + 1 : 0;
+      const playerScore = playerRank > 0 ? questions[index].points : 0;
+      row += `,${playerScore},${playerRank}`;
+    });
+    return row;
+  });
+
+  // Create folder if it does not exist
+  const exportsDir = path.join(__dirname, 'exports');
+  if (!existsSync(exportsDir)) {
+    mkdirSync(exportsDir);
+  }
+
+  // Save CSV to file
+  const filePath = path.join(exportsDir, `quiz_results_${session.sessionId}.csv`);
+  writeFileSync(filePath, `${headers}\n${rows.join('\n')}`);
+
+  return `${headers}\n${rows.join('\n')}`;
 }

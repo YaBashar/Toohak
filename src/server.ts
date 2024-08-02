@@ -1246,7 +1246,23 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
       return res.status(400).json({ error: error.message });
     }
   }
+});const csvCache: { [key: string]: string } = {};
+
+app.get('/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const csvData = csvCache[`/download/${filename}`];
+
+  if (!csvData) {
+    return res.status(404).send('File not found');
+  }
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+  res.send(csvData);
 });
+
+// app.listen(3000, () => {
+//   console.log('Server is running on port 3000');
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

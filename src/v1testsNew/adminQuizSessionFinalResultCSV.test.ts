@@ -155,4 +155,15 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
   //   expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
   // 	expect(res.statusCode).toStrictEqual(200);
   // });
+
+
+  test('Success Case', () => {
+    // Move session to FINAL_RESULTS state
+    updateState(quizId, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
+
+    // Call the function to get the CSV result
+    const res = quizSessionFinalResultCSV(token, quizId, sessionId);
+    expect(res).toHaveProperty('url');
+    expect(typeof res.url).toBe('string');
+  });
 });

@@ -66,7 +66,22 @@ export interface Quiz {
   userId: number;
   thumbnailUrl?: string;
 }
+export interface UserScore {
+  name: string;
+  score: number;
+}
 
+export interface QuestionResult {
+  questionId: number;
+  playersCorrectList: string[];
+  averageAnswerTime: number;
+  percentCorrect: number;
+}
+
+export interface QuizSessionFinalResult {
+  usersRankedByScore: UserScore[];
+  questionResults: QuestionResult[];
+}
 // Define the QuizList interface
 export interface QuizList {
   quizId: number;

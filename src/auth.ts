@@ -28,6 +28,8 @@ import {
   checkAdminAuthRegister, checkAdminAuthLogin
 } from './helper';
 
+import { getHashOf } from './hash';
+
 // INTERFACES
 
 /// ////////////////////////////////////////////////////////////////////////////
@@ -62,14 +64,15 @@ export function adminAuthRegister(email: string, password: string,
   // registering the user and session to the database
   const newUserId = createDataStoreId();
   const newSessId = createDataStoreId();
+  const hashedPassword = getHashOf(password);
   const newUser = {
     userId: newUserId,
     name: nameFirst + ' ' + nameLast,
     email: email,
-    password: password,
+    password: hashedPassword,
     numSuccessfulLogins: 1,
     numFailedPasswordsSinceLastLogin: 0,
-    passwordHistory: [password],
+    passwordHistory: [hashedPassword],
   };
   userArr.push(newUser);
 
@@ -176,15 +179,14 @@ export function adminUserDetails(userId: number): UserDetails {
 export function adminUserDetailsUpdate(token: number, email: string, nameFirst: string, nameLast: string): Record<string, never> | ErrorResponse {
   const specialChars = /[@!#$%^&*()_+=[\]{};:"\\|,.<>/?]/;
   const data = getData();
-
-  if (!Number.isInteger(token)) {
-    throw new Error('invalid userId');
-  }
+  // if (!Number.isInteger(token)) {
+  //   throw new Error('invalid userId');
+  // }
 
   const userIndex = data.users.findIndex(user => user.userId === token);
-  if (userIndex === -1) {
-    throw new Error('userId does not exist');
-  }
+  // if (userIndex === -1) {
+  //   throw new Error('userId does not exist');
+  // }
 
   if (!validator.isEmail(email)) {
     throw new Error('invalid email address');
@@ -239,19 +241,19 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   const data = getData();
   const user = data.users.find(user => user.userId === token);
 
-  if (!user) {
-    throw new Error('userId does not exist');
-  }
+  // if (!user) {
+  //   throw new Error('userId does not exist');
+  // }
 
-  if (user.password !== oldPassword) {
+  if (user.password !== getHashOf(oldPassword)) {
     throw new Error('incorrect password');
   }
 
-  if (oldPassword === newPassword) {
+  if (getHashOf(oldPassword) === newPassword) {
     throw new Error('new password is the same as old password');
   }
 
-  if (user.passwordHistory.includes(newPassword)) {
+  if (user.passwordHistory.includes(getHashOf(newPassword))) {
     throw new Error('password has already been used');
   }
 
@@ -266,8 +268,8 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   }
 
   // Update password and history
-  user.passwordHistory.push(newPassword);
-  user.password = newPassword;
+  user.passwordHistory.push(getHashOf(newPassword));
+  user.password = getHashOf(newPassword);
 
   return {}; // Return an empty object on success
 }

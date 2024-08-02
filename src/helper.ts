@@ -1,6 +1,7 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
-import { Question, User, Quiz } from './interface';
+import { Question, User, Quiz, Game, Store } from './interface';
+import { getHashOf } from './hash';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -57,9 +58,19 @@ export function findQuestionIndex(quizArray: Quiz[], quizId: number, questionId:
   return quiz ? quiz.questions.findIndex(question => question.questionId === questionId) : -1;
 }
 
+// Checks whether sessionId exists from a game for a valid quiz.
+export function findGameSessionId(data: Store, sessionId: number, quizId: number): Game | null {
+  const game = data.games.find(game => game.sessionId === sessionId && game.quizId === quizId);
+  return game || null;
+}
+
 // Checks whether a userid exists with an associated token
 export function findUserByToken(token: number, users: Array<User>): User | null {
   return users.find(user => user.userId === token) || null;
+}
+
+export function findUserByEmail(userEmail: string, users: Array<User>): User | null {
+  return users.find(user => user.email === userEmail) || null;
 }
 
 // Checks whether quiz exists with associated quizId
@@ -82,6 +93,8 @@ export function findDelQuizIndexFromQuizId(target: number): number {
   const trashArr = getData().trash;
   return (trashArr.findIndex(quiz => (quiz.quizId === target)));
 }
+
+//
 
 /*
   HELPER FUNCTIONS FOR CREATING UNIQUE AND RANDOM NUMBER IDS
@@ -162,7 +175,7 @@ export function checkAdminAuthLogin(email: string, password: string) {
   const user = getData().users[findUserIndexFromEmail(email)];
   if (!user) {
     throw new Error('Email address is not registered');
-  } else if (user.password !== password) {
+  } else if (user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
     throw new Error('Incorrect password for given email');
   }

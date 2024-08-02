@@ -34,9 +34,9 @@ const createQuiz = (token: string, name: string, description: string) => {
 };
 
 const addQuestion = (token: string, quizId: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
-  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
+  const res = request('POST', `${SERVER_URL}/v2/admin/quiz/${quizId}/question`, {
+    headers: { token },
     json: {
-      token,
       questionBody: {
         question,
         duration,
@@ -70,23 +70,25 @@ const updateState = (quizid: number, sessionid: number, token: string, action: A
   return JSON.parse(res.body.toString());
 };
 
-const questionResult = (playerid: number, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`);
+const questionInfo = (playerid: number, questionposition: number) => {
+  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`, {
+    timeout: TIMEOUT_MS
+  });
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 
-  // create account and log in
+  // Create account and log in
   const user = createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su');
   token = user.token;
   userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD');
 
-  // create a quiz
+  // Create a quiz
   quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').quizId;
 
-  // add a question to the quiz
+  // Add questions to the quiz
   const question = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },
@@ -95,9 +97,9 @@ beforeEach(() => {
     ],
     'http://google.com/some/image/path.jpg'
   );
+
   questionid = question.questionId;
 
-  // add a question to the second quiz
   addQuestion(token, quiz1Id, 'What is 1 + 1?', 4, 5,
     [
       { answer: '4', correct: false },
@@ -107,56 +109,73 @@ beforeEach(() => {
     'http://google.com/some/image/path.jpg'
   );
 
-  // start session
+  // Start session
   sessionId = startSession(quiz1Id, token, 5).sessionId;
 
-  // join session
+  // Join session
   const res = joinSession(sessionId, 'amelia');
   playerId = JSON.parse(res.body.toString()).playerId;
 
-  // change state
+  // Change state
   updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
   updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
-  updateState(quiz1Id, sessionId, token, Actions.GO_TO_ANSWER);
 });
 
 afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('GET /v1/player/:playerid/question/:questionposition/results', () => {
+describe('GET /v1/player/:playerid/question/:questionposition', () => {
   test('player id does not exist', () => {
-    const res = questionResult(999, 1);
+    const res = questionInfo(999, 1);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('invalid question position', () => {
-    const res = questionResult(playerId, 5);
+    const res = questionInfo(playerId, 5);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is on a different question', () => {
-    const res = questionResult(playerId, 2);
+    const res = questionInfo(playerId, 2);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is in the wrong state', () => {
     updateState(quiz1Id, sessionId, token, Actions.END);
-    const res = questionResult(playerId, 1);
+    const res = questionInfo(playerId, 1);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('success case', () => {
-    const res = questionResult(playerId, 1);
+    const res = questionInfo(playerId, 1);
     expect(res.body).toStrictEqual({
-      questionid: questionid,
-      playersCorrectList: [],
-      averageAnswerTime: expect.any(Number),
-      percentageCorrect: expect.any(Number)
+      questionId: questionid,
+      question: 'Who is the Monarch of England?',
+      duration: 4,
+      thumbnailUrl: 'http://google.com/some/image/path.jpg',
+      points: 5,
+      answers: [
+        {
+          answerId: expect.any(Number),
+          answer: 'Prince William',
+          colour: expect.any(String)
+        },
+        {
+          answerId: expect.any(Number),
+          answer: 'Prince Charles',
+          colour: expect.any(String)
+        },
+        {
+          answerId: expect.any(Number),
+          answer: 'Prince Beckham',
+          colour: expect.any(String)
+        }
+      ]
     });
     expect(res.statusCode).toBe(200);
   });

@@ -90,6 +90,7 @@ export function adminGameCreateSession(userId: number, quizId: number, autoStart
   };
 
   getData().games.push(newSession);
+  setData(getData());
   return { sessionId: newSessId };
 }
 
@@ -113,6 +114,7 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
     points: 0,
   });
 
+  setData(getData());
   return { playerId: newPlayerId };
 }
 
@@ -146,6 +148,7 @@ export function adminQuizQuestionResults(playerid: number, questionposition: num
     averageAnswerTime: questionResults.averageAnswerTime,
     percentageCorrect: questionResults.percentageCorrect
   };
+
   return results;
 }
 
@@ -322,6 +325,7 @@ export function gameUpdateQuizSessionState(token : number, quizId : number, sess
     throw new Error('Action not a valid enum');
   }
 
+  setData(getData());
   return {};
 }
 
@@ -370,6 +374,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
       thumbnailUrl: quiz.thumbnailUrl
     }
   };
+
   return (gameSessionInfo);
 }
 
@@ -428,6 +433,7 @@ export function adminPlayerSendMessage(playerId: number, messageBody: string) {
     timestamp: new Date().toISOString()
   });
 
+  setData(store);
   return {};
 }
 

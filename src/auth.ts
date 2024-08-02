@@ -18,7 +18,7 @@ login mechanics, and updating passwords and usernames.
 
 // DEPENDENCIES
 
-import { getData } from './dataStore';
+import { getData, setData } from './dataStore';
 import validator from 'validator';
 import {
   UserDetails, ErrorResponse
@@ -82,6 +82,7 @@ export function adminAuthRegister(email: string, password: string,
   };
   store.sessions.push(session);
 
+  setData(store);
   return newSessId.toString();
 }
 
@@ -122,6 +123,7 @@ export function adminAuthLogin(email: string, password: string): string {
   };
 
   store.sessions.push(session);
+  setData(store);
   return newSessId.toString();
 }
 
@@ -222,6 +224,7 @@ export function adminUserDetailsUpdate(token: number, email: string, nameFirst: 
 
   data.users[userIndex].email = email;
   data.users[userIndex].name = `${nameFirst} ${nameLast}`;
+  setData(data);
   return {};
 }
 
@@ -271,6 +274,7 @@ export function adminUserPasswordUpdate(token: number, oldPassword: string, newP
   user.passwordHistory.push(getHashOf(newPassword));
   user.password = getHashOf(newPassword);
 
+  setData(data);
   return {}; // Return an empty object on success
 }
 
@@ -300,5 +304,6 @@ export function adminAuthLogout(token: string): Record<string, never> | ErrorRes
   const index = sessArr.indexOf(session);
   sessArr.splice(index, 1);
 
+  setData(store);
   return {};
 }

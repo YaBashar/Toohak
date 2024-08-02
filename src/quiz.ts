@@ -21,7 +21,7 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 
-import { Quiz, QuizInfo, QuizList, ErrorResponse, QuizSessionFinalResult, Game } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse, Game } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 import { States } from './game';
 import { writeFileSync } from 'fs';
@@ -397,6 +397,7 @@ export function adminQuizTransfer(token: number, quizId : number, userEmail : st
 
   // Change the quiz authuser id so it has the authuser id of the new owner
   quiz.userId = targetUser.userId;
+  setData(store);
   return {};
 }
 
@@ -480,6 +481,7 @@ export function adminQuizTrashEmpty(token: number, quizIds: number[]): Record<st
   }
 
   store.trash = store.trash.filter(quiz => !quizIds.includes(quiz.quizId));
+  setData(store);
   return {};
 }
 
@@ -575,7 +577,7 @@ export function adminQuizUpdateThumbnail(token: number, quizId: number, thumbnai
  *
  * @returns {QuizSessionFinalResult} - an object containing the final results of the quiz session
  */
-export function adminQuizSessionFinalResult(userId: number, quizId: number, sessionId: number): QuizSessionFinalResult | ErrorResponse {
+export function adminQuizSessionFinalResult(userId: number, quizId: number, sessionId: number) {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;

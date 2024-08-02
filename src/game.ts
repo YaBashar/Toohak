@@ -196,6 +196,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
 
   for (let i = 0; i < gameArr.length; i++) {
     const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
     for (let j = 0; j < game.players.length; j++) {
       const player = game.players[j];
       if (player.playerId === playerId) {
@@ -209,7 +210,10 @@ export function adminGamePlayerSessionInfo(playerId: number) {
     }
   }
 
-  if (!playerFound) {
+  if (playerFound) {
+    console.log('Player found:', playerFound);
+    console.log('Game with player:', gameWithPlayer);
+  } else {
     throw new Error('Player Id does not exist');
   }
 
@@ -381,7 +385,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 }
 
 // AdminPlayerSessionChatSend
-export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
+export function adminPlayerSendMessage(playerId: number, messageBody: string) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
@@ -419,15 +423,16 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   }
 
   // Initialize chat array if it doesn't exist
-  if (!gameWithPlayer.chat) {
-    gameWithPlayer.chat = [];
+  if (!gameWithPlayer.messages) {
+    gameWithPlayer.messages = [];
   }
 
   // Save the chat message to the game session
-  gameWithPlayer.chat.push({
-    playerId,
-    message: messageBody,
-    timestamp: new Date().toISOString(),
+  gameWithPlayer.messages.push({
+    messageBody: messageBody,
+    playerId: playerId,
+    playerName: playerFound.name,
+    timeSent: Math.floor(Date.now() / 1000),
   });
 
   // Optionally log the successful operation
@@ -440,6 +445,51 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   return {};
 }
 
+// AdminPlayerSessionChatGet
+export function adminPlayerGetMessage(playerId: number) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
+
+  for (const game of gameArr) {
+    for (const player of game.players) {
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game;
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+  if (!playerFound) {
+    throw new Error('Player ID does not exist');
+  }
+
+  console.log(gameWithPlayer);
+  if (!gameWithPlayer.messages) {
+    return { messages: [] };
+  }
+
+  const messages = [];
+
+  for (const chat of gameWithPlayer.messages) {
+    const message = {
+      messageBody: chat.messageBody,
+      playerId: chat.playerId,
+      playerName: chat.playerName,
+      timeSent: chat.timeSent
+    };
+    messages.push(message);
+  }
+
+  console.log(messages);
+  return { messages: messages };
+}
+
+// adminQuizSubmitAnswer
 export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
   const data = getData();
   const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));

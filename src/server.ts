@@ -28,8 +28,10 @@ import {
 import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessage } from './game';
 
 import {
-  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo, adminGamePlayerSessionInfo
+  adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
+  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionResults
 } from './game';
+
 import { setData } from './dataStore';
 
 // Set up app
@@ -1081,6 +1083,24 @@ app.post('/v1/player/join', (req: Request, res: Response) => {
   }
 });
 
+// adminGameViewSessions
+app.get('/v1/admin/quiz/:quizid/sessions', (req: Request, res: Response) => {
+  const quizid = parseInt(req.params.quizid as string);
+  const token = req.headers.token as string;
+  const userId = getUserIdFromToken(token);
+
+  if (userId === -1) {
+    return res.status(401).json({ error: 'Invalid Token' });
+  }
+
+  try {
+    const data = adminGameViewSessions(userId, quizid);
+    res.json(data);
+  } catch (error) {
+    return res.status(403).json({ error: error.message });
+  }
+});
+
 // adminGameQuizSessionStatusInfo
 app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
   const token = req.header('token');
@@ -1240,6 +1260,21 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res:
     } else {
       return res.status(400).json({ error: error.message });
     }
+  }
+});
+
+app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition);
+  if (!playerid) {
+    return res.status(400).json({ error: 'invalid playerid' });
+  }
+
+  try {
+    const result = adminQuizQuestionResults(playerid, questionposition);
+    res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 

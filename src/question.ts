@@ -305,9 +305,9 @@ export function adminQuizQuestionUpdate (token: number, quizId: number, question
     throw new Error('quiz does not exist for this user');
   }
   const quiz = data.quizzes[quizIndex];
-  if (!quiz) {
-    throw new Error('quiz does not exist for this user');
-  }
+  // if (!quiz) {
+  //   throw new Error('quiz does not exist for this user');
+  // }
 
   if (quiz.userId !== token) {
     throw new Error('quiz does not exist for this user');

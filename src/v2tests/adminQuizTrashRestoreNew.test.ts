@@ -7,19 +7,25 @@ const TIMEOUT_MS = 5 * 1000;
 // Helper Functions for requests
 /// /////////////////////////////////////////////////////////////
 
+const createUser = (email: string, password: string, firstName: string, lastName: string) => {
+  return (request('POST', SERVER_URL + '/v1/admin/auth/register',
+    { json: { email, password, nameFirst: firstName, nameLast: lastName } }
+  ));
+};
+
 const createQuiz = (token: string, name: string, description: string) => {
   const res = request(
     'POST',
-    SERVER_URL + '/v1/admin/quiz',
-    { json: { token, name, description } });
+    SERVER_URL + '/v2/admin/quiz',
+    { headers: { token }, json: { name, description } });
   return JSON.parse(res.body.toString());
 };
 
 const moveQuizToTrash = (token: string, quizId: number) => {
   const res = request(
     'POST',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/trash`,
-    { json: { token } });
+    SERVER_URL + `/v2/admin/quiz/${quizId}/trash`,
+    { headers: { token } });
   return JSON.parse(res.body.toString());
 };
 
@@ -47,9 +53,7 @@ describe('adminQuizTrashRestore Tests', () => {
     let quizId: number;
 
     beforeEach(() => {
-      const user = request('POST', SERVER_URL + '/v1/admin/auth/register', {
-        json: { email: 'user@unsw.edu.au', password: '123ABCabc@#$', nameFirst: 'Test', nameLast: 'User' }
-      });
+      const user = createUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = JSON.parse(user.body.toString()).token;
       const createdQuiz = createQuiz(token, 'Test Quiz', 'Test Description');
       quizId = createdQuiz.quizId;

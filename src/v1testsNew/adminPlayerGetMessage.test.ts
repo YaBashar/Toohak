@@ -150,6 +150,7 @@ describe('Player Chat Retrieval Tests', () => {
       playerId1 = JSON.parse(player1.body.toString()).playerId;
       playerId2 = JSON.parse(player2.body.toString()).playerId;
     });
+
     test('Retrieve chat messages for a valid player ID', () => {
       sendMessage(playerId1, 'A test message');
       const currentTime1 = Math.floor(Date.now() / 1000);
@@ -214,6 +215,13 @@ describe('Player Chat Retrieval Tests', () => {
         }
       );
       expect(res.statusCode).toStrictEqual(200);
+    });
+
+    test('Retrieve messages when no messages exist', () => {
+      // Ensure there are no messages sent
+      const res = getMessages(playerId1);
+      expect(res.statusCode).toBe(200);
+      expect(JSON.parse(res.body.toString())).toStrictEqual({ messages: [] });
     });
   });
 });

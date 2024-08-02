@@ -29,7 +29,7 @@ import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessa
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
-  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionResults
+  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionInfo, adminQuizQuestionResults
 } from './game';
 
 import { setData } from './dataStore';
@@ -1128,6 +1128,28 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
 /// ////////////////////////////////////////////////////////////////////////////
 
 /// //////////////      ITERATION 3 (NEW)    ///////////////////////////////
+// adminQuizQuestionInfo
+app.get('/v1/player/:playerid/question/:questionposition', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string, 10);
+  const questionposition = parseInt(req.params.questionposition, 10);
+
+  if (isNaN(playerid)) {
+    return res.status(400).json({ error: 'Invalid player ID' });
+  }
+
+  if (isNaN(questionposition)) {
+    return res.status(400).json({ error: 'Invalid question position' });
+  }
+
+  try {
+    const result = adminQuizQuestionInfo(playerid, questionposition);
+    return res.status(200).json(result);
+  } catch (error) { // Use 'any' to catch all error types
+    console.error(error); // Log the error for debugging purposes
+    return res.status(400).json({ error: error.message });
+  }
+});
+
 // adminQuizUpdateThumbnail
 app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
   try {

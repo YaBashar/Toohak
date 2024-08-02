@@ -568,3 +568,59 @@ function hasDuplicateAnswerIds(answerIds: number[]): boolean {
   }
   return false;
 }
+
+export function adminQuizQuestionInfo(playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  const question = quiz.questions[questionposition - 1];
+
+  if (game.status === States.LOBBY || game.status === States.QUESTION_COUNTDOWN || game.status === States.FINAL_RESULTS || game.status === States.END) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const answers = [];
+  for (let i = 0; i < question.answers.length; i++) {
+    answers.push({
+      answerId: question.answers[i].answerId,
+      answer: question.answers[i].answer,
+      colour: question.answers[i].colour
+    });
+  }
+
+  const questionInfo = {
+    questionId: question.questionId,
+    question: question.question,
+    duration: question.duration,
+    thumbnailUrl: question.thumbnailUrl,
+    points: question.points,
+    answers: answers
+  };
+  console.log(questionInfo);
+
+  return questionInfo;
+}

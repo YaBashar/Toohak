@@ -1,4 +1,3 @@
-
 /*
 LOBBY: Players can join in this state, and nothing has started.
 

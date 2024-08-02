@@ -21,9 +21,12 @@ and update information regarding quizzes.
 
 import { getData, setData } from './dataStore';
 
-import { Quiz, QuizInfo, QuizList, ErrorResponse } from './interface';
+import { Quiz, QuizInfo, QuizList, ErrorResponse, Game } from './interface';
 import { findUserByToken, findQuizById, checkQuizOwnership, validateQuizName, isQuizNameAvailable, findQuizIndexFromQuizId, findUserByEmail } from './helper';
 import { States } from './game';
+import { writeFileSync } from 'fs';
+import { mkdirSync, existsSync } from 'fs';
+import path from 'path';
 
 /// ////////////////////////////////////////////////////////////////////////////
 
@@ -149,13 +152,14 @@ function uniqueQuizId(quizArr: Quiz[]): number {
   * ...
   * @returns {} - empty object
   *
-*/
-export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
+*/export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
+  const gameArray = store.games;
   const user = userArray.find((user) => { return user.userId === token; });
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
+
   if (!user) {
     throw new Error('Invalid user id');
   }
@@ -164,6 +168,11 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   }
   if (quiz.userId !== token) {
     throw new Error('Quiz Id not owned by the user');
+  }
+  for (const game of gameArray) {
+    if (game.quizId === quizId && game.status !== States.END) {
+      throw new Error('Any session for this quiz is not in END state');
+    }
   }
 
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
@@ -625,3 +634,87 @@ export function adminQuizSessionFinalResult(userId: number, quizId: number, sess
     questionResults
   };
 }
+
+/** [13] adminQuizSessionFinalResultCsv
+ *
+ * @param {number} userId - the id of the user
+ * @param {number} quizId - the id of the quiz
+ * @param {number} sessionId - the id of the session
+ *
+ * @returns {Object} - an object is a url link(string) containing the final results of the quiz session in CSV format
+ * "url": "http://google.com/some/image/path.csv"
+ */
+
+// store data in memory
+const csvCache: { [key: string]: string } = {};
+
+export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, sessionId: number): object | ErrorResponse {
+  const store = getData();
+  const userArr = store.users;
+  const quizArr = store.quizzes;
+
+  const quiz = findQuizById(quizId, quizArr);
+  const user = findUserByToken(userId, userArr);
+  const quizUser = checkQuizOwnership(userId, quizArr);
+
+  const session = store.games.find(x => x.sessionId === sessionId && x.quizId === quizId);
+
+  if (!user) {
+    throw new Error('Invalid User id');
+  }
+  if (!quiz) {
+    throw new Error('Invalid Quiz id');
+  }
+  if (!quizUser) {
+    throw new Error('Quiz Id not owned by the user');
+  }
+  if (!session) {
+    throw new Error('Session does not exist');
+  }
+  if (session.status !== States.FINAL_RESULTS) {
+    throw new Error('Session is not in FINAL_RESULTS state');
+  }
+
+  const csvData = convertSessionToCSV(session);
+  const downloadUrl = `./exports/quiz_results_${sessionId}.csv`;
+
+  // store data in memory
+  csvCache[downloadUrl] = csvData;
+  console.log(downloadUrl);
+  return { url: downloadUrl };
+}
+
+const convertSessionToCSV = (session: Game): string => {
+  const players = session.players.sort((a, b) => a.name.localeCompare(b.name));
+  const quiz = getData().quizzes.find(q => q.quizId === session.quizId);
+
+  const questions = quiz.questions;
+
+  let headers = 'Player';
+  for (let i = 1; i <= questions.length; i++) {
+    headers += `,question${i}score,question${i}rank`;
+  }
+
+  const rows = players.map(player => {
+    let row = `${player.name}`;
+    questions.forEach((_, index) => {
+      const thisResult = session.questionResults.find(questionResult => questionResult.questionId === questions[index].questionId);
+      const playerRank = thisResult ? thisResult.playersCorrectList.indexOf(player.name) + 1 : 0;
+      const playerScore = playerRank > 0 ? questions[index].points : 0;
+      row += `,${playerScore},${playerRank}`;
+    });
+    return row;
+  });
+
+  // create folder if it does not exist
+  const exportsDir = path.join(__dirname, 'exports');
+  if (!existsSync(exportsDir)) {
+    mkdirSync(exportsDir);
+  }
+
+  // save CSV to file
+  const filePath = path.join(exportsDir, `quiz_results_${session.sessionId}.csv`);
+  writeFileSync(filePath, `${headers}\n${rows.join('\n')}`);
+
+  return `${headers}\n${rows.join('\n')}`;
+};

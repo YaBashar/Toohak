@@ -18,7 +18,8 @@ import {
 import {
   adminQuizCreate, adminQuizRemove, adminQuizList, adminQuizDescriptionUpdate,
   adminQuizInfo, adminQuizTrashEmpty, adminQuizTrashRestore, adminQuizTrashView, adminQuizNameUpdate,
-  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult
+  adminQuizTransfer, adminQuizUpdateThumbnail, adminQuizSessionFinalResult,
+  adminQuizSessionFinalResultCsv
 } from './quiz';
 
 import {
@@ -170,6 +171,8 @@ app.delete('/v1/admin/quiz/:quizid', (req: Request, res: Response) => {
     } else if (error.message === 'Invalid quiz Id entered' ||
         error.message === 'Quiz Id not owned by the user') {
       return res.status(403).json({ error: error.message });
+    } else if (error.message === 'Any session for this quiz is not in END state') {
+      return res.status(400).json({ error: error.message });
     }
   }
 });
@@ -597,6 +600,8 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
     } else if (error.message === 'Invalid quiz Id entered' ||
       error.message === 'Quiz Id not owned by the user') {
       return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
     }
   }
 });
@@ -1325,6 +1330,45 @@ app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
+});
+
+app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, res: Response) => {
+  try {
+    const token = req.headers.token as string;
+    const quizid = parseInt(req.params.quizid as string);
+    const sessionid = parseInt(req.params.sessionid as string);
+    const userId = getUserIdFromToken(token);
+    if (userId === -1) {
+      return res.status(401).json({ error: 'Invalid Token' });
+    }
+    const result = adminQuizSessionFinalResultCsv(userId, quizid, sessionid);
+    if ('error' in result) {
+      throw new Error(result.error);
+    }
+    return res.status(200).json(result);
+  } catch (error) {
+    if (error.message === 'Invalid Token') {
+      return res.status(401).json({ error: error.message });
+    } else if (error.message === 'Quiz Id not owned by the user' ||
+      error.message === 'Invalid Quiz id') {
+      return res.status(403).json({ error: error.message });
+    } else {
+      return res.status(400).json({ error: error.message });
+    }
+  }
+}); const csvCache: { [key: string]: string } = {};
+
+app.get('/download/:filename', (req, res) => {
+  const filename = req.params.filename;
+  const csvData = csvCache[`/download/${filename}`];
+
+  if (!csvData) {
+    return res.status(404).send('File not found');
+  }
+
+  res.setHeader('Content-Type', 'text/csv');
+  res.setHeader('Content-Disposition', `attachment; filename=${filename}`);
+  res.send(csvData);
 });
 
 // ====================================================================

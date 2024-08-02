@@ -199,3 +199,47 @@ export function validateQuizName(name: string): string | null {
   }
   return null;
 }
+
+// helper functions for adminQuizQuestionCreate
+
+export function validateQuestion(question: Question) {
+  if (question.question.length < 5) {
+    throw new Error('Question is less than 5 characters');
+  }
+  if (question.question.length > 50) {
+    throw new Error('Question is more than 50 characters');
+  }
+  if (question.answers.length > 6) {
+    throw new Error('Question has more than 6 answers');
+  }
+  if (question.answers.length < 2) {
+    throw new Error('Question has less than 2 answers');
+  }
+  if (question.duration < 0) {
+    throw new Error('Question duration is not a positive number');
+  }
+  if (question.duration === 0) {
+    throw new Error('Question duration is 0');
+  }
+  if (question.duration > 180) {
+    throw new Error('Sum of question durations in quiz exceeds 3 minutes');
+  }
+  if (question.points < 1) {
+    throw new Error('Question points are less than 1');
+  }
+  if (question.points > 10) {
+    throw new Error('Question points are more than 10');
+  }
+  if (question.answers.some((answer) => answer.answer.length < 1)) {
+    throw new Error('Answer is less than 1 character');
+  }
+  if (question.answers.some((answer) => answer.answer.length > 30)) {
+    throw new Error('Answer is more than 30 characters');
+  }
+  if (question.answers.some((answer) => question.answers.filter((a) => a.answer === answer.answer).length > 1)) {
+    throw new Error('Answers are duplicates');
+  }
+  if (!question.answers.some(answer => answer.correct)) {
+    throw new Error('No correct answers');
+  }
+}

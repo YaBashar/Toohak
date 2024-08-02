@@ -29,7 +29,7 @@ import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessa
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
-  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionInfo, adminQuizQuestionResults
+  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionInfo, adminQuizQuestionResults, adminQuizFinalResults
 } from './game';
 
 import { setData } from './dataStore';
@@ -1190,7 +1190,7 @@ app.get('/v1/player/:playerid/results', (req: Request, res: Response) => {
   } catch (error) {
     return res.status(400).json({ error: error.message });
   }
-})
+});
 
 // adminPlayerSessionChatSend Route
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {

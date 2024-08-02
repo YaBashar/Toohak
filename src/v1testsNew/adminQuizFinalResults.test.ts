@@ -9,7 +9,6 @@ let token: string;
 let quiz1Id: number;
 let sessionId: number;
 let playerId: number;
-let player2Id: number;
 let questionid: number;
 
 // wrapper functions
@@ -71,13 +70,8 @@ const updateState = (quizid: number, sessionid: number, token: string, action: A
   return JSON.parse(res.body.toString());
 };
 
-const questionResult = (playerid: number, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`);
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-};
-
 const finalResults = (playerid: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/results`)
+  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/results`);
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
@@ -120,8 +114,7 @@ beforeEach(() => {
   const res = joinSession(sessionId, 'amelia');
   playerId = JSON.parse(res.body.toString()).playerId;
 
-  const res2 = joinSession(sessionId, 'steph');
-  player2Id = JSON.parse(res2.body.toString()).playerId;
+  joinSession(sessionId, 'steph');
 
   // change state
   updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
@@ -134,27 +127,23 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-
 describe('GET /v1/player/:playerid/question/:questionposition/results', () => {
   test('player id does not exist', () => {
-    const res = finalResults(999)
-    console.log(res.body);
+    const res = finalResults(999);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is in the wrong state', () => {
-    updateState(quiz1Id, sessionId, token, Actions.END)
-    const res = finalResults(playerId)
-    console.log(res.body);
+    updateState(quiz1Id, sessionId, token, Actions.END);
+    const res = finalResults(playerId);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('success case', () => {
-    const res = finalResults(playerId)
-    console.log(res.body);
-    expect(res.body).toStrictEqual({ 
+    const res = finalResults(playerId);
+    expect(res.body).toStrictEqual({
       usersRankedByScore: [
         {
           name: expect.any(String),
@@ -171,9 +160,15 @@ describe('GET /v1/player/:playerid/question/:questionposition/results', () => {
           playersCorrectList: [],
           averageAnswerTime: expect.any(Number),
           percentCorrect: expect.any(Number)
+        },
+        {
+          questionId: expect.any(Number),
+          playersCorrectList: [],
+          averageAnswerTime: expect.any(Number),
+          percentCorrect: expect.any(Number)
         }
       ]
-     });
+    });
     expect(res.statusCode).toBe(200);
   });
 });

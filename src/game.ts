@@ -649,10 +649,24 @@ export function adminQuizFinalResults (playerid: number) {
     throw new Error('session not in correct state');
   }
 
-  const usersRankedByScore = game.players.sort((a, b) => b.points - a.points);;
-  const questionResults = game.questionResults;
-  console.log(usersRankedByScore);
-  console.log(questionResults);
+  const users = game.players.sort((a, b) => b.points - a.points);
+  const usersRankedByScore = users.map(user => ({
+    name: user.name,
+    score: user.points
+  }));
 
-  return { usersRankedByScore, questionResults }
-};
+  const questions = game.questionResults;
+  const questionResults = questions.map(question => ({
+    questionId: question.questionId,
+    playersCorrectList: question.playersCorrectList,
+    averageAnswerTime: question.averageAnswerTime,
+    percentCorrect: question.percentageCorrect
+  }));
+
+  const results = {
+    usersRankedByScore: usersRankedByScore,
+    questionResults: questionResults
+  };
+
+  return results;
+}

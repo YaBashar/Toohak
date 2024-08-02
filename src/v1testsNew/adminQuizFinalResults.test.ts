@@ -1,40 +1,39 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
+import { Actions } from '../game';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
 
 let token: string;
-let quiz1Id: string;
-let quiz2Id: string;
-let question1Quiz1Id: string;
-let question1Quiz2Id: string;
-let randomToken: string;
-let randomQuizId: string;
+let quiz1Id: number;
+let sessionId: number;
+let playerId: number;
+let questionid: number;
 
 // wrapper functions
 const createUser = (email: string, password: string, nameFirst: string, nameLast: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/register', {
-    json: { email, password, nameFirst, nameLast }
+    json: { email, password, nameFirst, nameLast }, timeout: TIMEOUT_MS
   });
   return JSON.parse(res.body.toString());
 };
 
 const userLogin = (email: string, password: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
-    json: { email, password }
+    json: { email, password }, timeout: TIMEOUT_MS
   });
   return JSON.parse(res.body.toString());
 };
 
 const createQuiz = (token: string, name: string, description: string) => {
   const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+    json: { token, name, description }, timeout: TIMEOUT_MS
   });
   return JSON.parse(res.body.toString());
 };
 
-const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
+const addQuestion = (token: string, quizId: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
   const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
     json: {
       token,
@@ -45,56 +44,38 @@ const addQuestion = (token: string, quizId: string, question: string, duration: 
         answers,
         thumbnailUrl
       }
-    }
+    },
+    timeout: TIMEOUT_MS
   });
   return JSON.parse(res.body.toString());
 };
 
-const questionInfo = (playerid: string, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`, {
-    json: {
-        playerid,
-        questionposition
-    }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-};
-
-const startSession = (quizid: string, token: string, autoStartNum: number) => {
+const startSession = (quizid: number, token: string, autoStartNum: number) => {
   const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/start`, {
-    headers: { token }, json: { autoStartNum }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
-}
-
-const joinSession = (sessionid: string, name: string) => {
-  const res = request('POST', `${SERVER_URL}/v1/player/join`, {
-    json: {
-      sessionid,
-      name
-    }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+    headers: { token }, json: { autoStartNum }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString());
 };
 
-const sessionState = (quizid: string, sessionid: string, token: string) => {
-  const res = request('GET', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-    headers: { token }
-  })
-  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
+const joinSession = (sessionId: number, name: string) => {
+  return (request('POST', SERVER_URL + '/v1/player/join', {
+    json: { sessionId, name }, timeout: TIMEOUT_MS
+  }));
 };
 
-const updateState = (quizid: string, sessionid: string, token: string, action: string) => {
+const updateState = (quizid: number, sessionid: number, token: string, action: Actions) => {
   const res = request('PUT', `${SERVER_URL}/v1/admin/quiz/${quizid}/session/${sessionid}`, {
-    headers: { token }, json: { action }
-  })
+    headers: { token }, json: { action }, timeout: TIMEOUT_MS
+  });
+  return JSON.parse(res.body.toString());
 };
 
-const questionResult = (playerid: string, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`)
+const questionResult = (playerid: number, questionposition: number) => {
+  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}/results`);
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
-const finalResults = (playerid: string) => {
+const finalResults = (playerid: number) => {
   const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/results`)
 };
 

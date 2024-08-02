@@ -690,13 +690,13 @@ const convertSessionToCSV = (session: Game): string => {
     return row;
   });
 
-  // Create folder if it does not exist
+  // create folder if it does not exist
   const exportsDir = path.join(__dirname, 'exports');
   if (!existsSync(exportsDir)) {
     mkdirSync(exportsDir);
   }
 
-  // Save CSV to file
+  // save CSV to file
   const filePath = path.join(exportsDir, `quiz_results_${session.sessionId}.csv`);
   writeFileSync(filePath, `${headers}\n${rows.join('\n')}`);
 

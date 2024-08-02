@@ -1,0 +1,80 @@
+{
+  "users": [
+    {
+      "userId": 817886,
+      "name": "Hayden Smith",
+      "email": "hayden@unsw.edu.au",
+      "password": "2837270d6d389c3f5447438fec0fc9e95dd0b739e9e5114b65d5df7d09397f42",
+      "numSuccessfulLogins": 1,
+      "numFailedPasswordsSinceLastLogin": 0,
+      "passwordHistory": [
+        "2837270d6d389c3f5447438fec0fc9e95dd0b739e9e5114b65d5df7d09397f42"
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "quizId": 1722586466869,
+      "name": "my quizzzz",
+      "description": "descriptionnn",
+      "timeCreated": 1722586466,
+      "timeLastEdited": 1722586499,
+      "numQuestions": 0,
+      "questions": [
+        {
+          "questionId": 1722586468666,
+          "question": "Default question",
+          "duration": 5,
+          "thumbnailUrl": "https://www.unsw.edu.au/content/dam/images/photos/events/open-day/2020-12-homepage-update/OpenDay_2019_campaign%20-0307-crop.cropimg.width=1920.crop=square.jpg",
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 3137,
+              "answer": "Example 1",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 1367,
+              "answer": "Example 2",
+              "colour": "blue",
+              "correct": false
+            }
+          ]
+        },
+        {
+          "questionId": 1722586476041,
+          "question": "Default question",
+          "duration": 5,
+          "thumbnailUrl": "https://www.unsw.edu.au/content/dam/images/photos/events/open-day/2020-12-homepage-update/OpenDay_2019_campaign%20-0307-crop.cropimg.width=1920.crop=square.jpg",
+          "points": 5,
+          "answers": [
+            {
+              "answerId": 4248,
+              "answer": "Example 1",
+              "colour": "red",
+              "correct": true
+            },
+            {
+              "answerId": 2291,
+              "answer": "Example 2",
+              "colour": "blue",
+              "correct": false
+            }
+          ]
+        }
+      ],
+      "duration": 0,
+      "userId": 817886,
+      "thumbnailUrl": ""
+    }
+  ],
+  "sessions": [
+    {
+      "sessionId": 210470,
+      "userId": 817886
+    }
+  ],
+  "trash": [],
+  "games": []
+}

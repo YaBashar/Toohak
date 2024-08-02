@@ -117,6 +117,49 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
+export function adminQuizQuestionResults(playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  if (game.status !== States.ANSWER_SHOW) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const questionResults = game.questionResults[questionposition - 1];
+
+  const results = {
+    questionid: questionResults.questionId,
+    playersCorrectList: questionResults.playersCorrectList,
+    averageAnswerTime: questionResults.averageAnswerTime,
+    percentageCorrect: questionResults.percentageCorrect
+  };
+  return results;
+}
+
 // /v1/admin/quiz/{quizid}/sessions
 export function adminGameViewSessions(userId: number, quizId: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);
@@ -153,6 +196,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
 
   for (let i = 0; i < gameArr.length; i++) {
     const game = gameArr[i];
+    console.log(`Checking game ${i} with sessionId ${game.sessionId}`);
     for (let j = 0; j < game.players.length; j++) {
       const player = game.players[j];
       if (player.playerId === playerId) {
@@ -166,7 +210,10 @@ export function adminGamePlayerSessionInfo(playerId: number) {
     }
   }
 
-  if (!playerFound) {
+  if (playerFound) {
+    console.log('Player found:', playerFound);
+    console.log('Game with player:', gameWithPlayer);
+  } else {
     throw new Error('Player Id does not exist');
   }
 
@@ -338,7 +385,7 @@ export function adminGameQuizSessionStatusInfo(userId: number, quizId : number, 
 }
 
 // AdminPlayerSessionChatSend
-export function adminPlayerSessionChatSend(playerId: number, messageBody: string) {
+export function adminPlayerSendMessage(playerId: number, messageBody: string) {
   const store = getData();
   const gameArr = store.games;
   let playerFound: Player | null = null;
@@ -376,15 +423,16 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   }
 
   // Initialize chat array if it doesn't exist
-  if (!gameWithPlayer.chat) {
-    gameWithPlayer.chat = [];
+  if (!gameWithPlayer.messages) {
+    gameWithPlayer.messages = [];
   }
 
   // Save the chat message to the game session
-  gameWithPlayer.chat.push({
-    playerId,
-    message: messageBody,
-    timestamp: new Date().toISOString(),
+  gameWithPlayer.messages.push({
+    messageBody: messageBody,
+    playerId: playerId,
+    playerName: playerFound.name,
+    timeSent: Math.floor(Date.now() / 1000),
   });
 
   // Optionally log the successful operation
@@ -397,6 +445,51 @@ export function adminPlayerSessionChatSend(playerId: number, messageBody: string
   return {};
 }
 
+// AdminPlayerSessionChatGet
+export function adminPlayerGetMessage(playerId: number) {
+  const store = getData();
+  const gameArr = store.games;
+  let playerFound: Player | null = null;
+  let gameWithPlayer: Game | null = null;
+
+  for (const game of gameArr) {
+    for (const player of game.players) {
+      if (player.playerId === playerId) {
+        playerFound = player;
+        gameWithPlayer = game;
+        break;
+      }
+    }
+    if (playerFound) {
+      break;
+    }
+  }
+  if (!playerFound) {
+    throw new Error('Player ID does not exist');
+  }
+
+  console.log(gameWithPlayer);
+  if (!gameWithPlayer.messages) {
+    return { messages: [] };
+  }
+
+  const messages = [];
+
+  for (const chat of gameWithPlayer.messages) {
+    const message = {
+      messageBody: chat.messageBody,
+      playerId: chat.playerId,
+      playerName: chat.playerName,
+      timeSent: chat.timeSent
+    };
+    messages.push(message);
+  }
+
+  console.log(messages);
+  return { messages: messages };
+}
+
+// adminQuizSubmitAnswer
 export function adminQuizSubmitAnswer(answerids: number[], playerid: number, questionposition: number) {
   const data = getData();
   const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
@@ -474,4 +567,60 @@ function hasDuplicateAnswerIds(answerIds: number[]): boolean {
     seen.add(answerId);
   }
   return false;
+}
+
+export function adminQuizQuestionInfo(playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  const question = quiz.questions[questionposition - 1];
+
+  if (game.status === States.LOBBY || game.status === States.QUESTION_COUNTDOWN || game.status === States.FINAL_RESULTS || game.status === States.END) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const answers = [];
+  for (let i = 0; i < question.answers.length; i++) {
+    answers.push({
+      answerId: question.answers[i].answerId,
+      answer: question.answers[i].answer,
+      colour: question.answers[i].colour
+    });
+  }
+
+  const questionInfo = {
+    questionId: question.questionId,
+    question: question.question,
+    duration: question.duration,
+    thumbnailUrl: question.thumbnailUrl,
+    points: question.points,
+    answers: answers
+  };
+  console.log(questionInfo);
+
+  return questionInfo;
 }

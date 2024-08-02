@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
+import { Actions } from '../game';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -37,6 +38,42 @@ const quizInfo = (token: string, quizId: number) => {
     { qs: { token } }
   );
   return JSON.parse(res.body.toString());
+};
+
+const questionCreate = (token: string, quizid: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
+  return request('POST', SERVER_URL + `/v2/admin/quiz/${quizid}/question`, {
+    headers: {
+      token,
+    },
+    json: {
+      questionBody: {
+        question,
+        duration,
+        points,
+        answers,
+        thumbnailUrl
+      }
+    }
+  });
+};
+
+const requestCreateSession = (token: string, quizid: number, autoStartNum: number) => {
+  return (request('POST', SERVER_URL + `/v1/admin/quiz/${quizid}/session/start`, {
+    headers: { token }, json: { autoStartNum: autoStartNum }, timeout: TIMEOUT_MS
+  }));
+};
+
+const updateQuizSessionStatus = (token : string, quizId : number, sessionId : number, action : Actions) => {
+  const res = request(
+    'PUT',
+    SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`,
+    { headers: { token }, json: { quizId, sessionId, action }, timeout: TIMEOUT_MS }
+  );
+
+  return {
+    body: JSON.parse(res.body.toString()),
+    statusCode: res.statusCode
+  };
 };
 
 const quizRemove = (token: string, quizId: number) => {
@@ -109,8 +146,45 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     expect(res.statusCode).toBe(403);
   });
 
-  // Any session for this quiz is not in END state
-  test.todo('Any session for this quiz is not in END state');
+  test('Any session for this quiz is not in END state', () => {
+    questionCreate(token1, qid.quizId, 'Who is the Monarch of England?', 4, 5, [
+      {
+        answer: 'Prince Charles',
+        correct: true,
+      },
+      {
+        answer: 'Queen Elizabeth',
+        correct: false,
+      }
+    ],
+    'http://google.com/some/image/path.jpg'
+    );
+    const session = requestCreateSession(token1, qid.quizId, 3);
+    const sessionId = JSON.parse(session.body.toString()).sessionId;
+    const res = quizRemove(token1, qid.quizId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+
+    updateQuizSessionStatus(token1, qid.quizId, sessionId, Actions.NEXT_QUESTION);
+    quizRemove(token1, qid.quizId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+
+    updateQuizSessionStatus(token1, qid.quizId, sessionId, Actions.GO_TO_ANSWER);
+    quizRemove(token1, qid.quizId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+
+    updateQuizSessionStatus(token1, qid.quizId, sessionId, Actions.SKIP_COUNTDOWN);
+    quizRemove(token1, qid.quizId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+
+    updateQuizSessionStatus(token1, qid.quizId, sessionId, Actions.GO_TO_FINAL_RESULTS);
+    quizRemove(token1, qid.quizId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toBe(400);
+  });
 
   test('Quiz is removed from the list of quizzes', () => {
     let res = quizRemove(token1, qid.quizId);

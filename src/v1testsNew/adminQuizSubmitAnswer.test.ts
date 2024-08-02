@@ -122,7 +122,6 @@ beforeEach(() => {
 
   // start session
   sessionId = startSession(quiz1Id, token, 5).sessionId;
-  console.log(sessionId);
 
   // join session
   const res = joinSession(sessionId, 'amelia');

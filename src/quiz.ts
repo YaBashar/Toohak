@@ -27,7 +27,6 @@ import { States } from './game';
 import { Parser } from 'json2csv';
 import { writeFileSync } from 'fs';
 
-
 /// ////////////////////////////////////////////////////////////////////////////
 
 /** [1] adminQuizList
@@ -152,13 +151,14 @@ function uniqueQuizId(quizArr: Quiz[]): number {
   * ...
   * @returns {} - empty object
   *
-*/
-export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
+*/export function adminQuizRemove(token: number, quizId: number): Record<string, never> | ErrorResponse {
   const store = getData();
   const quizArray = store.quizzes;
   const userArray = store.users;
+  const gameArray = store.games;
   const user = userArray.find((user) => { return user.userId === token; });
   const quiz = quizArray.find((quiz) => { return quiz.quizId === quizId; });
+
   if (!user) {
     throw new Error('Invalid user id');
   }
@@ -167,6 +167,11 @@ export function adminQuizRemove(token: number, quizId: number): Record<string, n
   }
   if (quiz.userId !== token) {
     throw new Error('Quiz Id not owned by the user');
+  }
+  for (const game of gameArray) {
+    if (game.quizId === quizId && game.status !== States.END) {
+      throw new Error('Any session for this quiz is not in END state');
+    }
   }
 
   quiz.timeLastEdited = Math.floor(new Date().getTime() / 1000);
@@ -610,22 +615,20 @@ export function adminQuizSessionFinalResult(userId: number, quizId: number, sess
   };
 }
 
-
-
 /** [13] adminQuizSessionFinalResultCsv
- * 
+ *
  * @param {number} userId - the id of the user
  * @param {number} quizId - the id of the quiz
  * @param {number} sessionId - the id of the session
- * 
+ *
  * @returns {Object} - an object is a url link(string) containing the final results of the quiz session in CSV format
  * "url": "http://google.com/some/image/path.csv"
  */
-export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, sessionId: number): Object | ErrorResponse {
+export function adminQuizSessionFinalResultCsv(userId: number, quizId: number, sessionId: number): object | ErrorResponse {
   const store = getData();
   const userArr = store.users;
   const quizArr = store.quizzes;
-  
+
   const quiz = findQuizById(quizId, quizArr);
   const user = findUserByToken(userId, userArr);
   const quizUser = checkQuizOwnership(userId, quizArr);

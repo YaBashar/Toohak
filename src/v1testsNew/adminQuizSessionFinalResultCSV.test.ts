@@ -79,28 +79,27 @@ const quizInfo = (quizid: number, token: string) => {
 };
 
 const quizSessionFinalResultCSV = (token: string, quizid: number, sessionid: number) => {
-	return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, {
-		headers: { token }, timeout: TIMEOUT_MS
-	});
-}
+  return request('GET', SERVER_URL + `/v1/admin/quiz/${quizid}/session/${sessionid}/results/csv`, {
+    headers: { token }, timeout: TIMEOUT_MS
+  });
+};
 
 beforeEach(() => {
-	request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
 afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-
 describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
-	let token: string;
-	let quizId: number;
-	let sessionId: number;
-	beforeEach(() => {
-		token = requestAuthRegister('z5525050@unsw.edu.au', '123ABCabc!@#', 'sidak', 'singh');
-		quizId = requestCreateQuiz(token, 'quiz1', 'quiz description');
-		createQuizQuestion(token, quizId, 'What is 1 + 1?', 4, 5, [
+  let token: string;
+  let quizId: number;
+  let sessionId: number;
+  beforeEach(() => {
+    token = requestAuthRegister('z5525050@unsw.edu.au', '123ABCabc!@#', 'sidak', 'singh');
+    quizId = requestCreateQuiz(token, 'quiz1', 'quiz description');
+    createQuizQuestion(token, quizId, 'What is 1 + 1?', 4, 5, [
       { answer: '4', correct: false },
       { answer: '2', correct: true },
       { answer: '11', correct: false }
@@ -108,45 +107,45 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
     sessionId = startSession(quizId, token, 3).sessionId;
   });
 
-	test('SessionId does not refer to a valid session', () => {
-		const res = quizSessionFinalResultCSV(token, quizId, sessionId + 1);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(400);
-	});
+  test('SessionId does not refer to a valid session', () => {
+    const res = quizSessionFinalResultCSV(token, quizId, sessionId + 1);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(400);
+  });
 
-	test('Session is not in FINAL_RESULTS state', () => {
-		const res = quizSessionFinalResultCSV(token, quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(400);
-	});
+  test('Session is not in FINAL_RESULTS state', () => {
+    const res = quizSessionFinalResultCSV(token, quizId, sessionId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(400);
+  });
 
-	test('Token is empty', () => {
-		const res = quizSessionFinalResultCSV('', quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(401);
-	});
+  test('Token is empty', () => {
+    const res = quizSessionFinalResultCSV('', quizId, sessionId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(401);
+  });
 
-	test('Token is invalid', () => {
-		const res = quizSessionFinalResultCSV('invalid token', quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(401);
-	});
-	
-	test('Quiz does not exist', () => {
-		const res = quizSessionFinalResultCSV(token, quizId + 1, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(403);
-	});
+  test('Token is invalid', () => {
+    const res = quizSessionFinalResultCSV('invalid token', quizId, sessionId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(401);
+  });
 
-	test('User is not the owner of the quiz', () => {
-		const token2 = requestAuthRegister('z5555555@unsw.edu.au', 'AAA123!@#b', 'veer', 'sheth');
-		const res = quizSessionFinalResultCSV(token2, quizId, sessionId);
-		expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
-		expect(res.statusCode).toStrictEqual(403);
-	});
-	// success case 
-	// Get the a link to the final results (in CSV format) for all players for a completed quiz session
-	// "url": "http://google.com/some/image/path.csv"
+  test('Quiz does not exist', () => {
+    const res = quizSessionFinalResultCSV(token, quizId + 1, sessionId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(403);
+  });
+
+  test('User is not the owner of the quiz', () => {
+    const token2 = requestAuthRegister('z5555555@unsw.edu.au', 'AAA123!@#b', 'veer', 'sheth');
+    const res = quizSessionFinalResultCSV(token2, quizId, sessionId);
+    expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
+    expect(res.statusCode).toStrictEqual(403);
+  });
+  // success case
+  // Get the a link to the final results (in CSV format) for all players for a completed quiz session
+  // "url": "http://google.com/some/image/path.csv"
   // write a success test case for this
 
   // test('Success Case', () => {
@@ -154,7 +153,6 @@ describe('GET /v1/admin/quiz/:quizid/session/:sessionid/results', () => {
 
   //   const res = quizSessionFinalResultCSV(token, quizId, sessionId);
   //   expect(JSON.parse(res.body.toString())).toStrictEqual({ url: expect.any(String) });
-	// 	expect(res.statusCode).toStrictEqual(200);
+  // 	expect(res.statusCode).toStrictEqual(200);
   // });
-	
 });

@@ -29,22 +29,6 @@ export interface UserDetails {
     numFailedPasswordsSinceLastLogin: number;
   };
 }
-export interface PlayerScore {
-  name: string;
-  score: number;
-}
-
-export interface QuestionResult {
-  questionId: number;
-  playersCorrectList: string[];
-  averageAnswerTime: number;
-  percentCorrect: number;
-}
-
-export interface QuizSessionFinalResult {
-  usersRankedByScore: PlayerScore[];
-  questionResults: QuestionResult[];
-}
 
 // Define the Answer interface
 export interface Answer {
@@ -123,7 +107,6 @@ export interface Player {
 
 // Define the Results interface
 export interface Results {
-  score: any;
   questionId: number,
   playersCorrectList: string[],
   averageAnswerTime: number,

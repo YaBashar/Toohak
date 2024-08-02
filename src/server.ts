@@ -226,9 +226,6 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
       return res.status(401).json({ error: 'Invalid token' });
     }
     const result = adminQuizRemove(userId, quizid);
-    if ('error' in result) {
-      throw new Error(result.error);
-    }
     return res.status(200).json(result);
   } catch (error) {
     if (error.message === 'Invalid user id') {
@@ -236,6 +233,8 @@ app.delete('/v2/admin/quiz/:quizid', (req: Request, res: Response) => {
     } else if (error.message === 'Invalid quiz Id entered' ||
       error.message === 'Quiz Id not owned by the user') {
       return res.status(403).json({ error: error.message });
+    } else if (error.message === 'Any session for this quiz is not in END state') {
+      return res.status(400).json({ error: error.message });
     }
   }
 });
@@ -1237,7 +1236,7 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
       throw new Error(result.error);
     }
     return res.status(200).json(result);
-  } catch(error) {
+  } catch (error) {
     if (error.message === 'Invalid Token') {
       return res.status(401).json({ error: error.message });
     } else if (error.message === 'Quiz Id not owned by the user' ||
@@ -1248,7 +1247,6 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results/csv', (req: Request, 
     }
   }
 });
-
 
 // ====================================================================
 //  ================= WORK IS DONE ABOVE THIS LINE ===================

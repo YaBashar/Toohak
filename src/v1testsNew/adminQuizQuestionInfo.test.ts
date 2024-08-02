@@ -1,7 +1,6 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
 import { Actions } from '../game';
-import { Answer } from '../interface';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -10,8 +9,6 @@ let token: string;
 let quiz1Id: number;
 let sessionId: number;
 let playerId: number;
-let answerId: number;
-let player2Id: number;
 let questionid: number;
 
 // wrapper functions
@@ -37,9 +34,9 @@ const createQuiz = (token: string, name: string, description: string) => {
 };
 
 const addQuestion = (token: string, quizId: number, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
-  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
+  const res = request('POST', `${SERVER_URL}/v2/admin/quiz/${quizId}/question`, {
+    headers: { token },
     json: {
-      token,
       questionBody: {
         question,
         duration,
@@ -74,22 +71,24 @@ const updateState = (quizid: number, sessionid: number, token: string, action: A
 };
 
 const questionInfo = (playerid: number, questionposition: number) => {
-  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`);
+  const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/question/${questionposition}`, {
+    timeout: TIMEOUT_MS
+  });
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
 beforeEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 
-  // create account and log in
+  // Create account and log in
   const user = createUser('amelia@unsw.edu.au', 'abcd1234!@#$ABCD', 'amelia', 'su');
   token = user.token;
   userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD');
 
-  // create a quiz
+  // Create a quiz
   quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').quizId;
 
-  // add a question to the quiz
+  // Add questions to the quiz
   const question = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },
@@ -99,9 +98,8 @@ beforeEach(() => {
     'http://google.com/some/image/path.jpg'
   );
 
-  const questionid = question.questionId;
+  questionid = question.questionId;
 
-  // add a question to the second quiz
   addQuestion(token, quiz1Id, 'What is 1 + 1?', 4, 5,
     [
       { answer: '4', correct: false },
@@ -111,16 +109,14 @@ beforeEach(() => {
     'http://google.com/some/image/path.jpg'
   );
 
-  // start session
+  // Start session
   sessionId = startSession(quiz1Id, token, 5).sessionId;
-  console.log(sessionId);
 
-  // join session
+  // Join session
   const res = joinSession(sessionId, 'amelia');
   playerId = JSON.parse(res.body.toString()).playerId;
-  console.log(playerId);
 
-  // change state
+  // Change state
   updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
   updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
 });
@@ -130,23 +126,20 @@ afterEach(() => {
 });
 
 describe('GET /v1/player/:playerid/question/:questionposition', () => {
-  test.only('player id does not exist', () => {
+  test('player id does not exist', () => {
     const res = questionInfo(999, 1);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('invalid question position', () => {
     const res = questionInfo(playerId, 5);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is on a different question', () => {
     const res = questionInfo(playerId, 2);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
@@ -154,14 +147,12 @@ describe('GET /v1/player/:playerid/question/:questionposition', () => {
   test('session is in the wrong state', () => {
     updateState(quiz1Id, sessionId, token, Actions.END);
     const res = questionInfo(playerId, 1);
-    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('success case', () => {
     const res = questionInfo(playerId, 1);
-    console.log(res.body);
     expect(res.body).toStrictEqual({
       questionId: questionid,
       question: 'Who is the Monarch of England?',
@@ -170,17 +161,17 @@ describe('GET /v1/player/:playerid/question/:questionposition', () => {
       points: 5,
       answers: [
         {
-          answerId: expect.any(String),
+          answerId: expect.any(Number),
           answer: 'Prince William',
           colour: expect.any(String)
         },
         {
-          answerId: expect.any(String),
+          answerId: expect.any(Number),
           answer: 'Prince Charles',
           colour: expect.any(String)
         },
         {
-          answerId: expect.any(String),
+          answerId: expect.any(Number),
           answer: 'Prince Beckham',
           colour: expect.any(String)
         }

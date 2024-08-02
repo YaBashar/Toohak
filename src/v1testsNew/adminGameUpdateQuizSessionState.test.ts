@@ -99,7 +99,7 @@ describe('adminQuizQuestionDuplicate Tests', () => {
       token = JSON.parse(user.body.toString()).token;
       quizId = createQuiz(token, 'quizName', 'description').quizId;
 
-      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
+      createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 3, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true }, { answer: 'Queen Elizabeth', correct: false }
       ]);
 

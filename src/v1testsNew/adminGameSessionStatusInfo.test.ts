@@ -86,6 +86,13 @@ describe('adminGameSessionStatusInfo Tests', () => {
       sessionId = JSON.parse(session.body.toString()).sessionId;
     });
 
+    test('Session Id does not exist', () => {
+      const invalidSessionId = sessionId + 9999; // An unlikely session ID to ensure non-existence
+      const res = requestGameSessionInfo(token, quizId, invalidSessionId);
+      expect(res.body).toStrictEqual({ error: expect.any(String) });
+      expect(res.statusCode).toStrictEqual(400);
+    });
+
     test('Token is empty or invalid', () => {
       const res = requestGameSessionInfo('invalid_token', quizId, sessionId);
       expect(res.body).toStrictEqual({ error: expect.any(String) });

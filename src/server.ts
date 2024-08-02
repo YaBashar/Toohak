@@ -1221,10 +1221,10 @@ app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === 'Please enter a message') {
-        return res.status(400).json({ error: 'Please enter a message' });
-      } else if (error.message === 'Player ID does not exist') {
-        return res.status(400).json({ error: 'Player ID does not exist' });
+      if (error.message === 'Message body is less than 1 character' || error.message === 'Message body is more than 100 characters' ||
+         error.message === 'Message body contains only whitespace' || error.message === 'Player ID does not exist'
+      ) {
+        return res.status(400).json({ error: error.message });
       }
     } else {
       return res.status(500).json({ error: 'Internal Server Error' });
@@ -1275,7 +1275,7 @@ app.put('/v1/player/:playerid/question/:questionposition/answer', (req: Request,
     return res.status(400).json({ error: 'invalid playerid' });
   }
   if (!Array.isArray(answerids) || answerids.length === 0) {
-    return res.status(400).json({ error: 'No answer IDs submitted' });
+    return res.status(400).json({ error: 'No answer provided' });
   }
   try {
     const result = adminQuizSubmitAnswer(answerids, playerid, questionposition);

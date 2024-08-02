@@ -182,7 +182,7 @@ describe('PUT /v1/player/:playerid/question/:questionposition/answer', () => {
   });
 
   test('no answer id was submitted', () => {
-    const res = submitAnswer([], playerId, 2);
+    const res = submitAnswer([], playerId, 1);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });

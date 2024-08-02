@@ -624,3 +624,49 @@ export function adminQuizQuestionInfo(playerid: number, questionposition: number
 
   return questionInfo;
 }
+
+export function adminQuizFinalResults (playerid: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (game.status !== States.FINAL_RESULTS) {
+    throw new Error('session not in correct state');
+  }
+
+  const users = game.players.sort((a, b) => b.points - a.points);
+  const usersRankedByScore = users.map(user => ({
+    name: user.name,
+    score: user.points
+  }));
+
+  const questions = game.questionResults;
+  const questionResults = questions.map(question => ({
+    questionId: question.questionId,
+    playersCorrectList: question.playersCorrectList,
+    averageAnswerTime: question.averageAnswerTime,
+    percentCorrect: question.percentageCorrect
+  }));
+
+  const results = {
+    usersRankedByScore: usersRankedByScore,
+    questionResults: questionResults
+  };
+
+  return results;
+}

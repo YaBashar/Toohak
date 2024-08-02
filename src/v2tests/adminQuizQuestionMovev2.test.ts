@@ -20,28 +20,29 @@ const createUser = (email: string, password: string, nameFirst: string, nameLast
 };
 
 const userLogin = (email: string, password: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/auth/login', {
+  const res = request('POST', SERVER_URL + '/v2/admin/auth/login', {
     json: { email, password }
   });
   return JSON.parse(res.body.toString());
 };
 
 const createQuiz = (token: string, name: string, description: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { name, description }
   });
   return JSON.parse(res.body.toString());
 };
 
-const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object) => {
-  const res = request('POST', `${SERVER_URL}/v1/admin/quiz/${quizId}/question`, {
+const addQuestion = (token: string, quizId: string, question: string, duration: number, points: number, answers: object, thumbnailUrl: string) => {
+  const res = request('POST', `${SERVER_URL}/v2/admin/quiz/${quizId}/question`, {
+    headers: { token },
     json: {
-      token,
       questionBody: {
         question,
         duration,
         points,
-        answers
+        answers,
+        thumbnailUrl
       }
     }
   });
@@ -55,6 +56,12 @@ const moveQuestion = (token: string, quizId: string, questionId: string, newPosi
     timeout: TIMEOUT_MS
   });
   return res;
+};
+
+const requestAuthLogout = (token: string) => {
+  return (request('POST', SERVER_URL + '/v2/admin/auth/logout', {
+    headers: { token }, timeout: TIMEOUT_MS
+  }));
 };
 
 // Test cases
@@ -75,15 +82,17 @@ beforeEach(() => {
     { answer: 'Prince William', correct: false },
     { answer: 'Prince Charles', correct: true },
     { answer: 'Prince Beckham', correct: false }
-  ]);
+  ], 'http://google.com/some/image/path.jpg'
+  );
   question1Quiz1Id = question1Quiz1.questionId;
 
   // Add another question to quiz1
   addQuestion(token, quiz1Id, 'What is 10 - 7?', 4, 5, [
     { answer: '2', correct: false },
     { answer: '3', correct: true },
-    { answer: '17', correct: false }
-  ]);
+    { answer: '17', correct: false },
+  ], 'http://google.com/some/image343/path.jpg'
+  );
 });
 
 afterEach(() => {
@@ -122,7 +131,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
   });
 
   test('Invalid token', () => {
-    request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { token } });
+    requestAuthLogout(token);
     const res = moveQuestion(token, quiz1Id, question1Quiz1Id, 2);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(401);
@@ -134,7 +143,7 @@ describe('PUT /v1/admin/quiz/:quizid/question/:questionid/move', () => {
     userLogin('random@unsw.edu.au', 'abcd1234!@#$ABC');
     const randomQuiz = createQuiz(randomToken, 'random quiz', 'a random quiz');
     randomQuizId = randomQuiz.quizId;
-    request('POST', SERVER_URL + '/v1/admin/auth/logout', { json: { token: randomToken } });
+    requestAuthLogout(randomToken);
     userLogin('amelia@unsw.edu.au', 'abcd1234!@#$ABCD');
     const res = moveQuestion(token, randomQuizId, question1Quiz1Id, 2);
     expect(JSON.parse(res.body.toString())).toStrictEqual({ error: expect.any(String) });

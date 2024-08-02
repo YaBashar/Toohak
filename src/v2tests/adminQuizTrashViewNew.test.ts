@@ -13,6 +13,12 @@ afterEach(() => {
 });
 
 describe('Testing error cases', () => {
+  let token: string;
+
+  beforeEach(() => {
+    token = requestAuthRegister('zid@ad.unsw.edu.au', 'abcd1234', 'first', 'last');
+  });
+
   test('Token is empty', () => {
     const res = requestViewTrash('');
     const data = JSON.parse(res.body.toString());
@@ -22,9 +28,8 @@ describe('Testing error cases', () => {
   });
 
   test('Token is invalid', () => {
-    const res = requestViewTrash('invalid token');
+    const res = requestViewTrash(token + 1);
     const data = JSON.parse(res.body.toString());
-
     expect(data).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toStrictEqual(401);
   });
@@ -66,8 +71,8 @@ describe('Testing success cases', () => {
 });
 
 const requestViewTrash = (token: string) => {
-  return (request('GET', SERVER_URL + '/v1/admin/quiz/trash', {
-    qs: { token: token }, timeout: TIMEOUT_MS
+  return (request('GET', SERVER_URL + '/v2/admin/quiz/trash', {
+    headers: { token: token }, timeout: TIMEOUT_MS
   }));
 };
 
@@ -80,15 +85,15 @@ const requestAuthRegister = (email: string, password: string, nameFirst: string,
 };
 
 const requestCreateQuiz = (token: string, name : string, description : string) => {
-  const quiz = (request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }, timeout: TIMEOUT_MS
+  const quiz = (request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { name, description }, timeout: TIMEOUT_MS
   }));
 
   return JSON.parse(quiz.body.toString()).quizId;
 };
 
 const requestQuizDelete = (token: string, quizId: number) => {
-  return (request('DELETE', SERVER_URL + `/v1/admin/quiz/${quizId}`, {
-    qs: { token: token }, timeout: TIMEOUT_MS
+  return (request('DELETE', SERVER_URL + `/v2/admin/quiz/${quizId}`, {
+    headers: { token: token }, timeout: TIMEOUT_MS
   }));
 };

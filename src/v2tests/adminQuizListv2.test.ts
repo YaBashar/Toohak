@@ -21,8 +21,8 @@ const createUser = (email: string, password: string, nameFirst: string, nameLast
 };
 
 const createQuiz = (token: string, name: string, description: string) => {
-  const res = request('POST', SERVER_URL + '/v1/admin/quiz', {
-    json: { token, name, description }
+  const res = request('POST', SERVER_URL + '/v2/admin/quiz', {
+    headers: { token }, json: { name, description }
   });
   return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
@@ -37,7 +37,7 @@ afterEach(() => {
   request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
 });
 
-describe('GET /v1/admin/quiz/list', () => {
+describe('GET /v2/admin/quiz/list', () => {
   // AuthUserId isn't valid
   test('Invalid AuthUserId', () => {
     const res = quizList('randomstring');

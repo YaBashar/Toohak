@@ -1,5 +1,6 @@
 import request from 'sync-request-curl';
 import { port, url } from '../config.json';
+import slync from 'slync';
 
 const SERVER_URL = `${url}:${port}`;
 const TIMEOUT_MS = 5 * 1000;
@@ -21,20 +22,11 @@ const createQuiz = (token : string, name : string, description : string) => {
   return JSON.parse(res.body.toString());
 };
 
-const quizNameUpdate = (token : string, quizId : number, name : string) => {
-  const res = request(
-    'PUT',
-    SERVER_URL + `/v1/admin/quiz/${quizId}/name`,
-    { json: { token, name }, timeout: TIMEOUT_MS }
-  );
-  return res;
-};
-
 const quizInfo = (token: string, quizId: number) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/${quizId}`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/${quizId}`,
+    { headers: { token } }
   );
   return JSON.parse(res.body.toString());
 };
@@ -51,8 +43,8 @@ const quizRemove = (token: string, quizId: number) => {
 const quizList = (token: string) => {
   const res = request(
     'GET',
-    `${SERVER_URL}/v1/admin/quiz/list`,
-    { qs: { token } }
+    `${SERVER_URL}/v2/admin/quiz/list`,
+    { headers: { token } }
   );
   return res;
 };
@@ -130,19 +122,16 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     expect(initialTimeCreated).toEqual(initialTimeEdited);
   });
 
-  test('Testing timeLastEdited property has been changed', (done) => {
-    const createQuizResponse = createQuiz(token1, 'newQuiz', 'description');
-    const quizId = createQuizResponse.quizId;
-    const initialTimeCreated = createQuizResponse.timeCreated;
+  test('Testing timeLastEdited property has been changed', () => {
+    const quizId = createQuiz(token1, 'newQuiz', 'description').quizId;
+    const quizResponse = quizInfo(token1, quizId);
+    const initialTimeCreated = quizResponse.timeCreated;
 
-    setTimeout(() => {
-      quizNameUpdate(token1, quizId, 'changeName');
-      const quizInfoResponse = quizInfo(token1, quizId);
-      const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
-      expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
-      done();
-    },
-    1000
-    );
+    slync(2000);
+    quizRemove(token1, quizId);
+    const quizInfoResponse = quizInfo(token1, quizId);
+    const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
+    console.log(updatedTimeLastEdited);
+    expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
   });
 });

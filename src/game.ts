@@ -117,6 +117,49 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
+export function adminQuizQuestionResults(playerid: number, questionposition: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (questionposition > game.numQuestions) {
+    throw new Error('Question position is invalid');
+  }
+
+  if (game.status !== States.ANSWER_SHOW) {
+    throw new Error('Session is not in the correct state');
+  }
+
+  if (game.activeQuestion !== questionposition) {
+    throw new Error('Session is not currently on this question');
+  }
+
+  const questionResults = game.questionResults[questionposition - 1];
+
+  const results = {
+    questionid: questionResults.questionId,
+    playersCorrectList: questionResults.playersCorrectList,
+    averageAnswerTime: questionResults.averageAnswerTime,
+    percentageCorrect: questionResults.percentageCorrect
+  };
+  return results;
+}
+
 // /v1/admin/quiz/{quizid}/sessions
 export function adminGameViewSessions(userId: number, quizId: number) {
   const quiz = getData().quizzes.find(x => x.quizId === quizId);

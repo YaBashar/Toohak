@@ -29,7 +29,7 @@ import { adminPlayerSessionChatSend, gameUpdateQuizSessionState } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
-  adminGamePlayerSessionInfo, adminGameViewSessions
+  adminGamePlayerSessionInfo, adminGameViewSessions, adminQuizQuestionResults
 } from './game';
 
 import { setData } from './dataStore';
@@ -1238,6 +1238,21 @@ app.get('/v1/admin/quiz/:quizid/session/:sessionid/results', (req: Request, res:
     } else {
       return res.status(400).json({ error: error.message });
     }
+  }
+});
+
+app.get('/v1/player/:playerid/question/:questionposition/results', (req: Request, res: Response) => {
+  const playerid = parseInt(req.params.playerid as string);
+  const questionposition = parseInt(req.params.questionposition);
+  if (!playerid) {
+    return res.status(400).json({ error: 'invalid playerid' });
+  }
+
+  try {
+    const result = adminQuizQuestionResults(playerid, questionposition);
+    res.status(200).json(result);
+  } catch (error) {
+    return res.status(400).json({ error: error.message });
   }
 });
 

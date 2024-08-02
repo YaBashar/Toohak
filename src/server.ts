@@ -1159,24 +1159,18 @@ app.put('/v1/admin/quiz/:quizid/thumbnail', (req: Request, res: Response) => {
 app.post('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   const { message } = req.body;
   const playerId = parseInt(req.params.playerId, 10);
-  console.log('Starting on the line');
   try {
-    console.log('Checking status');
     const result = adminPlayerSendMessage(playerId, message);
-    console.log('Checking on the flow of information');
 
     res.status(200).json(result);
   } catch (error) {
     if (error instanceof Error) {
       if (error.message === 'Please enter a message') {
-        console.log('checking catch status');
         return res.status(400).json({ error: 'Please enter a message' });
       } else if (error.message === 'Player ID does not exist') {
-        console.log('checking catch status again.');
         return res.status(400).json({ error: 'Player ID does not exist' });
       }
     } else {
-      console.log('final check.');
       return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
@@ -1202,7 +1196,6 @@ app.get('/v1/player/:playerId/chat', (req: Request, res: Response) => {
   }
 });
 
-// adminGamePlayerSessionInfo
 // adminGamePlayerSessionInfo
 app.get('/v1/player/:playerid', (req: Request, res: Response) => {
   const playerId = parseInt(req.params.playerid as string);

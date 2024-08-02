@@ -91,10 +91,8 @@ describe('adminPlayerSessionChat Tests', () => {
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      console.log('token', token);
 
       quizId = requestCreateQuiz(token, 'Test Quiz', 'Test Description');
-      console.log('quizId', quizId);
       createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true },
         { answer: 'Queen Elizabeth', correct: false }
@@ -102,7 +100,6 @@ describe('adminPlayerSessionChat Tests', () => {
 
       const session = requestCreateSession(token, quizId, 3);
       sessionId = session.sessionId;
-      console.log('sessionId', sessionId);
 
       const player1 = requestPlayerJoin(sessionId, 'Mubashir');
       requestPlayerJoin(sessionId, 'Mohammad');
@@ -129,10 +126,8 @@ describe('adminPlayerSessionChat Tests', () => {
     beforeEach(() => {
       const user = registerUser('user@unsw.edu.au', '123ABCabc@#$', 'Test', 'User');
       token = user.token;
-      console.log('token', token);
 
       quizId = requestCreateQuiz(token, 'Test Quiz', 'Test Description');
-      console.log('quizId', quizId);
       createQuizQuestion(token, quizId, 'Who is the Monarch of England?', 4, 5, 'https://example.com/image-thumbnail-12345.jpg', [
         { answer: 'Prince Charles', correct: true },
         { answer: 'Queen Elizabeth', correct: false }
@@ -140,7 +135,6 @@ describe('adminPlayerSessionChat Tests', () => {
 
       const session = requestCreateSession(token, quizId, 3);
       sessionId = session.sessionId;
-      console.log('sessionId', sessionId);
 
       const player1 = requestPlayerJoin(sessionId, 'Mubashir');
       const player2 = requestPlayerJoin(sessionId, 'Mohammad');
@@ -182,8 +176,6 @@ describe('adminPlayerSessionChat Tests', () => {
       sendMessage(playerId2, 'MessageTwo');
 
       const res = getMessages(playerId2);
-      const response = JSON.parse(res.body.toString());
-      console.log(response.messages[1].timeSent);
       expect(JSON.parse(res.body.toString())).not.toBe(
         {
           messages: [

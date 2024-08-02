@@ -152,7 +152,6 @@ describe('GET /v1/player/:playerid/question/:questionposition/results', () => {
 
   test('success case', () => {
     const res = questionResult(playerId, 1);
-    console.log(res.body);
     expect(res.body).toStrictEqual({
       questionid: questionid,
       playersCorrectList: [],

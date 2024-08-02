@@ -3,9 +3,10 @@ import { States } from './game';
 
 // Define the ChatMessage interface
 export interface ChatMessage {
+  messageBody: string;
   playerId: number;
-  message: string;
-  timestamp: string;
+  playerName: string;
+  timeSent: number;
 }
 
 // Define the User interface
@@ -139,7 +140,7 @@ export interface Game {
   numQuestions: number;
   activeQuestion: number;
   questionResults: Results[];
-  chat?: ChatMessage[]; // Add this line to include the chat property
+  messages?: ChatMessage[];
 }
 
 // Define the Store interface

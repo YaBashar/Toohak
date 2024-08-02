@@ -1,6 +1,7 @@
 import { getData } from './dataStore';
 import { isEmail } from 'validator';
 import { Question, User, Quiz, Game, Store } from './interface';
+import { getHashOf } from './hash';
 
 export function getUserIdFromToken(sessionId: string): number {
   const result = parseFloat(sessionId);
@@ -174,7 +175,7 @@ export function checkAdminAuthLogin(email: string, password: string) {
   const user = getData().users[findUserIndexFromEmail(email)];
   if (!user) {
     throw new Error('Email address is not registered');
-  } else if (user.password !== password) {
+  } else if (user.password !== getHashOf(password)) {
     user.numFailedPasswordsSinceLastLogin++;
     throw new Error('Incorrect password for given email');
   }

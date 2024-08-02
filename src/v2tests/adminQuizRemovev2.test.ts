@@ -131,7 +131,6 @@ describe('DELETE /v1/admin/quiz/:quizid', () => {
     quizRemove(token1, quizId);
     const quizInfoResponse = quizInfo(token1, quizId);
     const updatedTimeLastEdited = quizInfoResponse.timeLastEdited;
-    console.log(updatedTimeLastEdited);
     expect(updatedTimeLastEdited).not.toEqual(initialTimeCreated);
   });
 });

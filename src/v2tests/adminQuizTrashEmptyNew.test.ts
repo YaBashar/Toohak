@@ -59,7 +59,6 @@ describe('adminQuizTrashEmpty Tests', () => {
     beforeEach(() => {
       const user = createUser('user@unsw.edu.au', '123ABCabc@#$', 'John', 'Doe');
       token = JSON.parse(user.body.toString()).token;
-      console.log(token);
 
       const quiz = createQuiz(token, 'QuizName', 'Description');
       quizId = JSON.parse(quiz.body.toString()).quizId;
@@ -78,11 +77,8 @@ describe('adminQuizTrashEmpty Tests', () => {
     });
 
     test('Deleting quizzes with an invalid token', () => {
-      const res2 = requestViewTrash(token);
-      console.log(JSON.parse(res2.body.toString()));
       const res = emptyTrash('invalid token', [quizId]);
       const data = JSON.parse(res.body.toString());
-      console.log(data.error);
       expect(data).toStrictEqual({ error: 'Invalid User id' });
       expect(res.statusCode).toStrictEqual(401);
     });

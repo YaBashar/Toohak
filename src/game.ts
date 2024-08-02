@@ -117,27 +117,6 @@ export function adminGamePlayerJoin(sessionId: number, name: string) {
   return { playerId: newPlayerId };
 }
 
-export function adminQuizFinalResults (playerid: number) {
-  let data = getData();
-  const game = data.games.find(game => game.players.some(player => player.playerId === playerid))
-  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
-  const question = quiz.questions[questionposition];
-  const player = game.players.find(player => player.playerId === playerid);
-
-  if (!player) {
-    throw new Error('playerid does not exist');
-  }
-
-  if (game.status !== STATES.FINAL_RESULTS) {
-    throw new Error('session not in correct state');
-  }
-
-  let usersRankedByScore = [];
-  let questionResults = [];
-
-  return { usersRankedByScore, questionResults }
-};
-
 export function adminQuizQuestionResults(playerid: number, questionposition: number) {
   const data = getData();
   const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
@@ -645,3 +624,35 @@ export function adminQuizQuestionInfo(playerid: number, questionposition: number
 
   return questionInfo;
 }
+
+export function adminQuizFinalResults (playerid: number) {
+  const data = getData();
+  const gameIndex = data.games.findIndex(game => game.players.some(player => player.playerId === playerid));
+
+  if (gameIndex === -1) {
+    throw new Error('Player ID does not exist');
+  }
+
+  const game = data.games[gameIndex];
+
+  if (!game) {
+    throw new Error('Game does not exist');
+  }
+
+  const quiz = data.quizzes.find(quiz => quiz.quizId === game.quizId);
+
+  if (!quiz) {
+    throw new Error('Quiz does not exist');
+  }
+
+  if (game.status !== States.FINAL_RESULTS) {
+    throw new Error('session not in correct state');
+  }
+
+  const usersRankedByScore = game.players.sort((a, b) => b.points - a.points);;
+  const questionResults = game.questionResults;
+  console.log(usersRankedByScore);
+  console.log(questionResults);
+
+  return { usersRankedByScore, questionResults }
+};

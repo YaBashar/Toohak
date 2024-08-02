@@ -9,6 +9,7 @@ let token: string;
 let quiz1Id: number;
 let sessionId: number;
 let playerId: number;
+let player2Id: number;
 let questionid: number;
 
 // wrapper functions
@@ -77,6 +78,7 @@ const questionResult = (playerid: number, questionposition: number) => {
 
 const finalResults = (playerid: number) => {
   const res = request('GET', `${SERVER_URL}/v1/player/${playerid}/results`)
+  return { body: JSON.parse(res.body.toString()), statusCode: res.statusCode };
 };
 
 beforeEach(() => {
@@ -91,70 +93,82 @@ beforeEach(() => {
   quiz1Id = createQuiz(token, 'quiz 1', 'the first quiz').quizId;
 
   // add a question to the quiz
-  question1Quiz1Id = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
+  const question = addQuestion(token, quiz1Id, 'Who is the Monarch of England?', 4, 5,
     [
       { answer: 'Prince William', correct: false },
       { answer: 'Prince Charles', correct: true },
       { answer: 'Prince Beckham', correct: false }
     ],
     'http://google.com/some/image/path.jpg'
-    ).questionId;
-
-  // create a second quiz
-  quiz2Id = createQuiz(token, 'quiz 2', 'the second quiz').quizId;
+  );
+  questionid = question.questionId;
 
   // add a question to the second quiz
-  question1Quiz2Id = addQuestion(token, quiz2Id, 'What is 1 + 1?', 4, 5,
+  addQuestion(token, quiz1Id, 'What is 1 + 1?', 4, 5,
     [
       { answer: '4', correct: false },
       { answer: '2', correct: true },
       { answer: '11', correct: false }
     ],
     'http://google.com/some/image/path.jpg'
-    ).questionId;
+  );
 
   // start session
   sessionId = startSession(quiz1Id, token, 5).sessionId;
 
   // join session
-  playerId = joinSession(sessionId, 'amelia').playerId;
+  const res = joinSession(sessionId, 'amelia');
+  playerId = JSON.parse(res.body.toString()).playerId;
+
+  const res2 = joinSession(sessionId, 'steph');
+  player2Id = JSON.parse(res2.body.toString()).playerId;
 
   // change state
-  updateState(quiz1Id, sessionId, token, NEXT_QUESTION); // lobby->question countdown
-  updateState(quiz1Id, sessionId, token, SKIP_COUNTDOWN); // question countdown -> question 1 open
-  updateState(quiz1Id, sessionId, token, GO_TO_ANSWER); // question 1 open -> answer show
-  updateState(quiz1Id, sessionId, token, GO_TO_FINAL_RESULTS); // answer show -> final results
+  updateState(quiz1Id, sessionId, token, Actions.NEXT_QUESTION); // lobby->question countdown
+  updateState(quiz1Id, sessionId, token, Actions.SKIP_COUNTDOWN); // question countdown -> question 1 open
+  updateState(quiz1Id, sessionId, token, Actions.GO_TO_ANSWER);
+  updateState(quiz1Id, sessionId, token, Actions.GO_TO_FINAL_RESULTS);
 });
+
+afterEach(() => {
+  request('DELETE', SERVER_URL + '/v1/clear', { timeout: TIMEOUT_MS });
+});
+
 
 describe('GET /v1/player/:playerid/question/:questionposition/results', () => {
   test('player id does not exist', () => {
-    const res = finalResults('999')
+    const res = finalResults(999)
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('session is in the wrong state', () => {
-    updateState(quiz1Id, sessionId, token, END)
+    updateState(quiz1Id, sessionId, token, Actions.END)
     const res = finalResults(playerId)
+    console.log(res.body);
     expect(res.body).toStrictEqual({ error: expect.any(String) });
     expect(res.statusCode).toBe(400);
   });
 
   test('success case', () => {
     const res = finalResults(playerId)
+    console.log(res.body);
     expect(res.body).toStrictEqual({ 
       usersRankedByScore: [
         {
-          name: 'amelia',
+          name: expect.any(String),
+          score: expect.any(Number)
+        },
+        {
+          name: expect.any(String),
           score: expect.any(Number)
         }
       ],
       questionResults: [
         {
-          questionId: question1Quiz1Id,
-          playersCorrectList: [
-            'amelia'
-          ],
+          questionId: questionid,
+          playersCorrectList: [],
           averageAnswerTime: expect.any(Number),
           percentCorrect: expect.any(Number)
         }

@@ -95,15 +95,34 @@ const createQuizQuestion = (token: string, quizid: number, question: string, dur
   });
 };
 
-const updateQuizSessionStatus = (token : string, quizId : number, sessionId : number, action : Actions) => {
+const updateQuizSessionStatus = (token: string, quizId: number, sessionId: number, action: Actions) => {
+  console.log('Sending request to server with the following details:');
+  console.log('Token:', token);
+  console.log('Quiz ID:', quizId);
+  console.log('Session ID:', sessionId);
+  console.log('Action:', action);
+
   const res = request(
     'PUT',
     SERVER_URL + `/v1/admin/quiz/${quizId}/session/${sessionId}`,
-    { headers: { token }, json: { quizId, sessionId, action }, timeout: TIMEOUT_MS }
+    { headers: { token }, json: { action }, timeout: 10000 } // Increased timeout to 10 seconds
   );
 
+  console.log('Received response from server:');
+  console.log('Status Code:', res.statusCode);
+  console.log('Response Body:', res.body.toString());
+
+  let parsedBody;
+  try {
+    const responseBody = res.body.toString();
+    parsedBody = responseBody ? JSON.parse(responseBody) : {};
+  } catch (error) {
+    console.error('Failed to parse response body:', res.body.toString());
+    throw error;
+  }
+
   return {
-    body: JSON.parse(res.body.toString()),
+    body: parsedBody,
     statusCode: res.statusCode
   };
 };

@@ -26,7 +26,7 @@ import {
   adminQuizQuestionCreate, adminQuizQuestionDelete,
   adminQuizQuestionMove, adminQuizQuestionUpdate, adminQuizQuestionDuplicate
 } from './question';
-import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessage } from './game';
+import { gameUpdateQuizSessionState, adminPlayerSendMessage, adminPlayerGetMessage, Actions } from './game';
 
 import {
   adminGameCreateSession, adminGamePlayerJoin, adminQuizSubmitAnswer, adminGameQuizSessionStatusInfo,
@@ -1050,17 +1050,41 @@ app.post('/v2/admin/quiz/:quizid/question', (req: Request, res: Response) => {
 
 // gameQuizSessionUpdate
 app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Response) => {
+  console.log('Received request:', req.method, req.url);
   const token = req.header('token');
   const quizId = parseInt(req.params.quizid as string);
   const gameId = parseInt(req.params.sessionid as string);
   const { action } = req.body;
-
   const userId = getUserIdFromToken(token);
 
+  console.log('Parsed parameters:', { token, quizId, gameId, action, userId });
+
+  let result;
   try {
-    const result = gameUpdateQuizSessionState(userId, quizId, gameId, action);
+    if (action === Actions.NEXT_QUESTION) {
+      console.log('Action: NEXT_QUESTION');
+      result = gameUpdateQuizSessionState(userId, quizId, gameId, Actions.NEXT_QUESTION);
+    } else if (action === Actions.SKIP_COUNTDOWN) {
+      console.log('Action: SKIP_COUNTDOWN');
+      result = gameUpdateQuizSessionState(userId, quizId, gameId, Actions.SKIP_COUNTDOWN);
+    } else if (action === Actions.GO_TO_ANSWER) {
+      console.log('Action: GO_TO_ANSWER');
+      result = gameUpdateQuizSessionState(userId, quizId, gameId, Actions.GO_TO_ANSWER);
+    } else if (action === Actions.GO_TO_FINAL_RESULTS) {
+      console.log('Action: GO_TO_FINAL_RESULTS');
+      result = gameUpdateQuizSessionState(userId, quizId, gameId, Actions.GO_TO_FINAL_RESULTS);
+    } else if (action === Actions.END) {
+      console.log('Action: END');
+      result = gameUpdateQuizSessionState(userId, quizId, gameId, Actions.END);
+    } else {
+      throw new Error('Invalid action');
+    }
+
+    console.log('Returning result:', result);
     res.status(200).json(result);
   } catch (error) {
+    console.error('Error occurred:', error);
+
     if (error instanceof Error) {
       if (error.message === 'Invalid User id') {
         return res.status(401).json({ error: error.message });
@@ -1070,6 +1094,8 @@ app.put('/v1/admin/quiz/:quizid/session/:sessionid', (req: Request, res: Respons
         return res.status(400).json({ error: error.message });
       }
     }
+
+    res.status(500).json({ error: 'Internal Server Error' }); // Fallback error response
   }
 });
 

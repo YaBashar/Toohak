@@ -221,7 +221,7 @@ export function adminGamePlayerSessionInfo(playerId: number) {
 // Create a global variable to store all timers
 export const timerMap = new Map();
 
-export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : Actions) {
+export function gameUpdateQuizSessionState(token : number, quizId : number, sessionId : number, action : number) {
   const data = getData();
   const userArr = data.users;
   const quizArr = data.quizzes;
